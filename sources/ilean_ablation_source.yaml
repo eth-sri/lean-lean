@@ -1,0 +1,10 @@
+kind: leanlean_preprocessing_source
+schema_version: 1
+id: ilean_ablation_source
+repository_database:
+  path: data/preprocessing_sources/ilean_ablation_source.json
+  sha256: 123a6b3294301b9d28ce68b4eaa5a130ac3df3f9154de149241c11ea709c73cb
+  definition_sha256: c43f2ca752fdffdca3410d121e7ef62dc7fc24b0ee6769574c7e6384ea6e2349
+  dataset_id: palomar_registry_solution_ilean_ablation
+  dataset_version: 5-source-v1
+  repository_count: 5

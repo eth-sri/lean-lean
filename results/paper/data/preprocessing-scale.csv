@@ -1,0 +1,6 @@
+scale,token_band,repositories,core_theorems_median,core_theorems_max,loc_median,loc_max,lean_tokens_median,lean_tokens_max,loc_repositories
+Compact,≤ 10k,16,3.5,54,489.5,1013,5021.0,9879,16
+Standard,10k–50k,16,4.5,84,2201.0,4853,27907.0,49534,16
+Large,50k–250k,16,2.0,24,9835.0,25448,122725.0,218064,16
+Massive,> 250k,16,3.0,109,59381.0,174378,619362.0,1695971,16
+All,All,64,3.0,109,4392.0,174378,51890.5,1695971,64

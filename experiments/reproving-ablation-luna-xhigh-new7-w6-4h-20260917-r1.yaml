@@ -1,0 +1,168 @@
+kind: leanlean_reproving_ablation
+schema_version: 1
+run_id: reproving-ablation-luna-xhigh-new7-w6-4h-20260917-r1
+status: authored
+model:
+  name: gpt-5.6-luna
+  reasoning_effort: xhigh
+  generator: codex_sub
+  harness_version: 0.154.0
+  config: openai/gpt-5.6-luna-xhigh-new7-w6
+  access:
+    mode: chatgpt_subscription
+    credential_source: secret.sh:OPENAI_SUBSCRIPTION_KEY_NEW7
+    account_selector_source: secret.sh:OPENAI_SUBSCRIPTION_ACCOUNT_ID_NEW7_or_token_claim
+    account_alias: new7
+dataset:
+  manifest: datasets/reproving-ablation/dataset.yaml
+  id: reproving-ablation
+  repository_count: 15
+  selected_variants:
+  - baseline
+  - post-compression
+  engine_repository_variant: stripped
+repositories:
+- case01__holdout
+- case02__holdout
+- case03__holdout
+- case05__holdout
+- case06__holdout
+- case08__holdout
+- case09__holdout
+- case12__holdout
+- case15__holdout
+- case16__holdout
+- case17__holdout
+- case18__holdout
+- case21__holdout
+- case22__holdout
+- case25__holdout
+arms:
+- name: baseline
+  dataset_config: reproving-ablation-baseline-lean-verify-luna-xhigh-new7-w6-4h-20260917
+  dataset_variant: baseline
+  attempts_per_repository: 1
+  command: bash eval.sh reproving-ablation-baseline-lean-verify-luna-xhigh-new7-w6-4h-20260917 --model openai/gpt-5.6-luna-xhigh-new7-w6
+  output: output/evaluation/reproving-ablation-baseline-lean-verify-luna-xhigh-new7-w6-4h-20260917/openai/gpt-5.6-luna-xhigh-new7-w6
+- name: post-compression
+  dataset_config: reproving-ablation-post-compression-lean-verify-luna-xhigh-new7-w6-4h-20260917
+  dataset_variant: post-compression
+  attempts_per_repository: 1
+  command: bash eval.sh reproving-ablation-post-compression-lean-verify-luna-xhigh-new7-w6-4h-20260917 --model
+    openai/gpt-5.6-luna-xhigh-new7-w6
+  output: output/evaluation/reproving-ablation-post-compression-lean-verify-luna-xhigh-new7-w6-4h-20260917/openai/gpt-5.6-luna-xhigh-new7-w6
+execution:
+  rounds: 1
+  total_attempts: 30
+  launch_order:
+  - baseline
+  - post-compression
+  launch_mode: sequential
+  workers: 6
+  start_interval_seconds: 2
+  runner: eval.sh
+  tmux_session: reproving-ablation-luna-xhigh-new7-w6-4h-r1
+  launch_from_authored_yaml: true
+  manifest_runner: scripts/run_reproving_ablation_pair.py
+  state_artifact: runs/evaluation/reproving-ablation-luna-xhigh-new7-w6-4h-20260917-r1/run.json
+container:
+  cpus_per_worker: 8
+  build_jobs_per_worker: 8
+  memory_per_worker: 64g
+  max_total_memory: 384g
+  pids_limit: 4096
+  timeout: 4h
+  cgroup_parent: lean.slice
+  network_policy: model_proxy_only
+agent:
+  prompt_template: experiments/reconstruction/leanlean-refactoring-ablation-reproof/reproving-ablation-lean-verify-prompt.txt
+  prompt_text: 'Prove the following target declaration(s), whose proofs are currently
+    sorry:
+
+
+    {target_declarations}
+
+
+    You have a wall-clock budget of {time_limit}. It started at {current_time} and
+    expires at {deadline}.
+
+
+    You are working in a Docker container with enforced limits of {container_memory}
+    RAM and {container_cpus} CPUs.
+
+
+    Run `lean_verify` to check the original registered statements, Lean compilation,
+    and permitted axioms before submitting.
+
+    '
+  target_expansion: host_side_per_repository
+  system_prompt: native
+  native_instruction_snapshot: experiments/reconstruction/leanlean-refactoring-ablation-reproof/reproving-ablation-native-instructions.json
+  allowed_skills: []
+  mcp_servers: []
+  enable_subagents: false
+  enable_lean_verify: true
+  enable_proof_length: false
+  task_metadata_enabled: true
+  model_visible_verifier_artifacts:
+  - lean_verify
+  - Challenge.lean
+  - comparator.json
+  codex_runtime_controls:
+    host_skill_discovery: false
+    bundled_skills: false
+    collaboration_instructions: false
+    apps_instructions: false
+    multi_agent: false
+    mcp: false
+    apps: false
+    plugins: false
+    browser: false
+    computer_use: false
+    image_generation: false
+    web_search: false
+    request_user_input: false
+    sleep: false
+    memories: false
+evaluation:
+  correctness_verification: available_during_agent_run
+  lean_verify: true
+  proof_length: false
+  replay: false
+  success_criterion: registered_comparator
+  permitted_axioms_enforced: true
+  statement_signatures_compared: true
+monitoring:
+  snapshots: true
+  every_n_edits: 1
+  reconciliation_interval_seconds: 30
+  retain_native_traces: true
+  retain_native_rollouts: true
+  retain_baseline_source_snapshots: true
+  retain_intermediate_source_snapshots: true
+  retain_terminal_source_snapshots: true
+  checkpoint_builds_during_run: false
+validation:
+  required_before_launch:
+  - validate_both_runner_configs
+  - verify_resolved_lean_verify_enabled
+  - verify_proof_length_disabled
+  - verify_per_repository_prompt_isolation
+  - verify_snapshot_capture_and_native_rollout_retention
+  - verify_container_network_policy_model_proxy_only
+  model_calls_during_preparation: 0
+artifacts:
+  dataset:
+    path: datasets/reproving-ablation/dataset.yaml
+  baseline_runner:
+    path: configs/dataset/reproving-ablation-baseline-lean-verify-luna-xhigh-new7-w6-4h-20260917.yaml
+  post_compression_runner:
+    path: configs/dataset/reproving-ablation-post-compression-lean-verify-luna-xhigh-new7-w6-4h-20260917.yaml
+  model_config:
+    path: configs/models/openai/gpt-5.6-luna-xhigh-new7-w6.yaml
+  task_prompt:
+    path: experiments/reconstruction/leanlean-refactoring-ablation-reproof/reproving-ablation-lean-verify-prompt.txt
+  native_instructions:
+    path: experiments/reconstruction/leanlean-refactoring-ablation-reproof/reproving-ablation-native-instructions.json
+  manifest_runner:
+    path: scripts/run_reproving_ablation_pair.py

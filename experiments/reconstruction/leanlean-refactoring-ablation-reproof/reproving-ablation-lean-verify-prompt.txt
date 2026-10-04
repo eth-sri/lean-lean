@@ -1,0 +1,9 @@
+Prove the following target declaration(s), whose proofs are currently sorry:
+
+{target_declarations}
+
+You have a wall-clock budget of {time_limit}. It started at {current_time} and expires at {deadline}.
+
+You are working in a Docker container with enforced limits of {container_memory} RAM and {container_cpus} CPUs.
+
+Run `lean_verify` to check the original registered statements, Lean compilation, and permitted axioms before submitting.

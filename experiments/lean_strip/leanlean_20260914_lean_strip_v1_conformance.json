@@ -1,0 +1,596 @@
+{
+  "criterion": "byte-identical .lean files (challenge, lakefile.lean excluded) and identical dropped-declaration sets vs repos/<id>/stripped and prod-strip-report.json",
+  "dataset": "datasets/leanlean_20260914/dataset.yaml",
+  "identical": 64,
+  "notes": [
+    "palomar__2026-09-03-000002 attempts 1-4 are kept for audit (*.attempt*-*): Lake module-system races and a stub target error, fixed in input-fixes.patch",
+    "repos whose last verification ran before the attribute-filter revert were shown by an offline sweep to have identical attribute roots with and without the filter"
+  ],
+  "repositories": {
+    "palomar__2026-08-13-000001": {
+      "dropped_identical": true,
+      "graph_identical": true,
+      "identical": true,
+      "lean_files": 70,
+      "lean_identical": true,
+      "run": "leanlean52_lean_strip_v1_no_proof_erasure_20260929_r1",
+      "wall_seconds": 691.5
+    },
+    "palomar__2026-08-17-000002": {
+      "dropped_identical": true,
+      "graph_identical": true,
+      "identical": true,
+      "lean_files": 1,
+      "lean_identical": true,
+      "run": "leanlean_mini12_lean_strip_v1_no_proof_erasure_20260928_r1",
+      "wall_seconds": 77.5
+    },
+    "palomar__2026-08-17-000003": {
+      "dropped_identical": true,
+      "graph_identical": true,
+      "identical": true,
+      "lean_files": 11,
+      "lean_identical": true,
+      "run": "leanlean_mini12_lean_strip_v1_no_proof_erasure_20260928_r1",
+      "wall_seconds": 98.5
+    },
+    "palomar__2026-08-19-000002": {
+      "dropped_identical": true,
+      "graph_identical": false,
+      "identical": true,
+      "lean_files": 69,
+      "lean_identical": true,
+      "run": "leanlean52_lean_strip_v1_no_proof_erasure_20260929_r1",
+      "wall_seconds": 279.2
+    },
+    "palomar__2026-08-19-000003": {
+      "dropped_identical": true,
+      "graph_identical": false,
+      "identical": true,
+      "lean_files": 809,
+      "lean_identical": true,
+      "run": "leanlean_attrfix_regress7_lean_strip_v1_candidate2_20260929_r1",
+      "wall_seconds": 1260.2
+    },
+    "palomar__2026-08-20-000004": {
+      "dropped_identical": true,
+      "graph_identical": true,
+      "identical": true,
+      "lean_files": 2,
+      "lean_identical": true,
+      "run": "leanlean52_lean_strip_v1_no_proof_erasure_20260929_r1",
+      "wall_seconds": 54.7
+    },
+    "palomar__2026-08-20-000008": {
+      "dropped_identical": true,
+      "graph_identical": true,
+      "identical": true,
+      "lean_files": 13,
+      "lean_identical": true,
+      "run": "leanlean52_lean_strip_v1_no_proof_erasure_20260929_r1",
+      "wall_seconds": 211.5
+    },
+    "palomar__2026-08-20-000009": {
+      "dropped_identical": true,
+      "graph_identical": false,
+      "identical": true,
+      "lean_files": 50,
+      "lean_identical": true,
+      "run": "leanlean52_lean_strip_v1_no_proof_erasure_20260929_r1",
+      "wall_seconds": 392.0
+    },
+    "palomar__2026-08-21-000002": {
+      "dropped_identical": true,
+      "graph_identical": true,
+      "identical": true,
+      "lean_files": 1,
+      "lean_identical": true,
+      "run": "leanlean52_lean_strip_v1_no_proof_erasure_20260929_r1",
+      "wall_seconds": 123.9
+    },
+    "palomar__2026-08-21-000004": {
+      "dropped_identical": true,
+      "graph_identical": true,
+      "identical": true,
+      "lean_files": 56,
+      "lean_identical": true,
+      "run": "leanlean_mini12_lean_strip_v1_no_proof_erasure_20260928_r1",
+      "wall_seconds": 529.6
+    },
+    "palomar__2026-08-21-000010": {
+      "dropped_identical": true,
+      "graph_identical": true,
+      "identical": true,
+      "lean_files": 3,
+      "lean_identical": true,
+      "run": "leanlean52_lean_strip_v1_no_proof_erasure_20260929_r1",
+      "wall_seconds": 53.6
+    },
+    "palomar__2026-08-22-000003": {
+      "dropped_identical": true,
+      "graph_identical": false,
+      "identical": true,
+      "lean_files": 20,
+      "lean_identical": true,
+      "run": "leanlean_mini12_lean_strip_v1_no_proof_erasure_20260928_r1",
+      "wall_seconds": 460.1
+    },
+    "palomar__2026-08-22-000006": {
+      "dropped_identical": true,
+      "graph_identical": false,
+      "identical": true,
+      "lean_files": 126,
+      "lean_identical": true,
+      "run": "leanlean_attrfix_regress7_lean_strip_v1_candidate2_20260929_r1",
+      "wall_seconds": 422.0
+    },
+    "palomar__2026-08-22-000010": {
+      "dropped_identical": true,
+      "graph_identical": false,
+      "identical": true,
+      "lean_files": 393,
+      "lean_identical": true,
+      "run": "leanlean_attrfix1_lean_strip_v1_candidate2_20260929_r1",
+      "wall_seconds": 922.4
+    },
+    "palomar__2026-08-23-000001": {
+      "dropped_identical": true,
+      "graph_identical": false,
+      "identical": true,
+      "lean_files": 1,
+      "lean_identical": true,
+      "run": "leanlean52_lean_strip_v1_no_proof_erasure_20260929_r1",
+      "wall_seconds": 120.1
+    },
+    "palomar__2026-08-23-000003": {
+      "dropped_identical": true,
+      "graph_identical": false,
+      "identical": true,
+      "lean_files": 99,
+      "lean_identical": true,
+      "run": "leanlean_mini12_lean_strip_v1_no_proof_erasure_20260928_r1",
+      "wall_seconds": 361.8
+    },
+    "palomar__2026-08-24-000002": {
+      "dropped_identical": true,
+      "graph_identical": true,
+      "identical": true,
+      "lean_files": 18,
+      "lean_identical": true,
+      "run": "leanlean_mini12_lean_strip_v1_no_proof_erasure_20260928_r1",
+      "wall_seconds": 427.0
+    },
+    "palomar__2026-08-24-000003": {
+      "dropped_identical": true,
+      "graph_identical": true,
+      "identical": true,
+      "lean_files": 11,
+      "lean_identical": true,
+      "run": "leanlean52_lean_strip_v1_no_proof_erasure_20260929_r1",
+      "wall_seconds": 54.7
+    },
+    "palomar__2026-08-24-000005": {
+      "dropped_identical": true,
+      "graph_identical": true,
+      "identical": true,
+      "lean_files": 15,
+      "lean_identical": true,
+      "run": "leanlean_mini12_lean_strip_v1_no_proof_erasure_20260928_r1",
+      "wall_seconds": 56.3
+    },
+    "palomar__2026-08-24-000006": {
+      "dropped_identical": true,
+      "graph_identical": false,
+      "identical": true,
+      "lean_files": 333,
+      "lean_identical": true,
+      "run": "leanlean52_lean_strip_v1_no_proof_erasure_20260929_r1",
+      "wall_seconds": 1988.5
+    },
+    "palomar__2026-08-26-000006": {
+      "dropped_identical": true,
+      "graph_identical": true,
+      "identical": true,
+      "lean_files": 16,
+      "lean_identical": true,
+      "run": "leanlean_mini12_lean_strip_v1_no_proof_erasure_20260928_r1",
+      "wall_seconds": 86.4
+    },
+    "palomar__2026-08-27-000011": {
+      "dropped_identical": true,
+      "graph_identical": false,
+      "identical": true,
+      "lean_files": 579,
+      "lean_identical": true,
+      "run": "leanlean_attrfix_regress7_lean_strip_v1_candidate2_20260929_r1",
+      "wall_seconds": 1165.7
+    },
+    "palomar__2026-08-27-000015": {
+      "dropped_identical": true,
+      "graph_identical": true,
+      "identical": true,
+      "lean_files": 1,
+      "lean_identical": true,
+      "run": "leanlean52_lean_strip_v1_no_proof_erasure_20260929_r1",
+      "wall_seconds": 19.7
+    },
+    "palomar__2026-08-27-000020": {
+      "dropped_identical": true,
+      "graph_identical": true,
+      "identical": true,
+      "lean_files": 1,
+      "lean_identical": true,
+      "run": "leanlean52_lean_strip_v1_no_proof_erasure_20260929_r1",
+      "wall_seconds": 78.3
+    },
+    "palomar__2026-08-28-000001": {
+      "dropped_identical": true,
+      "graph_identical": false,
+      "identical": true,
+      "lean_files": 182,
+      "lean_identical": true,
+      "run": "leanlean52_lean_strip_v1_no_proof_erasure_20260929_r1",
+      "wall_seconds": 746.1
+    },
+    "palomar__2026-08-28-000002": {
+      "dropped_identical": true,
+      "graph_identical": true,
+      "identical": true,
+      "lean_files": 12,
+      "lean_identical": true,
+      "run": "leanlean52_lean_strip_v1_no_proof_erasure_20260929_r1",
+      "wall_seconds": 55.3
+    },
+    "palomar__2026-08-29-000001": {
+      "dropped_identical": true,
+      "graph_identical": false,
+      "identical": true,
+      "lean_files": 31,
+      "lean_identical": true,
+      "run": "leanlean52_lean_strip_v1_no_proof_erasure_20260929_r1",
+      "wall_seconds": 174.3
+    },
+    "palomar__2026-08-29-000002": {
+      "dropped_identical": true,
+      "graph_identical": false,
+      "identical": true,
+      "lean_files": 380,
+      "lean_identical": true,
+      "run": "leanlean52_lean_strip_v1_no_proof_erasure_20260929_r1",
+      "wall_seconds": 1921.3
+    },
+    "palomar__2026-08-29-000003": {
+      "dropped_identical": true,
+      "graph_identical": true,
+      "identical": true,
+      "lean_files": 3,
+      "lean_identical": true,
+      "run": "leanlean_mini12_lean_strip_v1_no_proof_erasure_20260928_r1",
+      "wall_seconds": 30.9
+    },
+    "palomar__2026-08-29-000006": {
+      "dropped_identical": true,
+      "graph_identical": false,
+      "identical": true,
+      "lean_files": 258,
+      "lean_identical": true,
+      "run": "leanlean52_lean_strip_v1_no_proof_erasure_20260929_r1",
+      "wall_seconds": 764.3
+    },
+    "palomar__2026-08-29-000010": {
+      "dropped_identical": true,
+      "graph_identical": false,
+      "identical": true,
+      "lean_files": 16,
+      "lean_identical": true,
+      "run": "leanlean52_lean_strip_v1_no_proof_erasure_20260929_r1",
+      "wall_seconds": 299.2
+    },
+    "palomar__2026-08-29-000011": {
+      "dropped_identical": true,
+      "graph_identical": false,
+      "identical": true,
+      "lean_files": 126,
+      "lean_identical": true,
+      "run": "leanlean_attrfix_regress7_lean_strip_v1_candidate2_20260929_r1",
+      "wall_seconds": 738.5
+    },
+    "palomar__2026-08-29-000014": {
+      "dropped_identical": true,
+      "graph_identical": false,
+      "identical": true,
+      "lean_files": 15,
+      "lean_identical": true,
+      "run": "leanlean52_lean_strip_v1_no_proof_erasure_20260929_r1",
+      "wall_seconds": 109.0
+    },
+    "palomar__2026-08-29-000015": {
+      "dropped_identical": true,
+      "graph_identical": true,
+      "identical": true,
+      "lean_files": 4,
+      "lean_identical": true,
+      "run": "leanlean52_lean_strip_v1_no_proof_erasure_20260929_r1",
+      "wall_seconds": 59.9
+    },
+    "palomar__2026-08-29-000017": {
+      "dropped_identical": true,
+      "graph_identical": false,
+      "identical": true,
+      "lean_files": 73,
+      "lean_identical": true,
+      "run": "leanlean52_lean_strip_v1_no_proof_erasure_20260929_r1",
+      "wall_seconds": 580.0
+    },
+    "palomar__2026-08-30-000001": {
+      "dropped_identical": true,
+      "graph_identical": false,
+      "identical": true,
+      "lean_files": 41,
+      "lean_identical": true,
+      "run": "leanlean52_lean_strip_v1_no_proof_erasure_20260929_r1",
+      "wall_seconds": 142.2
+    },
+    "palomar__2026-08-30-000002": {
+      "dropped_identical": true,
+      "graph_identical": false,
+      "identical": true,
+      "lean_files": 94,
+      "lean_identical": true,
+      "run": "leanlean52_lean_strip_v1_no_proof_erasure_20260929_r1",
+      "wall_seconds": 272.2
+    },
+    "palomar__2026-08-31-000005": {
+      "dropped_identical": true,
+      "graph_identical": false,
+      "identical": true,
+      "lean_files": 375,
+      "lean_identical": true,
+      "run": "leanlean_attrfix_regress7_lean_strip_v1_candidate2_20260929_r1",
+      "wall_seconds": 1855.4
+    },
+    "palomar__2026-08-31-000008": {
+      "dropped_identical": true,
+      "graph_identical": false,
+      "identical": true,
+      "lean_files": 48,
+      "lean_identical": true,
+      "run": "leanlean_attrfix_regress7_lean_strip_v1_candidate2_20260929_r1",
+      "wall_seconds": 235.1
+    },
+    "palomar__2026-08-31-000014": {
+      "dropped_identical": true,
+      "graph_identical": true,
+      "identical": true,
+      "lean_files": 2,
+      "lean_identical": true,
+      "run": "leanlean52_lean_strip_v1_no_proof_erasure_20260929_r1",
+      "wall_seconds": 43.1
+    },
+    "palomar__2026-08-31-000018": {
+      "dropped_identical": true,
+      "graph_identical": false,
+      "identical": true,
+      "lean_files": 53,
+      "lean_identical": true,
+      "run": "leanlean52_lean_strip_v1_no_proof_erasure_20260929_r1",
+      "wall_seconds": 461.6
+    },
+    "palomar__2026-09-01-000003": {
+      "dropped_identical": true,
+      "graph_identical": true,
+      "identical": true,
+      "lean_files": 6,
+      "lean_identical": true,
+      "run": "leanlean52_lean_strip_v1_no_proof_erasure_20260929_r1",
+      "wall_seconds": 97.9
+    },
+    "palomar__2026-09-01-000004": {
+      "dropped_identical": true,
+      "graph_identical": false,
+      "identical": true,
+      "lean_files": 17,
+      "lean_identical": true,
+      "run": "leanlean52_lean_strip_v1_no_proof_erasure_20260929_r1",
+      "wall_seconds": 89.3
+    },
+    "palomar__2026-09-01-000006": {
+      "dropped_identical": true,
+      "graph_identical": true,
+      "identical": true,
+      "lean_files": 16,
+      "lean_identical": true,
+      "run": "leanlean52_lean_strip_v1_no_proof_erasure_20260929_r1",
+      "wall_seconds": 136.8
+    },
+    "palomar__2026-09-01-000007": {
+      "dropped_identical": true,
+      "graph_identical": false,
+      "identical": true,
+      "lean_files": 5,
+      "lean_identical": true,
+      "run": "leanlean52_lean_strip_v1_no_proof_erasure_20260929_r1",
+      "wall_seconds": 41.7
+    },
+    "palomar__2026-09-01-000008": {
+      "dropped_identical": true,
+      "graph_identical": true,
+      "identical": true,
+      "lean_files": 2,
+      "lean_identical": true,
+      "run": "leanlean52_lean_strip_v1_no_proof_erasure_20260929_r1",
+      "wall_seconds": 46.0
+    },
+    "palomar__2026-09-01-000009": {
+      "dropped_identical": true,
+      "graph_identical": true,
+      "identical": true,
+      "lean_files": 47,
+      "lean_identical": true,
+      "run": "leanlean52_lean_strip_v1_no_proof_erasure_20260929_r1",
+      "wall_seconds": 136.7
+    },
+    "palomar__2026-09-01-000010": {
+      "dropped_identical": true,
+      "graph_identical": true,
+      "identical": true,
+      "lean_files": 3,
+      "lean_identical": true,
+      "run": "leanlean52_lean_strip_v1_no_proof_erasure_20260929_r1",
+      "wall_seconds": 8.2
+    },
+    "palomar__2026-09-01-000011": {
+      "dropped_identical": true,
+      "graph_identical": true,
+      "identical": true,
+      "lean_files": 5,
+      "lean_identical": true,
+      "run": "leanlean_lockenv4_lean_strip_v1_candidate2_20260929_r1",
+      "wall_seconds": 67.0
+    },
+    "palomar__2026-09-02-000001": {
+      "dropped_identical": true,
+      "graph_identical": false,
+      "identical": true,
+      "lean_files": 601,
+      "lean_identical": true,
+      "run": "leanlean52_lean_strip_v1_no_proof_erasure_20260929_r1",
+      "wall_seconds": 1844.5
+    },
+    "palomar__2026-09-02-000003": {
+      "dropped_identical": true,
+      "graph_identical": true,
+      "identical": true,
+      "lean_files": 8,
+      "lean_identical": true,
+      "run": "leanlean52_lean_strip_v1_no_proof_erasure_20260929_r1",
+      "wall_seconds": 143.3
+    },
+    "palomar__2026-09-02-000004": {
+      "dropped_identical": true,
+      "graph_identical": false,
+      "identical": true,
+      "lean_files": 42,
+      "lean_identical": true,
+      "run": "leanlean52_lean_strip_v1_no_proof_erasure_20260929_r1",
+      "wall_seconds": 662.1
+    },
+    "palomar__2026-09-02-000006": {
+      "dropped_identical": true,
+      "graph_identical": false,
+      "identical": true,
+      "lean_files": 428,
+      "lean_identical": true,
+      "run": "leanlean52_lean_strip_v1_no_proof_erasure_20260929_r1",
+      "wall_seconds": 829.4
+    },
+    "palomar__2026-09-02-000008": {
+      "dropped_identical": true,
+      "graph_identical": true,
+      "identical": true,
+      "lean_files": 3,
+      "lean_identical": true,
+      "run": "leanlean52_lean_strip_v1_no_proof_erasure_20260929_r1",
+      "wall_seconds": 101.3
+    },
+    "palomar__2026-09-02-000011": {
+      "dropped_identical": true,
+      "graph_identical": true,
+      "identical": true,
+      "lean_files": 97,
+      "lean_identical": true,
+      "run": "leanlean52_lean_strip_v1_no_proof_erasure_20260929_r1",
+      "wall_seconds": 386.1
+    },
+    "palomar__2026-09-02-000012": {
+      "dropped_identical": true,
+      "graph_identical": true,
+      "identical": true,
+      "lean_files": 431,
+      "lean_identical": true,
+      "run": "leanlean52_lean_strip_v1_no_proof_erasure_20260929_r1",
+      "wall_seconds": 3266.3
+    },
+    "palomar__2026-09-02-000014": {
+      "dropped_identical": true,
+      "graph_identical": true,
+      "identical": true,
+      "lean_files": 8,
+      "lean_identical": true,
+      "run": "leanlean52_lean_strip_v1_no_proof_erasure_20260929_r1",
+      "wall_seconds": 127.6
+    },
+    "palomar__2026-09-03-000002": {
+      "dropped_identical": true,
+      "graph_identical": false,
+      "identical": true,
+      "lean_files": 352,
+      "lean_identical": true,
+      "run": "leanlean_lockenv4_lean_strip_v1_candidate2_20260929_r1",
+      "wall_seconds": 782.9
+    },
+    "palomar__2026-09-03-000004": {
+      "dropped_identical": true,
+      "graph_identical": true,
+      "identical": true,
+      "lean_files": 2,
+      "lean_identical": true,
+      "run": "leanlean52_lean_strip_v1_no_proof_erasure_20260929_r1",
+      "wall_seconds": 118.5
+    },
+    "palomar__2026-09-03-000005": {
+      "dropped_identical": true,
+      "graph_identical": true,
+      "identical": true,
+      "lean_files": 14,
+      "lean_identical": true,
+      "run": "leanlean52_lean_strip_v1_no_proof_erasure_20260929_r1",
+      "wall_seconds": 69.2
+    },
+    "palomar__2026-09-03-000007": {
+      "dropped_identical": true,
+      "graph_identical": true,
+      "identical": true,
+      "lean_files": 6,
+      "lean_identical": true,
+      "run": "leanlean52_lean_strip_v1_no_proof_erasure_20260929_r1",
+      "wall_seconds": 42.5
+    },
+    "palomar__2026-09-04-000005": {
+      "dropped_identical": true,
+      "graph_identical": true,
+      "identical": true,
+      "lean_files": 47,
+      "lean_identical": true,
+      "run": "leanlean52_lean_strip_v1_no_proof_erasure_20260929_r1",
+      "wall_seconds": 206.5
+    },
+    "palomar__2026-09-05-000001": {
+      "dropped_identical": true,
+      "graph_identical": true,
+      "identical": true,
+      "lean_files": 170,
+      "lean_identical": true,
+      "run": "leanlean_attrfix_regress7_lean_strip_v1_candidate2_20260929_r1",
+      "wall_seconds": 290.9
+    },
+    "palomar__2026-09-05-000003": {
+      "dropped_identical": true,
+      "graph_identical": true,
+      "identical": true,
+      "lean_files": 16,
+      "lean_identical": true,
+      "run": "leanlean_lockenv4_lean_strip_v1_candidate2_20260929_r1",
+      "wall_seconds": 410.7
+    }
+  },
+  "runs": [
+    "leanlean_mini12_lean_strip_v1_no_proof_erasure_20260928_r1",
+    "leanlean52_lean_strip_v1_no_proof_erasure_20260929_r1",
+    "leanlean_lockenv4_lean_strip_v1_candidate2_20260929_r1",
+    "leanlean_attrfix1_lean_strip_v1_candidate2_20260929_r1",
+    "leanlean_attrfix_regress7_lean_strip_v1_candidate2_20260929_r1"
+  ],
+  "tool": "lean-strip 1.0.0 = 0.1.0 (7242de8f) + experiments/lean_strip/patches/lean-strip-v1.0.0.patch (+ version bump); tested tree runs/lean_strip/tool-snapshots/lean-strip-v1-candidate2",
+  "total": 64
+}

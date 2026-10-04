@@ -1,0 +1,18 @@
+# Clean full run on the final resolver (including the open-...-hiding root
+# rule). Same source snapshot as palomar_20260905; every repository processed
+# with identical code, single provenance chain.
+#
+# Seeded from palomar_20260905_v2's warm builds, so final builds that are
+# unchanged replay rather than recompile.
+source: sources/palomar_20260905_source.yaml
+output: datasets/palomar_20260905_v3
+worker:
+  count: 6
+  threads: 6
+  memory: 64g
+stages:
+  isolation_and_build: true
+  stripping: true
+  build_and_comparator: true
+dependency_environment:
+  dataset: datasets/palomar_20260905/source-environments.yaml

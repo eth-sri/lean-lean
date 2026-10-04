@@ -1,0 +1,7 @@
+rank,model,label,compression_pct,cost_per_task_usd,duration_hours,scored,expected,passed,generated,cost_repositories,duration_repositories,cost_note,unverified_cost_repositories
+1,opus-5,Opus 5,48.30241032109049,63.524579734374996,8.794584331597223,64,64,64,64,64,64,,0
+2,gpt-5.6-sol,Sol 5.6,37.768558583487724,135.513376725,4.4542802734375,64,64,63,64,64,64,,19
+3,gemini-3.8-flash,Gemini 3.8 Flash,21.729096822844866,25.22968428859375,3.9269121397569444,64,64,61,64,64,64,,22
+4,muse-spark-1.3,Muse Spark 1.3,17.44265728718681,18.804115392187498,3.245277387152778,64,64,63,64,64,64,"Repriced from recorded per-request usage at standard Muse Spark 1.3 API rates ($1.25/M input, $4.25/M output, $0.15/M cached input) for all 64 repositories; 50 repositories ran on the Contributor tier, whose raw records keep Contributor pricing.",0
+5,gpt-5.6-luna,Luna 5.6,13.081796549714406,2.318174045,1.7000535590277779,64,64,63,64,64,64,,0
+6,leanstral-1.5,Leanstral 1.5,0.5939767709848285,4.5460024,0.9772917107583774,63,64,53,64,63,63,"Estimated from retained usage at GPT-OSS-120B substitute rates ($0.15/M input, $0.60/M output).",0

@@ -1,0 +1,188 @@
+kind: leanlean_stage2_dataset_preflight
+schema_version: 1
+run_id: uncompressed-stage2-preflight-20260912-r1
+model: none
+reasoning_effort: none
+generator: clean_source_build_original_comparator_preflight
+repository_variant: stripped
+rounds: 1
+workers: 4
+container:
+  cpus: 4
+  memory: 32g
+  pids_limit: 4096
+  network_policy: model_proxy_only
+  cgroup_parent: lean.slice
+timeout_seconds: 43200
+evaluation:
+  clean_project_cache: true
+  original_comparator: true
+  sorryAx: interface_preflight_only
+  launch_reproof: false
+monitoring:
+  snapshots: true
+  every_n_edits: 1
+  native_traces: true
+  native_rollout_retention: true
+  model_rollouts: not_applicable
+  baseline: baseline.sources.tar.gz
+  terminal: terminal.sources.tar.gz
+dataset:
+  path: datasets/compressed-sorried-holdouts-20260912-r1/uncompressed.yaml
+  sha256: 1250ce1d9259720a1532d3b5066256cea59921e96560fe0d9b532a93bdbca35f
+database:
+  path: datasets/compressed-sorried-holdouts-20260912-r1/repository-database.uncompressed.json
+  sha256: d75d4989f9312d410749b7290d8c7f5b0cc9d8ba77a2e31dc02ef0e00a7984e6
+output: output/validation/uncompressed-stage2-preflight-20260912-r1
+tmux_session: validate-uncompressed-stage2-20260912-r1
+cases:
+- id: case01__holdout
+  repository: palomar__2026-09-03-000004
+  image_id: sha256:8603bbd7c8bb7557678391cf8d2824746ab5cfb5e1ca0332468ed8b88ca11429
+  source_report:
+    path: datasets/holdout19-stage2-sorried-preprocessing-20260912-r1/repos_stage2/palomar__2026-09-03-000004/prod-strip-report.json
+    sha256: d864f2917f13325453dba50c0c136988100f44559c18725b53c8bc44f3364e15
+  archive:
+    path: datasets/compressed-sorried-holdouts-20260912-r1/repos/case01__holdout/uncompressed/monitoring/uncompressed.sources.tar.gz
+    sha256: 82ab8147dfa7da7b8f8dc36075eaff118bbc7b6fbf2052493614b6bca862cf1a
+  build_target: +Solution
+- id: case02__holdout
+  repository: palomar__2026-08-20-000006
+  image_id: sha256:1241e8d874bc06284c268a65f985eff3b2b75ff9f956cde8a972d879b302d5a3
+  source_report:
+    path: datasets/holdout19-stage2-sorried-preprocessing-20260912-r1/repos_stage2/palomar__2026-08-20-000006/prod-strip-report.json
+    sha256: ad51bf9f96a20340df3c80cdc113067716fbf0c5de5e5eece346cb7da832d141
+  archive:
+    path: datasets/compressed-sorried-holdouts-20260912-r1/repos/case02__holdout/uncompressed/monitoring/uncompressed.sources.tar.gz
+    sha256: b0f26de75f2268414488079dc5fa7d5a9aed963c68e6fbd9625777546e90dee9
+  build_target: +Solution
+- id: case03__holdout
+  repository: palomar__2026-08-19-000002
+  image_id: sha256:4a9d3295195b85b4c108a6db6d9b592ce174eb336ffc964e7f0f20c3fa3d778c
+  source_report:
+    path: datasets/holdout19-stage2-sorried-preprocessing-20260912-r1/repos_stage2/palomar__2026-08-19-000002/prod-strip-report.json
+    sha256: 1eab4b55fad6d1662569e3e74405f652aa0c428e433f21069dad8b8d9bf7cf0e
+  archive:
+    path: datasets/compressed-sorried-holdouts-20260912-r1/repos/case03__holdout/uncompressed/monitoring/uncompressed.sources.tar.gz
+    sha256: 4418ceed6c92cc19f509302b81980b2a3decfd7bfc95753e922073e41ad1695b
+  build_target: +Solution
+- id: case05__holdout
+  repository: palomar__2026-08-24-000002
+  image_id: sha256:0308cef7a9debc7e00efcd80750a85317b054624903f2c14f4ad80fe870a0613
+  source_report:
+    path: datasets/holdout19-stage2-sorried-preprocessing-20260912-r1/repos_stage2/palomar__2026-08-24-000002/prod-strip-report.json
+    sha256: 7deac9536ea887536abbdcc4e0bd35500c0ec5a7920dc4028c4c00523c131812
+  archive:
+    path: datasets/compressed-sorried-holdouts-20260912-r1/repos/case05__holdout/uncompressed/monitoring/uncompressed.sources.tar.gz
+    sha256: e2f77e65e31ca8c95fff3700ce3887e8dd3ecd2dc5a1b9568b12d54203f477da
+  build_target: +SolutionRecord
+- id: case06__holdout
+  repository: palomar__2026-09-05-000003
+  image_id: sha256:1ab15eed404c7ada18fce51ccdc8612cec52d33081e4c877cc5038e0d99aeb87
+  source_report:
+    path: datasets/holdout19-stage2-sorried-preprocessing-20260912-r1/repos_stage2/palomar__2026-09-05-000003/prod-strip-report.json
+    sha256: 43c7961ddf8f12ab72f299e4edff39962f96a156b2f7421a9f42ea539bfea0d2
+  archive:
+    path: datasets/compressed-sorried-holdouts-20260912-r1/repos/case06__holdout/uncompressed/monitoring/uncompressed.sources.tar.gz
+    sha256: d5e0bd8c87e7b652581b8853f0bfc11b772da280013fb2795ead9c0f7e84ab2a
+  build_target: +Solution
+- id: case08__holdout
+  repository: palomar__2026-09-05-000001
+  image_id: sha256:0019cd086e7b26c79bd51667785e78ec3a8acc9e3286df5a23345b0442a3e34e
+  source_report:
+    path: datasets/holdout19-stage2-sorried-preprocessing-20260912-r1/repos_stage2/palomar__2026-09-05-000001/prod-strip-report.json
+    sha256: fa8a78a6909fdc6cab1ed344e2aaf94055cdc84139ba95023ab0111aadda8e4d
+  archive:
+    path: datasets/compressed-sorried-holdouts-20260912-r1/repos/case08__holdout/uncompressed/monitoring/uncompressed.sources.tar.gz
+    sha256: c10046da6d6ead64f8f5096d475ae761b669ba17377a33062abc1fc1e8704c14
+  build_target: +Solutions.BNChains
+- id: case09__holdout
+  repository: palomar__2026-08-19-000007
+  image_id: sha256:89ca72589d194622f88266b1c921700105cba0968ca779e7efdc0dfeaf66dc5c
+  source_report:
+    path: datasets/holdout19-stage2-sorried-preprocessing-20260912-r1/repos_stage2/palomar__2026-08-19-000007/prod-strip-report.json
+    sha256: acd745c4c7844020ca29963d5b103f543a9ba10b44950367b1efc663230b542c
+  archive:
+    path: datasets/compressed-sorried-holdouts-20260912-r1/repos/case09__holdout/uncompressed/monitoring/uncompressed.sources.tar.gz
+    sha256: 77ac86ba04c347f15b8a74e8cfe096f63c6ac3f8397033027e369cad42b065e7
+  build_target: +Solution
+- id: case12__holdout
+  repository: palomar__2026-09-01-000001
+  image_id: sha256:4e951fd6d17c101098a00de8cfc232755f292239e472c951f82f3300eecf123e
+  source_report:
+    path: datasets/holdout19-stage2-sorried-preprocessing-20260912-r1/repos_stage2/palomar__2026-09-01-000001/prod-strip-report.json
+    sha256: 472c934b1db5b03a831c49bf09697f9db6130280dce08a21a04e5a4f8f93afac
+  archive:
+    path: datasets/compressed-sorried-holdouts-20260912-r1/repos/case12__holdout/uncompressed/monitoring/uncompressed.sources.tar.gz
+    sha256: ee2f2b7568154b251bda73416474cccea5d16d895cee21abb6295a7cc530c537
+  build_target: +Solution
+- id: case15__holdout
+  repository: palomar__2026-08-27-000011
+  image_id: sha256:6a65bbf994e1a9b17c10be23819dea9f1606cf1ea8120a50f1a4b0ba0e74108c
+  source_report:
+    path: datasets/holdout19-stage2-sorried-preprocessing-20260912-r1/repos_stage2/palomar__2026-08-27-000011/prod-strip-report.json
+    sha256: 2b3ec8e93d5e1c8cd981f219a6509bd5ae12457df621733f9147d5611c17daaf
+  archive:
+    path: datasets/compressed-sorried-holdouts-20260912-r1/repos/case15__holdout/uncompressed/monitoring/uncompressed.sources.tar.gz
+    sha256: 3a8c9bf8caec19d983c07efdf513dcb0b676e1847054252d64ac35d7989e96bd
+  build_target: +Solution
+- id: case16__holdout
+  repository: palomar__2026-09-03-000005
+  image_id: sha256:f72202d622a5456feaed491097e7a03838ce9aebd4bd28c8d47a1598e9fa2123
+  source_report:
+    path: datasets/holdout19-stage2-sorried-preprocessing-20260912-r1/repos_stage2/palomar__2026-09-03-000005/prod-strip-report.json
+    sha256: 97fca27ba6fb5cc4ae0b68e35021b8f5ff20443ea751a6ea3a3345e2941b6293
+  archive:
+    path: datasets/compressed-sorried-holdouts-20260912-r1/repos/case16__holdout/uncompressed/monitoring/uncompressed.sources.tar.gz
+    sha256: 247d5f981678aba12c29b491ccd43a8910c6d0721d47e32ab0865ee99ec7448b
+  build_target: +Solution
+- id: case17__holdout
+  repository: palomar__2026-09-01-000003
+  image_id: sha256:532b39996bfa822f48610a1c29641ba01eab69f03ee7e5eed5d2d8a0af196057
+  source_report:
+    path: datasets/holdout19-stage2-sorried-preprocessing-20260912-r1/repos_stage2/palomar__2026-09-01-000003/prod-strip-report.json
+    sha256: d36c877b71d297b7203b25a3b8b25ad18c19e280064cca548de31afc4ddc882f
+  archive:
+    path: datasets/compressed-sorried-holdouts-20260912-r1/repos/case17__holdout/uncompressed/monitoring/uncompressed.sources.tar.gz
+    sha256: 1dca9a98fe06c8a22b7401c2a1d54dc1ce5e70499d0948f3fb94be70ddf1418c
+  build_target: +Solution
+- id: case18__holdout
+  repository: palomar__2026-08-24-000007
+  image_id: sha256:970e6c1c2d1cc29244836173837636f623c05b263cdb00893aafce0666f007a9
+  source_report:
+    path: datasets/holdout19-stage2-sorried-preprocessing-20260912-r1/repos_stage2/palomar__2026-08-24-000007/prod-strip-report.json
+    sha256: c40fc61513ad86b9a897389444b9f0dc5007182a2390f0c7247fdaf598556ca6
+  archive:
+    path: datasets/compressed-sorried-holdouts-20260912-r1/repos/case18__holdout/uncompressed/monitoring/uncompressed.sources.tar.gz
+    sha256: 7103992ee745926484700d224f566bd71c3c25de3625bbb2a711418210dcb65f
+  build_target: +Solution
+- id: case21__holdout
+  repository: palomar__2026-09-02-000012
+  image_id: sha256:b693f5dcb108808a7f41a15a7165051feccc151e127e149827efb0ebc37f0d3f
+  source_report:
+    path: datasets/holdout19-stage2-sorried-preprocessing-20260912-r1/repos_stage2/palomar__2026-09-02-000012/prod-strip-report.json
+    sha256: a189f126602972907fb85f31b2d0450f04092d96cfecdf6030af45382f5c7429
+  archive:
+    path: datasets/compressed-sorried-holdouts-20260912-r1/repos/case21__holdout/uncompressed/monitoring/uncompressed.sources.tar.gz
+    sha256: 46b9e332223111f3d0fa6a0206dc0e3a4e86c61fbce6143f5b24b4fc7a42752f
+  build_target: +HeilbronnSolution
+- id: case22__holdout
+  repository: palomar__2026-09-02-000014
+  image_id: sha256:3e7e8d451380a3974b3e53119996b5f6bf7a1bb0d9fa146f07e1e5c1718fbde5
+  source_report:
+    path: datasets/holdout19-stage2-sorried-preprocessing-20260912-r1/repos_stage2/palomar__2026-09-02-000014/prod-strip-report.json
+    sha256: a3caf7092f457e53dfd1306591b84aa366e38bcf9df49df35f2edc9810a5c486
+  archive:
+    path: datasets/compressed-sorried-holdouts-20260912-r1/repos/case22__holdout/uncompressed/monitoring/uncompressed.sources.tar.gz
+    sha256: 8d3bb15950a32f1f55ab02b850c10bd33003313eb530d04c375007ebc17c191d
+  build_target: +Solution
+- id: case25__holdout
+  repository: palomar__2026-09-01-000006
+  image_id: sha256:fd01ec878a68f87826809c6fc6e2c9fed908efbc623b90d3997eb03d0c194733
+  source_report:
+    path: datasets/holdout19-stage2-sorried-preprocessing-20260912-r1/repos_stage2/palomar__2026-09-01-000006/prod-strip-report.json
+    sha256: 2059dfe73a3af36b60b837c16163294a5f04e19a84c4564eb9592886dd1fbbfd
+  archive:
+    path: datasets/compressed-sorried-holdouts-20260912-r1/repos/case25__holdout/uncompressed/monitoring/uncompressed.sources.tar.gz
+    sha256: 7ad4eedb322d7eb0115b90685dff4043af4b7409d4d091ae9986c05cef768432
+  build_target: +Solution

@@ -1,0 +1,127 @@
+# Inputs of scripts/paper/export.py: the run directories of the paper's results.
+# Paths are relative to the repository root. Each `runs` entry is the output
+# directory of `bash eval.sh <dataset> --model <provider>/<model>`, after both
+# postprocessing passes (verification and heartbeats) and, for models with a
+# `budget` curve, the five-minute replay. When a model has several runs, a
+# later run's submission replaces an earlier one for the repositories it ran.
+dataset: datasets/leanlean_20260914
+# Primary arXiv tag (from each repository's Palomar registry record) and subject family.
+subjects: results/paper/data/repository-subjects.csv
+
+models:
+  opus-5:
+    label: Opus 5
+    color: '#D97757'        # introduction and histograms
+    scale_color: '#DB8A70'  # by-scale figures
+    budget: opus            # five-minute replay curve
+    runs: [output/evaluation/leanlean_20260914/anthropic/opus-5-high]
+    cost: native_claude     # Claude Code's own list-price total of the session
+  gpt-5.6-sol:
+    label: Sol 5.6
+    color: '#10A37F'
+    scale_color: '#3DAD8F'
+    budget: sol
+    runs: [output/evaluation/leanlean_20260914/openai/gpt-5.6-sol-xhigh]
+  gemini-3.8-flash:
+    label: Gemini 3.8 Flash
+    color: '#F4B400'
+    scale_color: '#F3BD3A'
+    budget: gemini
+    runs: [output/evaluation/leanlean_20260914/google/gemini-3.8-flash-high]
+  muse-spark-1.3:
+    label: Muse Spark 1.3
+    color: '#0866FF'
+    scale_color: '#387EFB'
+    budget: muse
+    # 14 repositories on the standard API tier, 50 on the Contributor tier.
+    runs:
+      - output/evaluation/leanlean_20260914/meta/muse-spark-1.3-max-native-w4
+      - output/evaluation/leanlean_20260914/meta/muse-spark-1.3-contributor-max-native-w4
+    # Every response is repriced at standard-tier rates, also for the Contributor runs.
+    usage_pricing:
+      input_per_million_usd: 1.25
+      output_per_million_usd: 4.25
+      cached_input_per_million_usd: 0.15
+    cost_note: Repriced from recorded per-request usage at standard Muse Spark 1.3 API rates
+      ($1.25/M input, $4.25/M output, $0.15/M cached input) for all 64 repositories; 50 repositories
+      ran on the Contributor tier, whose raw records keep Contributor pricing.
+  gpt-5.6-luna:
+    label: Luna 5.6
+    color: '#000000'
+    scale_color: '#222222'
+    budget: luna
+    runs: [output/evaluation/leanlean_20260914/openai/gpt-5.6-luna-xhigh]
+  leanstral-1.5:
+    label: Leanstral 1.5
+    color: '#f97316'
+    leaderboard_only: true  # leaderboard, introduction and heartbeats only
+    runs: [output/evaluation/leanlean_20260914/mistral/leanstral-1.5]
+    usage_pricing:
+      input_per_million_usd: 0.15
+      output_per_million_usd: 0.6
+    cost_note: Estimated from retained usage at GPT-OSS-120B substitute rates ($0.15/M input, $0.60/M output).
+
+heartbeats:
+  # Stripped-baseline body heartbeats: a summary.json of scripts/measure_heartbeats.py.
+  baselines: [output/heartbeats/leanlean_20260914-stripped-heartbeats-v1/summary.json]
+
+union:
+  repositories: &mini12
+    - palomar__2026-08-17-000002
+    - palomar__2026-08-17-000003
+    - palomar__2026-08-19-000003
+    - palomar__2026-08-21-000004
+    - palomar__2026-08-22-000003
+    - palomar__2026-08-22-000006
+    - palomar__2026-08-23-000003
+    - palomar__2026-08-24-000002
+    - palomar__2026-08-24-000005
+    - palomar__2026-08-26-000006
+    - palomar__2026-08-27-000011
+    - palomar__2026-08-29-000003
+  controls: [opus-5, gpt-5.6-sol]
+  arms:
+    start-opus:
+      runs: [output/evaluation/leanlean_20260920-langlib-opus-sol-reconciliation-luna-12-seeded-r2/openai/gpt-5.6-luna-xhigh]
+    start-sol:
+      runs: [output/evaluation/leanlean_20260921-langlib-sol-opus-reconciliation-luna-12-seeded-r1/openai/gpt-5.6-luna-xhigh]
+  labels:
+    opus-5: Claude Opus 5 (high reasoning)
+    gpt-5.6-sol: GPT-5.6 Sol (xhigh reasoning)
+    start-opus: Union (starting from Opus)
+    start-sol: Union (starting from Sol)
+
+benchmark_extra:
+  repositories: *mini12
+  # Models without `runs` are the benchmark models above, at their recorded cost.
+  models:
+    fable-5.1-mini-v3:
+      label: Fable 5.1
+      runs: [output/evaluation/leanlean_20260914_mini/anthropic/fable-5.1-high]
+    opus-5: {label: Opus 5}
+    gpt-6-astra-xhigh:
+      label: 6 Astra
+      runs: [output/evaluation/leanlean_20260914_mini/openai/gpt-6-astra-xhigh]
+    gpt-5.6-sol: {label: Sol 5.6}
+
+# classify_compression.py outputs (classification-repositories.csv,
+# diff_classification_macro.csv) for the five figure models' endpoints.
+classification: output/analysis/leanlean_20260914-paper-graphs/compression-origin
+
+prompt_ablation:
+  repositories:
+    - palomar__2026-08-22-000003
+    - palomar__2026-08-24-000002
+    - palomar__2026-08-27-000011
+    - palomar__2026-08-29-000003
+  arms:
+    canonical:  # the benchmark's own Opus endpoints on these repositories
+      label: "Canonical\nprompt"
+      classification: output/analysis/leanlean_20260914-paper-graphs/compression-origin
+      model: opus
+    compress-proofs:
+      label: "Compress\nproofs"
+      classification: output/analysis/leanlean_20260914_mini-prompt-ablation-compress-4band-r2-paper-graphs/compression-origin
+    reduce-size-without-anticheat:
+      label: "Reduce size\nwithout anti-cheat"
+      classification: output/analysis/leanlean_20260914_mini-reduce-size-without-anticheat-20260922-r1-paper-graphs/compression-origin

@@ -1,0 +1,46 @@
+kind: leanlean_evaluation_dataset
+schema_version: 1
+dataset: datasets/compressed-sorried-holdouts-20260912-r1/uncompressed.yaml
+repositories: all
+rounds: 1
+agent:
+  system_prompt: native
+  prompt: |
+    Prove the held-out theorems whose proofs are sorry in this repository.
+    Their exact statements have already been restored as ordinary Lean source
+    declarations in the project source files. Replace their sorry proofs.
+
+    Keep the theorem statements unchanged and preserve all other registered main
+    results. You may edit source and add supporting lemmas or definitions.
+    Do not introduce axioms or leave sorry in any of the required proofs.
+
+    Run the no-argument command lean_verify from the repository root. It checks
+    the full original registered statements and permitted axioms.
+
+    You have a wall-clock budget of {time_limit}. It started at {current_time}
+    and expires at {deadline}.
+
+    When the held-out theorems are proved and lean_verify succeeds, output
+    <submit> and terminate.
+  allowed_skills: []
+  mcp_servers: []
+  enable_subagents: false
+  enable_lean_verify: true
+  enable_proof_length: false
+container:
+  cpus: 8
+  build_jobs: 8
+  memory: 64g
+  max_total_memory: 64g
+  pids_limit: 4096
+  timeout: 1h
+  cgroup_parent: lean.slice
+  network_policy: model_proxy_only
+monitoring:
+  snapshots: true
+  every_n_edits: 1
+  reconciliation_interval_seconds: 30
+postprocessing:
+  replay: false
+  workers: 1
+  threads_per_repository: 8

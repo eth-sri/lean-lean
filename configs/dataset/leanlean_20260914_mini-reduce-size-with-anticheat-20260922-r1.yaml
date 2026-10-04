@@ -1,0 +1,58 @@
+# User-authorized prompt ablation, 2026-09-22. Excluded from canonical aggregates.
+kind: leanlean_evaluation_dataset
+schema_version: 1
+prompt_ablation: reduce-size-with-anticheat
+
+dataset: datasets/leanlean_20260914/dataset.yaml
+repositories:
+  - palomar__2026-08-29-000003  # ≤ 10k      (3,087 tokens)
+  - palomar__2026-08-22-000003  # 10k–50k    (19,613 tokens)
+  - palomar__2026-08-24-000002  # 50k–250k   (54,247 tokens)
+  - palomar__2026-08-27-000011  # > 250k     (1,156,814 tokens; langlib)
+shuffle: false
+rounds: 1
+max_api_retries: 0
+
+agent:
+  system_prompt: native
+  prompt: |-
+    Reduce the size of this Lean codebase.
+
+    Success is measured by three factors:
+
+    (1) The repo compiling without errors and relying only on standard axioms.
+    (2) The benchmark's protected main results compile and remain equivalent. Run the no-argument command `lean_verify` from the repository root to verify the signatures, exit code 0 means the main results are preserved according to the lean comparator.
+    (3) The scoring metric is the reduction in non-whitespace, non-comment "Lean tokens" across all .lean files, compared to the starting state. Compressing imports does not count towards the compression metric. Run python3 proof_length.py to measure it.
+
+    You are working in a Docker container that is limited to {container_cpus} CPUs and {container_memory} of RAM.
+
+    You have a wall-clock budget of {time_limit}. It started at {current_time} and expires at {deadline}.
+
+    Don't cheat by hiding Lean code in non-.lean files, in the build artifacts, or anywhere else. Cheating will be detected.
+
+    When you believe there is no more refactoring to be done, output <submit> and terminate.
+  allowed_skills: []
+  mcp_servers: []
+  enable_subagents: false
+  enable_lean_verify: true
+  enable_proof_length: true
+
+container:
+  cpus: 8
+  build_jobs: 8
+  memory: 64g
+  max_total_memory: 256g
+  pids_limit: 4096
+  timeout: 12h
+  cgroup_parent: lean.slice
+  network_policy: model_proxy_only
+
+monitoring:
+  snapshots: true
+  every_n_edits: 1
+  reconciliation_interval_seconds: 30
+
+postprocessing:
+  replay: true
+  workers: 4
+  threads_per_repository: 8

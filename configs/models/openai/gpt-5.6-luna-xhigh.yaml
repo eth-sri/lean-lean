@@ -1,0 +1,49 @@
+kind: leanlean_evaluation_model
+schema_version: 1
+model: gpt-5.6-luna
+harness: codex_sub
+harness_version: 0.154.0
+reasoning_effort: xhigh
+parallelism:
+  workers: 6
+  start_interval_seconds: 2
+system_prompt:
+  mode: native
+  snapshot: experiments/payload_audit/prompts/openai-gpt-5.6-luna-xhigh.json
+  sha256: f7b8320e903708438413e0853cb7405748be90eac6420ba137e73c26c9d8a12b
+generation_parameters:
+  policy: native_harness_defaults
+  observed_at: '2026-09-13'
+  request_sha256: 070f5139a0e36dfde46962b75d6d43c09ff11332e3a2fb7b87c85c0897043b8f
+  request:
+    reasoning:
+      effort: xhigh
+      context: all_turns
+    text_verbosity: low
+    stream: true
+    tool_choice: auto
+    parallel_tool_calls: false
+    store: false
+    known_dynamic_inputs:
+    - current_date
+    - working_directory
+    - session_identifiers
+    include:
+    - reasoning.encrypted_content
+pricing:
+  basis: benchmark_cost_accounting_snapshot
+  observed_at: '2026-09-04'
+  source: src/configs/model_constants.py
+  currency: USD
+  unit: per_million_tokens
+  reasoning_tokens_billed_as: output
+  rates:
+    input: 0.2
+    output: 1.2
+    cache_read: 0.02
+    cache_creation: 0.25
+access:
+  mode: subscription
+  limits:
+    five_hour: true
+    weekly: true

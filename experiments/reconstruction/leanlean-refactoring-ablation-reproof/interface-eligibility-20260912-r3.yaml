@@ -1,0 +1,72 @@
+kind: leanlean_holdout_interface_eligibility
+schema_version: 1
+run_id: leanlean-holdout-interface-eligibility-20260912-r3
+model: none
+reasoning_effort: none
+generator: deterministic_exact_sorried_holdout_append
+model_requests: 0
+repository_variant: compressed
+rounds: 1
+dataset_directory: datasets/leanlean-holdouts21-s42_20260910_r1
+repository_manifests: experiments/postprocessing/leanlean-refactoring-ablation/repositories
+repositories:
+  - case10__holdout
+  - case07__holdout
+  - case19__holdout
+  - case09__holdout
+  - case11__holdout
+  - case02__holdout
+  - case12__holdout
+  - case22__holdout
+  - case01__holdout
+  - case14__holdout
+  - case17__holdout
+  - case16__holdout
+  - case25__holdout
+  - case05__holdout
+  - case18__holdout
+  - case08__holdout
+  - case03__holdout
+  - case06__holdout
+  - case21__holdout
+  - case15__holdout
+  - case13__holdout
+queue_order: ascending stripped Lean tokens; LangLib and Regts-Sevenster last
+workers: 12
+timeout_seconds: 3600
+container:
+  cpus: 4
+  build_jobs: 4
+  memory: 64g
+  max_total_memory: 768g
+  max_total_cpus: 48
+  pids_limit: 4096
+  nofile_limit: 1048576
+  cgroup_parent: lean.slice
+  network_policy: none
+evaluation:
+  input_endpoint: submitted compressed final
+  allow_latest_green_checkpoint: true
+  green_checkpoint_exception: case21__holdout
+  append_destination: registered parent solution source
+  append_payload: exact source_file_with_sorry context without source imports
+  source_import_policy: existing_solution_environment
+  deduplicate_existing_universe_declarations: true; $a  - This is the inclusion-authoritative theorem-interface pass; r2 separately measures survival of original import routes.
+  restore_supporting_declarations: false
+  require_original_proof_absent: true
+  clean_build: true
+  eligibility_rule: build succeeds after exact sorried theorem interface alone is appended
+monitoring:
+  snapshots: true
+  every_n_edits: 1
+  native_traces: true
+  baseline_sources: pinned_by_path_and_sha256
+  intermediate_sources: augmented.sources.tar.gz
+  terminal_sources: augmented.sources.tar.gz
+output_directory: output/reconstruction/leanlean-refactoring-ablation-interface-eligibility-20260912-r3
+tmux_session: leanlean-interface-eligibility-r3
+notes:
+  - No LLM or paid reproof requests are made.
+  - case21 uses its latest build-and-signature-green checkpoint because no submitted final exists.
+  - A build failure is a scientific ineligibility result; only setup/runtime failures are infrastructure errors.
+  - Supersedes r1, which had no builds because the launcher omitted the workspace root from PYTHONPATH.

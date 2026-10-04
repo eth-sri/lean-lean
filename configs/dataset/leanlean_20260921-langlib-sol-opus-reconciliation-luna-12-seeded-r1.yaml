@@ -1,0 +1,75 @@
+# Luna reconciliation over the 12 leanlean-mini repositories, REVERSED seeding.
+#
+#   main            Sol refactor     (leanlean_20260914-sol-reconciled-current)
+#   other-refactor  Opus 5 refactor  (leanlean_20260914-opus-reconciled-current)
+#
+# Mirror of leanlean_20260920-...-luna-12-seeded-r2 (main=Opus, other=Sol) with
+# the identical prompt, repositories, and container contract, so the only change
+# is which refactor is the starting point.
+kind: leanlean_evaluation_dataset
+schema_version: 1
+
+dataset: datasets/leanlean_20260921_langlib_sol_opus_12_seeded/dataset.yaml
+repositories:
+  - palomar__2026-08-19-000003
+  - palomar__2026-08-27-000011
+  - palomar__2026-08-23-000003
+  - palomar__2026-08-22-000006
+  - palomar__2026-08-21-000004
+  - palomar__2026-08-24-000002
+  - palomar__2026-08-22-000003
+  - palomar__2026-08-26-000006
+  - palomar__2026-08-17-000003
+  - palomar__2026-08-24-000005
+  - palomar__2026-08-17-000002
+  - palomar__2026-08-29-000003
+rounds: 1
+max_api_retries: 0
+
+agent:
+  system_prompt: native
+  prompt: |-
+    We have two refactors of this Lean codebase, one on the main branch, and one on the other-refactor branch. To see the original codebase, refer to the initial commit on the main branch.
+
+    Combine ideas from both refactors into a smaller final refactor. Starting from the one on main, incorporate ideas from the other-refactor branch to compress it even more.
+
+    Success is measured by three factors:
+
+    (1) The repo compiling from scratch without errors and relying only on standard axioms.
+
+    (2) The benchmark's protected main results compile and remain equivalent. Run the no-argument command `lean_verify` from the repository root to verify the signatures, exit code 0 means the main results are preserved according to the lean comparator.
+
+    (3) The scoring metric is the reduction in non-whitespace, non-comment "Lean tokens" across all .lean files, compared to the starting state. Compressing imports does not count towards the compression metric. Run python3 proof_length.py to measure it.
+
+    You have a wall-clock budget of {time_limit}. It started at {current_time} and expires at {deadline}.
+
+    You are working in a Docker container with access to {container_memory} of RAM and {container_cpus} CPUs.
+
+    Don't cheat or bypass the rules, any cheating will be detected. Such as putting Lean code in .txt, hiding code inside the build artifacts. Just make the repo smaller than what is currently on the main branch.
+
+    When both refactors are combined and repo is smaller than the original in Lean tokens, output <submit> and terminate.
+  allowed_skills: []
+  mcp_servers: []
+  enable_subagents: false
+  enable_lean_verify: true
+  enable_proof_length: true
+
+container:
+  cpus: 8
+  build_jobs: 8
+  memory: 64g
+  max_total_memory: 384g
+  pids_limit: 4096
+  timeout: 4h
+  cgroup_parent: lean.slice
+  network_policy: model_proxy_only
+
+monitoring:
+  snapshots: true
+  every_n_edits: 1
+  reconciliation_interval_seconds: 30
+
+postprocessing:
+  replay: false
+  workers: 4
+  threads_per_repository: 8

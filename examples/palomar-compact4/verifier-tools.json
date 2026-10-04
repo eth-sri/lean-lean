@@ -1,0 +1,34 @@
+[
+  {
+    "path": "bin/landrun",
+    "sha256": "416d9b8a71c66b075fea79a1e29ebc65af761b91bfb8deeb40ac800444bbd604"
+  },
+  {
+    "path": "bin/nanoda_bin",
+    "sha256": "f4cddf6adeec56869fdf77e9ae2e877ad69aaccf96a81261824d5a6cd6724c21"
+  },
+  {
+    "path": "comparator/575674928e239f5bc452aab72d1dd7b0f1326494/comparator",
+    "sha256": "f25185592ce22b0d12c5801553c7caa5a5f7731a30a14226de2be68b27382430"
+  },
+  {
+    "path": "comparator/68a064109f01c08f47c8edc9f51d6a2bbffaa188/comparator",
+    "sha256": "67abee0e24f995100f36860f29bf05fe1a85cbfa1a9a31c05fe434af51c4d7a5"
+  },
+  {
+    "path": "lean4export/a3e35a584f59b390667db7269cd37fca8575e4bf/lean4export",
+    "sha256": "8e763913b03762488571a93ced6ec1a4e04f7d8eebbe40bd1215ba41a6bd4449"
+  },
+  {
+    "path": "lean4export/4e7915201d3f9f04470d9eae002fa695f7cdc589/lean4export",
+    "sha256": "e57369980b0b81228580ce08066fb9bd738e717e002673a143f4956d217266b0"
+  },
+  {
+    "path": "lean4export/8554815c2dc6b7abe99ec1f08849c9759ba77947/lean4export",
+    "sha256": "9f7b3dbba23cdbc2d978205a24baf05af83e360cf6f49ad7483ecbd7c4f0525b"
+  },
+  {
+    "path": "lean4export/15f6055e299ad5b89345e533cc2192f4cc00f659/lean4export",
+    "sha256": "b96fdfe07615af1a4cb699a9c18688ab05a0b05fc7533af32a600c508b689280"
+  }
+]

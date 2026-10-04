@@ -1,0 +1,13 @@
+\begin{table}[t]
+\centering
+\caption{Heartbeat leaderboard. Positive reduction indicates less Lean elaboration work. An improved repository has a strictly positive heartbeat reduction. Both columns are over all 64 repositories; failed builds score zero.}
+\vspace{-2mm}
+\label{tab:heartbeat-leaderboard}
+\begin{tabular}{@{}lrr@{}}
+\toprule
+Model & Avg. reduction (\%) & Improved repos (\%) \\
+\midrule
+@@ROWS@@
+\bottomrule
+\end{tabular}
+\end{table}

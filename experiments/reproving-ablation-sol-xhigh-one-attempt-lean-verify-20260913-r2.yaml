@@ -1,0 +1,194 @@
+kind: leanlean_reproving_ablation
+schema_version: 1
+run_id: reproving-ablation-sol-xhigh-one-attempt-lean-verify-20260913-r2
+status: running
+supersedes_for_tool_access: experiments/reproving-ablation-sol-xhigh-one-attempt-20260913-r2.yaml
+model:
+  name: gpt-5.6-sol
+  reasoning_effort: xhigh
+  generator: codex_sub
+  harness_version: 0.154.0
+  config: openai/leanlean-refactoring-ablation-reproof-sol-xhigh
+  access:
+    mode: chatgpt_subscription
+    credential_source: secret.sh:OPENAI_SUBSCRIPTION_KEY
+    account_selector_source: secret.sh:OPENAI_SUBSCRIPTION_ACCOUNT_ID
+    account_alias: second_api
+    account_id_sha256: ec171575ced187ab3f246ff47c01a5d91e892ef8718a54a92700ec59d36ff4da
+    desktop_login_used: false
+dataset:
+  manifest: datasets/reproving-ablation/dataset.yaml
+  id: reproving-ablation
+  repository_count: 15
+  selected_variants:
+  - baseline
+  - post-compression
+  engine_repository_variant: stripped
+repositories:
+- case01__holdout
+- case02__holdout
+- case03__holdout
+- case05__holdout
+- case06__holdout
+- case08__holdout
+- case09__holdout
+- case12__holdout
+- case15__holdout
+- case16__holdout
+- case17__holdout
+- case18__holdout
+- case21__holdout
+- case22__holdout
+- case25__holdout
+arms:
+- name: baseline
+  dataset_config: reproving-ablation-baseline-lean-verify-r2
+  dataset_variant: baseline
+  attempts_per_repository: 1
+  command: bash eval.sh reproving-ablation-baseline-lean-verify-r2 --model openai/leanlean-refactoring-ablation-reproof-sol-xhigh
+  output: output/evaluation/reproving-ablation-baseline-lean-verify-r2/openai/leanlean-refactoring-ablation-reproof-sol-xhigh
+- name: post-compression
+  dataset_config: reproving-ablation-post-compression-lean-verify-r2
+  dataset_variant: post-compression
+  attempts_per_repository: 1
+  command: bash eval.sh reproving-ablation-post-compression-lean-verify-r2 --model
+    openai/leanlean-refactoring-ablation-reproof-sol-xhigh
+  output: output/evaluation/reproving-ablation-post-compression-lean-verify-r2/openai/leanlean-refactoring-ablation-reproof-sol-xhigh
+execution:
+  rounds: 1
+  total_attempts: 30
+  launch_order:
+  - baseline
+  - post-compression
+  launch_mode: sequential
+  workers: 12
+  start_interval_seconds: 2
+  runner: eval.sh
+  tmux_session: reproving-ablation-sol-xhigh-lean-verify-r2
+  launch_from_authored_yaml: true
+  manifest_runner: scripts/run_reproving_ablation_pair.py
+  state_artifact: runs/evaluation/reproving-ablation-sol-xhigh-one-attempt-lean-verify-20260913-r2/run.json
+  launched_at: '2026-09-13T21:44:54+02:00'
+container:
+  cpus_per_worker: 8
+  build_jobs_per_worker: 8
+  memory_per_worker: 64g
+  max_total_memory: 768g
+  pids_limit: 4096
+  timeout: 1h
+  cgroup_parent: lean.slice
+  network_policy: model_proxy_only
+agent:
+  prompt_template: experiments/reconstruction/leanlean-refactoring-ablation-reproof/reproving-ablation-lean-verify-prompt.txt
+  prompt_text: 'Prove the following target declaration(s), whose proofs are currently
+    sorry:
+
+
+    {target_declarations}
+
+
+    You have a wall-clock budget of {time_limit}. It started at {current_time} and
+    expires at {deadline}.
+
+
+    You are working in a Docker container with enforced limits of {container_memory}
+    RAM and {container_cpus} CPUs.
+
+
+    Run `lean_verify` to check the original registered statements, Lean compilation,
+    and permitted axioms before submitting.
+
+    '
+  target_expansion: host_side_per_repository
+  system_prompt: native
+  native_instruction_snapshot: experiments/reconstruction/leanlean-refactoring-ablation-reproof/reproving-ablation-native-instructions.json
+  allowed_skills: []
+  mcp_servers: []
+  enable_subagents: false
+  enable_lean_verify: true
+  enable_proof_length: false
+  task_metadata_enabled: true
+  model_visible_verifier_artifacts:
+  - lean_verify
+  - Challenge.lean
+  - comparator.json
+  codex_runtime_controls:
+    host_skill_discovery: false
+    bundled_skills: false
+    collaboration_instructions: false
+    apps_instructions: false
+    multi_agent: false
+    mcp: false
+    apps: false
+    plugins: false
+    browser: false
+    computer_use: false
+    image_generation: false
+    web_search: false
+    request_user_input: false
+    sleep: false
+    memories: false
+evaluation:
+  correctness_verification: available_during_agent_run
+  lean_verify: true
+  proof_length: false
+  replay: false
+  success_criterion: registered_comparator
+  permitted_axioms_enforced: true
+  statement_signatures_compared: true
+monitoring:
+  snapshots: true
+  every_n_edits: 1
+  reconciliation_interval_seconds: 30
+  retain_native_traces: true
+  retain_native_rollouts: true
+  retain_baseline_source_snapshots: true
+  retain_intermediate_source_snapshots: true
+  retain_terminal_source_snapshots: true
+  checkpoint_builds_during_run: false
+validation:
+  required_before_launch:
+  - validate_both_runner_configs
+  - verify_resolved_lean_verify_enabled
+  - verify_proof_length_disabled
+  - verify_per_repository_prompt_isolation
+  - verify_snapshot_capture_and_native_rollout_retention
+  - verify_container_network_policy_model_proxy_only
+  model_calls_during_preparation: 0
+  baseline_eval_validate_only: passed
+  post_compression_eval_validate_only: passed
+  resolved_lean_verify: enabled_both_arms
+  resolved_proof_length: disabled_both_arms
+  monitoring_resolution: snapshots_every_edit_and_native_rollouts
+  container_isolation: model_proxy_only_pid4096
+  validated_at: '2026-09-13'
+  reproof_contract_prewarm: disabled_for_all_15_registered_reconstruction_contracts
+  runner_dry_run: passed_both_arms
+  live_startup: passed
+  live_worker_resources: 8_cpus_64g_pid4096_network_none_with_model_proxy_relay
+  live_lean_verify: installed
+  live_proof_length: absent
+  live_monitoring_artifacts: baseline_source_archives_and_native_stdout_jsonl_written
+artifacts:
+  dataset:
+    path: datasets/reproving-ablation/dataset.yaml
+    sha256: ceeca9113a5ffd44cda4c60d0d29d39e3e021333f925838567af3a7ca484b6fa
+  baseline_runner:
+    path: configs/dataset/reproving-ablation-baseline-lean-verify-r2.yaml
+    sha256: 41cafdf64c7d5717d57d955929431bf96c0b0840f01a1c2ae1fb6058f62b1794
+  post_compression_runner:
+    path: configs/dataset/reproving-ablation-post-compression-lean-verify-r2.yaml
+    sha256: a18114e3113e755f28d2374346d2fb2c69daeb8db8a3fac3cd5a6a230a60f983
+  model_config:
+    path: configs/models/openai/leanlean-refactoring-ablation-reproof-sol-xhigh.yaml
+    sha256: 8dcb5a685dceb63b78f267e61148f09f6bbcc19822bf4d395815eb312b122bd3
+  task_prompt:
+    path: experiments/reconstruction/leanlean-refactoring-ablation-reproof/reproving-ablation-lean-verify-prompt.txt
+    sha256: 38e052f744d1746afc53eb7ec29759bd8352efe0a202703fa96557f289008e81
+  native_instructions:
+    path: experiments/reconstruction/leanlean-refactoring-ablation-reproof/reproving-ablation-native-instructions.json
+    sha256: b26bdfb3ce74391155bcb3cd3ffd6907d2af4e25d50897c330e74178827c51d9
+  manifest_runner:
+    path: scripts/run_reproving_ablation_pair.py
+    sha256: 68793186af080562a8e2f134b72722f36ceb0c470d52588676252fd46953f5db
+supersedes_invalid_run: experiments/reproving-ablation-sol-xhigh-one-attempt-lean-verify-20260913-r1.yaml

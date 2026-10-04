@@ -1,0 +1,62 @@
+[
+  {
+    "id": "palomar__2026-08-20-000004",
+    "repository": "guanyangwang/ktv-swap-lean-comparator",
+    "benchmark_tokens": 2223,
+    "band": "compact",
+    "commit": "fd4dc985900b1fba59791067dcf3bf9341a94bda",
+    "registry_record": {
+      "url": "https://data.palomar-registry.org/entries/PALOMAR-2026-08-20-000004-v1.json",
+      "sha256": "eaaab6b7691ad8bc29c98a447c66488200d3bbb72252c5c2107999612264bf45"
+    },
+    "archive": {
+      "url": "https://codeload.github.com/guanyangwang/ktv-swap-lean-comparator/tar.gz/fd4dc985900b1fba59791067dcf3bf9341a94bda",
+      "sha256": "a0420c108651ae7df2095c8db8a8439f2a60d081b28fce654089d2ef809410ed"
+    }
+  },
+  {
+    "id": "palomar__2026-08-29-000003",
+    "repository": "Arthur742Ramos/dinitz-garg-goemans-counterexample-lean",
+    "benchmark_tokens": 3087,
+    "band": "compact",
+    "commit": "cc7284cf415fc2a773f00d400319ef39663c277a",
+    "registry_record": {
+      "url": "https://data.palomar-registry.org/entries/PALOMAR-2026-08-29-000003-v1.json",
+      "sha256": "c92c1ec2f6221eeba6fde1f883f4a7518bdc0ec498e443263cd0ce39e1b64f90"
+    },
+    "archive": {
+      "url": "https://codeload.github.com/Arthur742Ramos/dinitz-garg-goemans-counterexample-lean/tar.gz/cc7284cf415fc2a773f00d400319ef39663c277a",
+      "sha256": "5633ed4267b84dbb50752b691e377fe81653a66c49dfef37db34134b05d7f243"
+    }
+  },
+  {
+    "id": "palomar__2026-08-27-000020",
+    "repository": "BrandonMYates/schwarzschild-comparator",
+    "benchmark_tokens": 3143,
+    "band": "compact",
+    "commit": "d8b6acf8263d4924356ac8abb62668c137ab61cd",
+    "registry_record": {
+      "url": "https://data.palomar-registry.org/entries/PALOMAR-2026-08-27-000020-v1.json",
+      "sha256": "e2e6c8b215f0ebc442e36cfdb5fa51c18b589371106c1dff84c4f30ecb8b555b"
+    },
+    "archive": {
+      "url": "https://codeload.github.com/BrandonMYates/schwarzschild-comparator/tar.gz/d8b6acf8263d4924356ac8abb62668c137ab61cd",
+      "sha256": "d69f6ebe14c5565cb6877cec54afaa65b56d1f42f6e2bf91806c973778f9d440"
+    }
+  },
+  {
+    "id": "palomar__2026-08-21-000002",
+    "repository": "lennrt/palomar-formalizations",
+    "benchmark_tokens": 3616,
+    "band": "compact",
+    "commit": "090b3b300ba8ec76fdba09a17f086953d13f2653",
+    "registry_record": {
+      "url": "https://data.palomar-registry.org/entries/PALOMAR-2026-08-21-000002-v1.json",
+      "sha256": "a9b75e61bf8c81746a9e7dc6b39ba4e2bace03f8ea430ceefa7db477e9e4b3de"
+    },
+    "archive": {
+      "url": "https://codeload.github.com/lennrt/palomar-formalizations/tar.gz/090b3b300ba8ec76fdba09a17f086953d13f2653",
+      "sha256": "488919b7bf8facac46a9131a10aa7080d4b17df7853c2e1f89be76276cbc2641"
+    }
+  }
+]

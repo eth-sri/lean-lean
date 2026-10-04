@@ -1,0 +1,33 @@
+# Seeds the published 12-repository bundle with the SOL/OPUS (reversed) reconciliation
+# branches.  `main` carries the Sol refactor (the state the task prompt calls
+# the starting point), `other-refactor` carries the Opus refactor, and both
+# descend from the shared init commit.
+#
+# Both sources are single `complete` runs on datasets/leanlean_20260914, read
+# from preds.json (the round_0_patch.diff files are an incomplete cache and are
+# missing for several of these repositories).
+kind: leanlean_reconciliation_seeding
+schema_version: 1
+dataset: datasets/leanlean_20260921_langlib_sol_opus_12_seeded/dataset.yaml
+sources:
+  main:
+    run: leanlean_20260914-sol-reconciled-current
+    model: gpt-5.6-sol-xhigh
+    preds: output/evaluation/leanlean_20260914-sol-reconciled-current/openai/gpt-5.6-sol-xhigh/preds.json
+  other:
+    run: leanlean_20260914-opus-reconciled-current
+    model: opus-5-high
+    preds: output/evaluation/leanlean_20260914-opus-reconciled-current/anthropic/opus-5-high/preds.json
+repositories:
+- palomar__2026-08-19-000003
+- palomar__2026-08-27-000011
+- palomar__2026-08-23-000003
+- palomar__2026-08-22-000006
+- palomar__2026-08-21-000004
+- palomar__2026-08-24-000002
+- palomar__2026-08-22-000003
+- palomar__2026-08-26-000006
+- palomar__2026-08-17-000003
+- palomar__2026-08-24-000005
+- palomar__2026-08-17-000002
+- palomar__2026-08-29-000003

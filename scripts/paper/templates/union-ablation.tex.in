@@ -1,0 +1,13 @@
+\begin{wraptable}[9]{r}{0.38\textwidth}
+  \vspace{-\intextsep}
+  \centering
+  \caption{Merge of Opus 5 and Sol 5.6 compressions achieves small gains.}
+  \label{tab:union-ablation}
+  \begin{tabular}{lr}
+    \toprule
+    Method & Score (\%) \\
+    \midrule
+@@ROWS@@
+    \bottomrule
+  \end{tabular}
+\end{wraptable}

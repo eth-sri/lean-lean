@@ -1,0 +1,49 @@
+kind: leanlean_evaluation_model
+schema_version: 1
+model: fable-5.1
+harness: claude_code_sub
+harness_version: 2.1.269
+reasoning_effort: high
+parallelism:
+  workers: 1
+  start_interval_seconds: 2
+system_prompt:
+  mode: native
+  snapshot: experiments/payload_audit/prompts/anthropic-fable-5.1-high.json
+  sha256: 78611f48c60beb6366a37d66846f8fb0e20c062fc094887289c83d277a75cf01
+generation_parameters:
+  policy: native_harness_defaults
+  observed_at: '2026-09-13'
+  request_sha256: eabc1a6d548e0338c0f30ee1c4ba0ed19d73617489adf32b22aca0ea337fe7d4
+  request:
+    max_tokens: 64000
+    stream: true
+    thinking:
+      type: adaptive
+    output_config:
+      effort: high
+    context_management:
+      edits:
+      - keep: all
+        type: clear_thinking_20251015
+    known_dynamic_inputs:
+    - current_date
+    - working_directory
+    - session_identifiers
+pricing:
+  basis: benchmark_cost_accounting_snapshot
+  observed_at: '2026-09-06'
+  source: src/configs/model_constants.py
+  currency: USD
+  unit: per_million_tokens
+  reasoning_tokens_billed_as: output
+  rates:
+    input: 10.0
+    output: 50.0
+    cache_read: 0.25
+    cache_creation: 20.0
+access:
+  mode: subscription
+  limits:
+    five_hour: true
+    weekly: true

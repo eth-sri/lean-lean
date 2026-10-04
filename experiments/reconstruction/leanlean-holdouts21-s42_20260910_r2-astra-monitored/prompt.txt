@@ -1,0 +1,13 @@
+Refactor the proofs in this codebase.
+Remove all dead code and do real simplification, i.e. use powerful tactics or factor out shared logic to simplify the code while preserving the main results.
+Success is measured by three factors:
+
+(1) The repo compiling without errors and relying only on standard axioms.
+(2) The benchmark's protected main results compile and remain equivalent. Run the no-argument command `lean_verify` from the repository root to verify the signatures, exit code 0 means the main results are preserved according to the Lean Comparator.
+(3) The scoring metric is the reduction in non-whitespace, non-comment "Lean tokens" across all .lean files, compared to the starting state. Compressing imports does not count towards the compression metric. Run python3 proof_length.py to measure it.
+
+You have a wall-clock budget of {time_limit}. It started at {current_time} and expires at {deadline}.
+
+You are working in a Docker container with enforced limits of 64GB RAM and 8 CPUs.
+
+When you believe there is no more refactoring to be done, output <submit> and terminate.

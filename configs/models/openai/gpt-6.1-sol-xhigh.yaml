@@ -1,0 +1,58 @@
+# GPT-6.1 Sol on Codex 0.160.0 (scripts/install_codex_standalone.sh 0.160.0), the first pinned release
+# whose bundled catalog has gpt-6.1-sol (0.154.0 falls back to generic model metadata and tools). The
+# codex_model_catalog below is 0.160.0's bundled catalog with gpt-6.1-sol's two experimental tools
+# (send_user_message_async, clock) removed, so its tool settings equal GPT-5.6 Sol's and the request
+# carries the same tools (code-mode exec, wait, request_user_input); the runner passes it as
+# -c model_catalog_json. Request captured on loopback with scripts/capture_harness_request.py.
+kind: leanlean_evaluation_model
+schema_version: 1
+model: gpt-6.1-sol
+harness: codex_sub
+harness_version: 0.160.0
+codex_model_catalog:
+  path: configs/models/openai/codex-0.160.0-catalog-gpt-6.1-sol-sol56-tools.json
+  sha256: bd3094ec6a06a7a23ebdf32d350f31cbaf2f72e73d5271dbcfae6ed546412294
+reasoning_effort: xhigh
+parallelism:
+  workers: 6
+  start_interval_seconds: 2
+system_prompt:
+  mode: native
+  snapshot: experiments/payload_audit/prompts/openai-gpt-6.1-sol-xhigh.json
+  sha256: c69ad6ae8678285b4a31b120fe2206eb9dce03844a798da3485acc0bab8dcb04
+generation_parameters:
+  policy: native_harness_defaults
+  observed_at: '2026-10-03'
+  request_sha256: 40ae1a5c03f0fb55bbae397244e1fc0831b91d2a555305cfaa4132c093ef4b0a
+  request:
+    reasoning:
+      effort: xhigh
+      context: all_turns
+    text_verbosity: low
+    stream: true
+    tool_choice: auto
+    parallel_tool_calls: false
+    store: false
+    include:
+    - reasoning.encrypted_content
+    known_dynamic_inputs:
+    - current_date
+    - working_directory
+    - session_identifiers
+pricing:
+  basis: benchmark_cost_accounting_snapshot
+  observed_at: '2026-10-01'
+  source: src/configs/model_constants.py
+  currency: USD
+  unit: per_million_tokens
+  reasoning_tokens_billed_as: output
+  rates:
+    input: 2.0
+    output: 10.0
+    cache_read: 0.1
+    cache_creation: 2.5
+access:
+  mode: subscription
+  limits:
+    five_hour: true
+    weekly: true

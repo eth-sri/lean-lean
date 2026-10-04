@@ -1,0 +1,73 @@
+kind: leanlean_agent_product_release_set
+schema_version: 1
+as_of: '2026-09-13'
+proxy:
+  product: LiteLLM
+  version: 1.96.2
+  lockfile: uv.lock
+harnesses:
+  codex:
+    version: 0.154.0
+    release: rust-v0.154.0
+    source: https://github.com/openai/codex/releases/tag/rust-v0.154.0
+    linux_x86_64:
+      asset: codex-package-x86_64-unknown-linux-musl.tar.gz
+      sha256: fc6e3e3b85f2cf7d664520ee5c66a7fe4aa12bae7d46834f47e2f165fd0d6f78
+    linux_aarch64:
+      asset: codex-package-aarch64-unknown-linux-musl.tar.gz
+      sha256: 97d93e11df72d3c26772db019e6ea8bb72c246500d46b98c760839f3240355e6
+    # Per-model pins (model config harness_version; see HARNESS_VERSION_OVERRIDES).
+    model_overrides:
+      '0.160.0':
+        models: [gpt-6.1-sol]
+        release: rust-v0.160.0
+        source: https://github.com/openai/codex/releases/tag/rust-v0.160.0
+        linux_x86_64:
+          asset: codex-package-x86_64-unknown-linux-musl.tar.gz
+          sha256: 4fcc47ab57f52ff75363951a8761146cd10c8288bd86fed45487dbb204a16b71
+  claude_code:
+    version: 2.1.269
+    release: v2.1.269
+    source: https://github.com/anthropics/claude-code/releases/tag/v2.1.269
+    linux_x86_64:
+      asset: claude-linux-x64.tar.gz
+      sha256: 2749b0fc61cb5ff9a998431d30e9e447a2214b4c5393708db0800245dd3733eb
+    linux_aarch64:
+      asset: claude-linux-arm64.tar.gz
+      sha256: b6834b006482a17618ee41d790dd39eaed9aac10ea6efef190252bd029c84d2b
+    model_overrides:
+      '2.1.280':
+        models: [opus-5.5]
+        release: v2.1.280
+        source: https://github.com/anthropics/claude-code/releases/tag/v2.1.280
+        linux_x86_64:
+          asset: claude-linux-x64.tar.gz
+          sha256: 4239c476881f46f5bd2cccee97c10b1c8073f4ab4ae40e3c829493210e757764
+  mistral_vibe:
+    version: 2.25.0
+    release: v2.25.0
+    source: https://github.com/mistralai/mistral-vibe/releases/tag/v2.25.0
+    linux_x86_64:
+      asset: vibe-linux-x86_64-2.25.0.zip
+      sha256: 2d7b59165143c93e10fd739d9e3b01e413464e2ded6e9ad7a1edc44c773f796f
+    linux_aarch64:
+      asset: vibe-linux-aarch64-2.25.0.zip
+      sha256: 7a24bb4c63d9db891613dc152ecf1ecde687d73118605a9959ac19c01a7a0f09
+  antigravity:
+    version: 1.1.26
+    release: 1.1.26
+    source: https://github.com/google-antigravity/antigravity-cli/releases/tag/1.1.26
+    linux_x86_64:
+      asset: agy_cli_linux_x64.tar.gz
+      sha256: c47c0726266b3513660b7094bceceecbd03d8ae907786aa269c507ceb7e4ee54
+    linux_aarch64:
+      asset: agy_cli_linux_arm64.tar.gz
+      sha256: f595d2f1ae23001afffab9cb9012d054f0e8a02a1e848537f73239ae8d3fbd6d
+  gemini_cli:
+    version: 0.58.0
+    release: v0.58.0
+    source: https://github.com/google-gemini/gemini-cli/releases/tag/v0.58.0
+    active_model_configs: false
+    bundle:
+      asset: gemini-cli-bundle.zip
+      sha256: c4e5914239a247091bd0ce2af782f4524a7d69f733e8a799b2b7a126272837ab

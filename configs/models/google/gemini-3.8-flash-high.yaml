@@ -1,0 +1,51 @@
+kind: leanlean_evaluation_model
+schema_version: 1
+model: gemini-3.8-flash
+harness: antigravity_cli
+harness_version: "1.1.26"
+reasoning_effort: high
+parallelism:
+  workers: 4
+  start_interval_seconds: 2
+system_prompt:
+  mode: native
+  snapshot: experiments/payload_audit/prompts/google-gemini-3.8-flash-high.json
+  sha256: 3c7a1a97f9153afadfa1a41554de3aa107c7f14dc104a3233edf737d49a66739
+generation_parameters:
+  policy: native_harness_defaults
+  observed_at: "2026-09-04"
+  request_sha256: 361f024c9f4712575dabe823efac9ae6b273e21f2e231706de73c76815bd8a85
+  request:
+    temperature: 1
+    top_p: 1
+    top_k: 50
+    max_output_tokens: 65536
+    candidate_count: 1
+    stop_sequences:
+      - <|user|>
+      - <|bot|>
+      - <|context_request|>
+      - <|endoftext|>
+      - <|end_of_turn|>
+    reasoning:
+      thinking:
+        include_thoughts: true
+        budget: -1
+    stream: true
+    known_dynamic_inputs:
+      - current_local_time
+      - conversation_id
+pricing:
+  basis: benchmark_cost_accounting_snapshot
+  observed_at: "2026-09-04"
+  source: src/configs/model_constants.py
+  currency: USD
+  unit: per_million_tokens
+  reasoning_tokens_billed_as: output
+  rates:
+    input: 0.75
+    output: 3.75
+    cache_read: 0.075
+    cache_creation: 0.0
+access:
+  mode: api

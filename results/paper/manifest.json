@@ -1,0 +1,335 @@
+{
+  "schema_version": 2,
+  "run_id": "paper-results-20261004-r3",
+  "created_at": "2026-10-04T15:36:11.939122+00:00",
+  "collection": "experiments/final/paper-results-20261004-r1",
+  "canonical_prompt_sha256": "9e8b045d494936aba649587e30cff40f80fdaaad254b759a7c1f9e9af008e111",
+  "blocked_outputs": [],
+  "definitions": {
+    "benchmark_extra": {
+      "repositories": [
+        "palomar__2026-08-17-000002",
+        "palomar__2026-08-19-000003",
+        "palomar__2026-08-23-000003",
+        "palomar__2026-08-24-000005",
+        "palomar__2026-08-27-000011",
+        "palomar__2026-08-29-000003"
+      ],
+      "fable_extensions": [
+        "fable-5.1-remaining6-20260924",
+        "fable-5.1-langlib-rerun-20260925"
+      ],
+      "superseded_selections": [
+        {
+          "model": "fable-5.1-mini-v3",
+          "repository": "palomar__2026-08-27-000011",
+          "replaced_by": "fable-5.1-langlib-rerun-20260925",
+          "reason": "claude CLI aborted (SIGABRT, core dumped) 7 h into the 12 h budget with no native result event; the harness still recorded Submitted. Replaced by a clean rerun."
+        }
+      ],
+      "origin_repositories": [
+        "palomar__2026-08-17-000002",
+        "palomar__2026-08-17-000003",
+        "palomar__2026-08-19-000003",
+        "palomar__2026-08-21-000004",
+        "palomar__2026-08-22-000003",
+        "palomar__2026-08-22-000006",
+        "palomar__2026-08-23-000003",
+        "palomar__2026-08-24-000002",
+        "palomar__2026-08-24-000005",
+        "palomar__2026-08-26-000006",
+        "palomar__2026-08-27-000011",
+        "palomar__2026-08-29-000003"
+      ],
+      "origin_extensions": {
+        "fable": [
+          {
+            "key": "fable-5.1-remaining6-20260924",
+            "graph_root": "benchmark-extra/artifacts/output/analysis/fable-remaining6-completed-build-graphs-20260925-r1/repositories",
+            "summary": "analysis-support/artifacts/output/analysis/compression_categories/completed_build_runs_20260925/fable-remaining6-completed-build-graphs-20260925-r1.summary.json",
+            "program_cache": "analysis-support/artifacts/output/analysis/compression_categories/program_sites_fable_remaining6_20260925"
+          },
+          {
+            "key": "fable-5.1-langlib-rerun-20260925",
+            "graph_root": "benchmark-extra/artifacts/output/analysis/fable-langlib-rerun-completed-build-graphs-20260925-r1/repositories",
+            "summary": "analysis-support/artifacts/output/analysis/compression_categories/completed_build_runs_20260925/fable-langlib-rerun-completed-build-graphs-20260925-r1.summary.json",
+            "program_cache": "analysis-support/artifacts/output/analysis/compression_categories/program_sites_fable_langlib_rerun_20260925"
+          }
+        ]
+      },
+      "leaderboard_repositories": [
+        "palomar__2026-08-17-000002",
+        "palomar__2026-08-17-000003",
+        "palomar__2026-08-19-000003",
+        "palomar__2026-08-21-000004",
+        "palomar__2026-08-22-000003",
+        "palomar__2026-08-22-000006",
+        "palomar__2026-08-23-000003",
+        "palomar__2026-08-24-000002",
+        "palomar__2026-08-24-000005",
+        "palomar__2026-08-26-000006",
+        "palomar__2026-08-27-000011",
+        "palomar__2026-08-29-000003"
+      ],
+      "aggregation": "macro",
+      "baseline_root": "analysis-support/artifacts/datasets/leanlean_20260914/repos",
+      "program_cache": "analysis-support/artifacts/output/analysis/compression_categories/program_sites",
+      "summaries": {
+        "astra": "analysis-support/artifacts/output/analysis/compression_categories/completed_build_runs_20260922/astra-completed-build-graphs-20260922-r1.summary.json",
+        "fable": "analysis-support/artifacts/output/analysis/compression_categories/completed_build_runs_20260922/fable-completed-build-graphs-20260922-r1.summary.json"
+      },
+      "graph_roots": {
+        "astra": "benchmark-extra/artifacts/output/analysis/astra-completed-build-graphs-20260922-r1/repositories",
+        "fable": "benchmark-extra/artifacts/output/analysis/fable-completed-build-graphs-20260922-r1/repositories"
+      },
+      "astra_extensions": [
+        "gpt-6-astra-canonical-xhigh-20260929"
+      ],
+      "astra_leaderboard_model": "gpt-6-astra-xhigh",
+      "leaderboard_superseded_selections": [
+        {
+          "model": "gpt-6-astra-mini-v3",
+          "repository": "palomar__2026-08-17-000002",
+          "replaced_by": "gpt-6-astra-canonical-xhigh-20260929",
+          "reason": "Mini-v3 Astra ran at reasoning effort MEDIUM with the mini-v3 prompt (all proxy requests effort=medium); the leaderboard uses the canonical-prompt xhigh rerun. The origin figure keeps the Mini-v3 Astra graphs (no graphs exist yet for the rerun)."
+        },
+        {
+          "model": "gpt-6-astra-mini-v3",
+          "repository": "palomar__2026-08-17-000003",
+          "replaced_by": "gpt-6-astra-canonical-xhigh-20260929",
+          "reason": "Mini-v3 Astra ran at reasoning effort MEDIUM with the mini-v3 prompt (all proxy requests effort=medium); the leaderboard uses the canonical-prompt xhigh rerun. The origin figure keeps the Mini-v3 Astra graphs (no graphs exist yet for the rerun)."
+        },
+        {
+          "model": "gpt-6-astra-mini-v3",
+          "repository": "palomar__2026-08-19-000003",
+          "replaced_by": "gpt-6-astra-canonical-xhigh-20260929",
+          "reason": "Mini-v3 Astra ran at reasoning effort MEDIUM with the mini-v3 prompt (all proxy requests effort=medium); the leaderboard uses the canonical-prompt xhigh rerun. The origin figure keeps the Mini-v3 Astra graphs (no graphs exist yet for the rerun)."
+        },
+        {
+          "model": "gpt-6-astra-mini-v3",
+          "repository": "palomar__2026-08-21-000004",
+          "replaced_by": "gpt-6-astra-canonical-xhigh-20260929",
+          "reason": "Mini-v3 Astra ran at reasoning effort MEDIUM with the mini-v3 prompt (all proxy requests effort=medium); the leaderboard uses the canonical-prompt xhigh rerun. The origin figure keeps the Mini-v3 Astra graphs (no graphs exist yet for the rerun)."
+        },
+        {
+          "model": "gpt-6-astra-mini-v3",
+          "repository": "palomar__2026-08-22-000003",
+          "replaced_by": "gpt-6-astra-canonical-xhigh-20260929",
+          "reason": "Mini-v3 Astra ran at reasoning effort MEDIUM with the mini-v3 prompt (all proxy requests effort=medium); the leaderboard uses the canonical-prompt xhigh rerun. The origin figure keeps the Mini-v3 Astra graphs (no graphs exist yet for the rerun)."
+        },
+        {
+          "model": "gpt-6-astra-mini-v3",
+          "repository": "palomar__2026-08-22-000006",
+          "replaced_by": "gpt-6-astra-canonical-xhigh-20260929",
+          "reason": "Mini-v3 Astra ran at reasoning effort MEDIUM with the mini-v3 prompt (all proxy requests effort=medium); the leaderboard uses the canonical-prompt xhigh rerun. The origin figure keeps the Mini-v3 Astra graphs (no graphs exist yet for the rerun)."
+        },
+        {
+          "model": "gpt-6-astra-mini-v3",
+          "repository": "palomar__2026-08-23-000003",
+          "replaced_by": "gpt-6-astra-canonical-xhigh-20260929",
+          "reason": "Mini-v3 Astra ran at reasoning effort MEDIUM with the mini-v3 prompt (all proxy requests effort=medium); the leaderboard uses the canonical-prompt xhigh rerun. The origin figure keeps the Mini-v3 Astra graphs (no graphs exist yet for the rerun)."
+        },
+        {
+          "model": "gpt-6-astra-mini-v3",
+          "repository": "palomar__2026-08-24-000002",
+          "replaced_by": "gpt-6-astra-canonical-xhigh-20260929",
+          "reason": "Mini-v3 Astra ran at reasoning effort MEDIUM with the mini-v3 prompt (all proxy requests effort=medium); the leaderboard uses the canonical-prompt xhigh rerun. The origin figure keeps the Mini-v3 Astra graphs (no graphs exist yet for the rerun)."
+        },
+        {
+          "model": "gpt-6-astra-mini-v3",
+          "repository": "palomar__2026-08-24-000005",
+          "replaced_by": "gpt-6-astra-canonical-xhigh-20260929",
+          "reason": "Mini-v3 Astra ran at reasoning effort MEDIUM with the mini-v3 prompt (all proxy requests effort=medium); the leaderboard uses the canonical-prompt xhigh rerun. The origin figure keeps the Mini-v3 Astra graphs (no graphs exist yet for the rerun)."
+        },
+        {
+          "model": "gpt-6-astra-mini-v3",
+          "repository": "palomar__2026-08-26-000006",
+          "replaced_by": "gpt-6-astra-canonical-xhigh-20260929",
+          "reason": "Mini-v3 Astra ran at reasoning effort MEDIUM with the mini-v3 prompt (all proxy requests effort=medium); the leaderboard uses the canonical-prompt xhigh rerun. The origin figure keeps the Mini-v3 Astra graphs (no graphs exist yet for the rerun)."
+        },
+        {
+          "model": "gpt-6-astra-mini-v3",
+          "repository": "palomar__2026-08-27-000011",
+          "replaced_by": "gpt-6-astra-canonical-xhigh-20260929",
+          "reason": "Mini-v3 Astra ran at reasoning effort MEDIUM with the mini-v3 prompt (all proxy requests effort=medium); the leaderboard uses the canonical-prompt xhigh rerun. The origin figure keeps the Mini-v3 Astra graphs (no graphs exist yet for the rerun)."
+        },
+        {
+          "model": "gpt-6-astra-mini-v3",
+          "repository": "palomar__2026-08-29-000003",
+          "replaced_by": "gpt-6-astra-canonical-xhigh-20260929",
+          "reason": "Mini-v3 Astra ran at reasoning effort MEDIUM with the mini-v3 prompt (all proxy requests effort=medium); the leaderboard uses the canonical-prompt xhigh rerun. The origin figure keeps the Mini-v3 Astra graphs (no graphs exist yet for the rerun)."
+        }
+      ]
+    },
+    "classification": {
+      "mode": "selected_endpoints",
+      "accounting": "ledger",
+      "automation": "step",
+      "inputs": "analysis-support/artifacts/paper/classification-inputs.csv",
+      "collection": "experiments/final/paper-graph-inputs-20261004-r2",
+      "collection_sha256": "75ed8ce6f1a0cdf49545b7125ef2e52e356c481b3a86c061064854126f04ab3a",
+      "require_source_bound_measurements": true,
+      "workers": 8
+    },
+    "prompt_ablation": "Opus: selected prompt arms over the same four repositories, equal-weight means; failed verification contributes zero. Current ledger/step classifier, selected-source-matched graphs and retained macro observations. API interruption is distinct from endpoint verification.",
+    "budget_log_pair": "Recomputed from canonical endpoint-bound checkpoints and native cost observations; latest passing build at five-minute time budgets and at every passing checkpoint cost (exact steps); Gemini bounds recomputed.",
+    "replay_checkpoint_builds": "Additive five-minute checkpoint build verdicts tied to canonical selected patch hashes; separate from final endpoint and heartbeat measurements.",
+    "compression": "Mean per-repository token reduction; failed verification scores zero; unscored excluded.",
+    "cost": "Mean over exactly the scored compression cohort; blank if any cost is unavailable. Retained unverified costs are flagged.",
+    "duration": "Mean measured wall time over exactly the scored cohort; blank if any unavailable. Histogram includes passing results only.",
+    "heartbeat": "Body heartbeats; compatible completed baseline and final measurements. Failed scored submissions count zero; pending excluded.",
+    "union": "Twelve seeded repositories; original Opus/Sol source runs from seeding provenance. All scores relative to original stripped tokens.",
+    "percentages": "CSV uses numeric percentage points, no percent signs; rounding only in renderer.",
+    "histograms": "Passing submissions; out-of-range values folded into edge bins; annotated means use unclipped observations."
+  },
+  "tables": {
+    "action-repositories.csv": {
+      "rows": 320,
+      "sha256": "aa9572e27fddd6236d6c45a11048b0a53a39e2b6e3439d8b04c8035c17ceaa81"
+    },
+    "agent-actions.csv": {
+      "rows": 5,
+      "sha256": "e974cc44b6aea136da9521c14110ac110a9cffa85dad1384031ecfad9a1ef435"
+    },
+    "benchmark-extra-classification-repositories.csv": {
+      "rows": 48,
+      "sha256": "03b06fbae08970af6dfeb141e088d58e7aa785c305a4982b44dff8242e90727a"
+    },
+    "benchmark-extra-cohort.csv": {
+      "rows": 19,
+      "sha256": "54122cbf9d72cc1ac3879235fb9f91d87be71bb326e57fb541291391eaec75f6"
+    },
+    "benchmark-extra-compression-origin.csv": {
+      "rows": 4,
+      "sha256": "4207544b711532b0aee2cd1d689264a19246633a49d8dd62b7f548e4ff0fa4ca"
+    },
+    "benchmark-extra-leaderboard-repositories.csv": {
+      "rows": 48,
+      "sha256": "ad86028716f3cc2e17f0d08d0be3469f36192016603954b5491e395e5d784359"
+    },
+    "benchmark-extra-leaderboard.csv": {
+      "rows": 4,
+      "sha256": "6403e77fb3cdb6fc91a53079da66aa11df81467d5ea62a21db3ac7c2dada838d"
+    },
+    "benchmark-model-cost-by-scale.csv": {
+      "rows": 20,
+      "sha256": "c23cfab94004005af1d7923ca1d9c258827b33f747aaaf60b5d998b6fed2181b"
+    },
+    "benchmark-model-duration-by-scale.csv": {
+      "rows": 20,
+      "sha256": "b46ba4af0ef1df98b6940c29b2d0d5230a9b0a382a55171fb003c9bd33ffedae"
+    },
+    "benchmark-model-performance-by-scale.csv": {
+      "rows": 20,
+      "sha256": "70286fd042f7c23a9cffcba705452f9a296bf9607db33e7725b8cc9dab238b34"
+    },
+    "benchmark-preprocessing-removal.csv": {
+      "rows": 64,
+      "sha256": "f5d946e05193dddac6952e2470cd7f3c2a0d66b91ae15fff91aebf9e0efb3240"
+    },
+    "benchmark-primary-subject-families.csv": {
+      "rows": 9,
+      "sha256": "ebd225487a5628e8738bb0a94dd16240aa73ceaa6a90dda4a2f801d762d1a6a7"
+    },
+    "benchmark-repositories.csv": {
+      "rows": 64,
+      "sha256": "c4273be0946f9502a84e66a8b4af4e979cb239d52c0ece8a23c7965bb5406871"
+    },
+    "benchmark-repository-results.csv": {
+      "rows": 384,
+      "sha256": "5498bf2bf6b4eac7a4132ec5d68515491e05dcde49202a55546f29fc3081bec5"
+    },
+    "budget_log_pair.csv": {
+      "rows": 9857,
+      "sha256": "f57510edee5c4013b9bacc4279088596d1995304ed30bd39f638fddc4553340e"
+    },
+    "classification-repositories.csv": {
+      "rows": 320,
+      "sha256": "ed78cf44d1d54111688689be3688ea25ca5c6a26ebccd947077bc21f1f1ca435"
+    },
+    "compression-reduction-histograms-compression-reduction.csv": {
+      "rows": 314,
+      "sha256": "dabdc015db386c7d43249c97117b66c052d41060da799a5f35ee388ce46ea3e6"
+    },
+    "compression-task-cost-histogram.csv": {
+      "rows": 314,
+      "sha256": "3fd4d7001fb68fee0b356acba438056857c5b89705effa60eddeab5c25060f75"
+    },
+    "compression-task-duration-histogram.csv": {
+      "rows": 314,
+      "sha256": "914c6a915e11335ae5211aa1dbf3db229de283e892ce53c35935fad2391af0fe"
+    },
+    "dependency-layer-repositories.csv": {
+      "rows": 64,
+      "sha256": "05d64537dcce00d779525f12a6157fc5d2e06e9e71b83dface299b0d9cc8a23b"
+    },
+    "dependency-layers.csv": {
+      "rows": 5,
+      "sha256": "5838fdf3237aa747790218e3cffcf63ff2bfce6d08d9ce34c56eab2ae27c8a65"
+    },
+    "diff_classification_macro.csv": {
+      "rows": 5,
+      "sha256": "ff8ebc52fabb384595afa05d102197be676e6341c4fc5b65891fa86b7b9cb640"
+    },
+    "heartbeat-leaderboard.csv": {
+      "rows": 6,
+      "sha256": "45e3719c5f27eabf4163c8587bde23b49cb8c07ee93fd06fbfb57291d385dfd8"
+    },
+    "heartbeat-repositories.csv": {
+      "rows": 384,
+      "sha256": "6450ed83f796ccd39300901020513a1b07a14f5dd4289c47498c95aad5b79f78"
+    },
+    "introduction-results.csv": {
+      "rows": 6,
+      "sha256": "79e6d51491d080d744ff4bbe0a2796947b24ded589aa1f144a7d668552b6bbfb"
+    },
+    "leaderboard.csv": {
+      "rows": 6,
+      "sha256": "78a8055ae84dbb9940176dab19f343a6ff0f8c0a2c428afca58985592c9c5219"
+    },
+    "main-action-counts.csv": {
+      "rows": 5,
+      "sha256": "3d6072d60ccd9df116452686c0daae26fe86f7bc0d0bf82c24790faefb24ae6b"
+    },
+    "opus-prompt-ablation-classification-repositories.csv": {
+      "rows": 12,
+      "sha256": "4963b5426df64f697e76894d8a9ee3253ce9fc8ad69266546a687321edd7c73c"
+    },
+    "opus-prompt-ablation-repositories.csv": {
+      "rows": 12,
+      "sha256": "ab715210cedd00e392d02177722deeed1d91402382d60c96244b6ae22341866b"
+    },
+    "opus-prompt-ablation.csv": {
+      "rows": 3,
+      "sha256": "3aff568ef07db11d9a8588327a1658db0c841093f3818705fedba47c9ef84a96"
+    },
+    "preprocessing-scale.csv": {
+      "rows": 5,
+      "sha256": "5eb004593a586b67792ed79cd985e76eacdb4c06689c194899259b1eebb05434"
+    },
+    "preprocessing-source-audit.csv": {
+      "rows": 64,
+      "sha256": "c82f36404d2ac69a342c6d6482f33c0f5ab685109b3cef7dd9c49afa682d5f7e"
+    },
+    "replay-checkpoint-builds.csv": {
+      "rows": 12462,
+      "sha256": "35b7a69ce45b53e2290bcd76b5c05abacc0ce22bd882b7873ab611b6453e510f"
+    },
+    "repository-subjects.csv": {
+      "rows": 64,
+      "sha256": "4c6dc4e07f30e9f6d0128bf8784b9a1747cfdca54e9caa4764fee52a087d3c71"
+    },
+    "union-ablation.csv": {
+      "rows": 4,
+      "sha256": "cd124d668f13db7f28a6d6e850d7b1a9c8d827ba0ffdd779ee2e8070f512a2f7"
+    },
+    "union-repositories.csv": {
+      "rows": 48,
+      "sha256": "996d67631b70895e5b6047514c6842dc3708cee663bf37dfb3d0fc42ba382451"
+    },
+    "unscored-repositories.csv": {
+      "rows": 1,
+      "sha256": "a36d5c593068f07d37509ca1d50e7aafe4d03d2137aa7a0e2f1b71d80b092696"
+    }
+  }
+}

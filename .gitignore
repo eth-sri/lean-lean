@@ -1,0 +1,45 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+.venv/
+.pytest_cache/
+
+# Project run artifacts
+output/
+/datasets/
+logs/
+runs/
+.cache
+/.worktrees/
+/data/*/grind_elaboration_cache_v*/
+/data/*/grind_normalization/
+/data/*/grind_trace/
+/data/*/grind_original_restore/
+/data/*/preprocessing_runs/
+/data/*/heartbeats.txt
+/data/*/signatures_codex_raw.txt
+*.orig
+handoffs
+experiments/final
+# Generated per-run resolution receipts. The pipeline writes these next to
+# each run and re-verifies them in place; they pin absolute paths into the
+# already-ignored output/ and runs/ trees, so they are not portable. The
+# hand-authored run specs (experiments/<family>/<name>.yaml) stay tracked.
+experiments/**/manifest.yaml
+
+# OS
+.DS_Store
+
+# Secrets
+secret.sh
+
+prod_repos
+
+# patch rejects and backups
+*.rej
+*.orig
+
+# Pinned offline host executables (installed from checksum-verified sources).
+/data/tool_bundles/

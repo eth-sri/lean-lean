@@ -1,0 +1,50 @@
+kind: leanlean_evaluation_model
+schema_version: 1
+model: gpt-5.6-sol
+harness: codex_sub
+harness_version: 0.154.0
+reasoning_effort: xhigh
+parallelism:
+  workers: 6
+  start_interval_seconds: 2
+system_prompt:
+  mode: native
+  snapshot: experiments/payload_audit/prompts/openai-gpt-5.6-sol-xhigh.json
+  sha256: 151832a8fb4e5d16261dcc74a8bdd140d539c3986a14439638168928c9855c54
+generation_parameters:
+  policy: native_harness_defaults
+  observed_at: '2026-09-13'
+  request_sha256: d05d16724a730d5a7a64c156cb2eb940d2fd076dab277c91e81eef6904d780c3
+  request:
+    reasoning:
+      effort: xhigh
+      context: all_turns
+    text_verbosity: low
+    stream: true
+    tool_choice: auto
+    parallel_tool_calls: false
+    store: false
+    include:
+    - reasoning.encrypted_content
+    known_dynamic_inputs:
+    - current_date
+    - working_directory
+    - session_identifiers
+pricing:
+  basis: benchmark_cost_accounting_snapshot
+  observed_at: '2026-09-17'
+  source: src/configs/model_constants.py
+  # Official pricing source: https://developers.openai.com/api/docs/models/gpt-5.6-sol
+  currency: USD
+  unit: per_million_tokens
+  reasoning_tokens_billed_as: output
+  rates:
+    input: 4.0
+    output: 20.0
+    cache_read: 0.4
+    cache_creation: 5.0
+access:
+  mode: subscription
+  limits:
+    five_hour: true
+    weekly: true

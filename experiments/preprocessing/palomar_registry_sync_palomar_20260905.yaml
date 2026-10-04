@@ -1,0 +1,19 @@
+kind: palomar_registry_sync
+schema_version: 1
+run_id: palomar_registry_sync_palomar_20260905
+registry:
+  url: https://data.palomar-registry.org/recent.json
+  snapshot: runs/palomar/registry_sync/palomar_20260905/recent.json
+  sha256: 2b453b592330f495aa8e447fae8e76d8b2799d051f64395b4c73774c5dab6988
+  entries: 182
+workers:
+  downloads: 12
+timeouts:
+  record_seconds: 90
+  archive_seconds: 900
+outputs:
+  directory: runs/palomar/registry_sync/palomar_20260905
+  records: runs/palomar/registry_sync/palomar_20260905/records
+  archive_cache: /path/to/leanlean/runs/palomar/registry_sync/20260828_registry_solution_v3/archives
+  mapping: data/palomar/candidate_mapping_palomar_20260905.json
+  markdown: docs/palomar_candidate_mapping_palomar_20260905.md

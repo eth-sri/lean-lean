@@ -1,0 +1,46 @@
+kind: leanlean_evaluation_dataset
+schema_version: 1
+dataset: datasets/reproving-ablation/dataset.yaml
+variant: post-compression
+repositories:
+- case06__holdout
+rounds: 1
+agent:
+  system_prompt: native
+  prompt: 'Prove the following target declaration(s), whose proofs are currently sorry:
+
+
+    {target_declarations}
+
+
+    You have a wall-clock budget of {time_limit}. It started at {current_time} and expires at {deadline}.
+
+
+    You are working in a Docker container with enforced limits of {container_memory} RAM and {container_cpus} CPUs.
+
+
+    Run `lean_verify` to check the original registered statements, Lean compilation, and permitted axioms before submitting.
+
+    '
+  allowed_skills: []
+  mcp_servers: []
+  enable_subagents: false
+  enable_lean_verify: true
+  enable_proof_length: false
+container:
+  cpus: 8
+  build_jobs: 8
+  memory: 64g
+  max_total_memory: 768g
+  pids_limit: 4096
+  timeout: 4h
+  cgroup_parent: lean.slice
+  network_policy: model_proxy_only
+monitoring:
+  snapshots: true
+  every_n_edits: 1
+  reconciliation_interval_seconds: 30
+postprocessing:
+  replay: false
+  workers: 1
+  threads_per_repository: 8

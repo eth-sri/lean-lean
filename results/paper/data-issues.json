@@ -1,0 +1,74 @@
+[
+  {
+    "output": "leaderboard",
+    "severity": "note",
+    "code": "skipped_endpoint_verification",
+    "detail": "opus-5/palomar__2026-08-24-000002: replay skipped verification; verdict resolved from identical selected submission evidence: benchmark/artifacts/output/evaluation/leanlean_20260914-opus-reconciled60-r1/anthropic/opus-5-high/palomar__2026-08-24-000002/playback/capture_001/postprocessed-playback.json."
+  },
+  {
+    "output": "leaderboard",
+    "severity": "note",
+    "code": "skipped_endpoint_verification",
+    "detail": "opus-5/palomar__2026-08-17-000002: replay skipped verification; verdict resolved from identical selected submission evidence: benchmark/artifacts/output/evaluation/leanlean_20260914-opus-reconciled60-r1/anthropic/opus-5-high/palomar__2026-08-17-000002/playback/capture_001/postprocessed-playback.json."
+  },
+  {
+    "output": "leaderboard",
+    "severity": "note",
+    "code": "skipped_endpoint_verification",
+    "detail": "opus-5/palomar__2026-08-26-000006: replay skipped verification; verdict resolved from identical selected submission evidence: benchmark/artifacts/output/evaluation/leanlean_20260914-opus-reconciled60-r1/anthropic/opus-5-high/palomar__2026-08-26-000006/playback/capture_001/postprocessed-playback.json."
+  },
+  {
+    "output": "leaderboard",
+    "severity": "partial",
+    "code": "unscored_repositories",
+    "detail": "leanstral-1.5: 63/64 scored; missing results excluded, never assigned zero."
+  },
+  {
+    "output": "heartbeat-leaderboard",
+    "severity": "partial",
+    "code": "heartbeat_coverage",
+    "detail": "opus-5: 63/64 scored submissions have eligible heartbeat scores."
+  },
+  {
+    "output": "heartbeat-leaderboard",
+    "severity": "partial",
+    "code": "heartbeat_coverage",
+    "detail": "gemini-3.8-flash: 62/64 scored submissions have eligible heartbeat scores."
+  },
+  {
+    "output": "heartbeat-leaderboard",
+    "severity": "partial",
+    "code": "heartbeat_coverage",
+    "detail": "leanstral-1.5: 10/63 scored submissions have eligible heartbeat scores."
+  },
+  {
+    "output": "benchmark-extra-leaderboard",
+    "severity": "note",
+    "code": "matched_extra_leaderboard",
+    "detail": "Fable 5.1, Opus 5, 6 Astra and Sol 5.6, ranked by unrounded macro-average compression on the same twelve Mini repositories, each with a valid final submission from every model. Final verdicts come from benchmark-extra (Fable/Astra; Fable rows name their source selection in source_model) and benchmark (Opus/Sol). Each repository has equal weight. Average recorded cost (USD) and selected-generation duration (hours) use exactly those same twelve repositories; incomplete averages are blank."
+  },
+  {
+    "output": "benchmark-extra-compression-origin",
+    "severity": "note",
+    "code": "matched_extra_method",
+    "detail": "Twelve repositories selected by Fable final eligibility; all four models use equal repository weights. Astra/Fable: benchmark-extra source/kernel/ilean graphs of the selected submissions (graph run per selection in graph_directory) and retained macro observations; Opus/Sol: benchmark selected endpoints and canonical preprocessing-static graph supplement. Current ledger/step classifier is rerun; no saved category aggregates are used. The accounting residual is retained in the CSV audit; the plot uses the standard category style. Different run protocols and retained graph methods remain explicit in repository CSVs."
+  },
+  {
+    "output": "opus-prompt-ablation",
+    "severity": "note",
+    "code": "api_interrupted_endpoints",
+    "detail": "2 selected compress-proofs generations ended with native API errors; their passing verified endpoints remain included."
+  },
+  {
+    "output": "leaderboard",
+    "severity": "partial",
+    "code": "unverified_cost",
+    "detail": "gpt-5.6-sol: 19 scored costs lack complete accounting evidence."
+  },
+  {
+    "output": "leaderboard",
+    "severity": "partial",
+    "code": "unverified_cost",
+    "detail": "gemini-3.8-flash: 22 scored costs lack complete accounting evidence."
+  }
+]

@@ -1,0 +1,17 @@
+\begin{wraptable}[9]{r}{0.44\textwidth}
+  \vspace{-5mm}
+  \centering
+  \setlength{\tabcolsep}{4pt}
+  \caption{GPT-6 Astra (medium) and Fable 5.1 (high) dominate the respective benchmark leaders on a subset of 12 repositories.}
+  \vspace{-2mm}
+  \label{tab:benchmark-extra-leaderboard}
+  \begin{tabular}{lrrr}
+    \toprule
+    Model & Score (\%) & \$ & $t$ (h) \\
+    \midrule
+@@ROWS@@
+    \bottomrule
+  \end{tabular}
+\vspace{-3mm}
+
+\end{wraptable}

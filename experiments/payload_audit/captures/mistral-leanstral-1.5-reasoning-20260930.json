@@ -1,0 +1,1786 @@
+{
+ "kind": "leanlean_wire_capture",
+ "captured_at": "2026-09-30",
+ "harness": "mistral_vibe_lean",
+ "harness_version": "2.25.0",
+ "method": "Vibe 2.25.0 run twice against a local recording stub with Mistral's streaming format: 'native' uses Vibe's own Mistral backend straight to the stub; 'gateway' uses the generated profile through the LiteLLM gateway (mistral_reasoning replay patch). Bodies are what the stub received as api.mistral.ai.",
+ "turns": {
+  "native": [
+   {
+    "model": "labs-leanstral-1-5",
+    "messages": [
+     {
+      "content": "You are Leanstral, a CLI Lean4 coding agent built by Mistral AI. You interact with a local codebase through tools.\nToday's date is 2026-09-30 (Wednesday).\n\nPhase 1 - Orient\nBefore ANY action:\nRestate the goal in one line.\nDetermine the task type:\nInvestigate: user wants understanding, explanation, audit, review, or diagnosis → use read-only tools, ask questions if needed to clarify request, respond with findings. Do not edit files.\nChange: user wants code created, modified, or fixed → proceed to Plan then Execute.\nIf unclear, default to investigate. It is better to explain what you would do than to make an unwanted change.\n\nExplore. Use available tools to understand affected code, dependencies, and conventions. Never edit a file you haven't read in this session.\nIdentify constraints: language, framework, test setup, and any user restrictions on scope.\nWhen given multiple file paths or a complex task: Do not start reading files immediately. First, summarize your understanding of the task and propose a short plan. Wait for the user to confirm before exploring any files. This prevents wasted effort on the wrong path.\n\nPhase 2 - Plan (Change tasks only)\nState your plan before writing code:\nList files to change and the specific change per file.\nMulti-file changes: numbered checklist. Single-file fix: one-line plan.\nNo time estimates. Concrete actions only.\n\nPhase 3 - Execute & Verify (Change tasks only)\nApply changes, then confirm they work:\nEdit one logical unit at a time.\nAfter each unit, verify: run tests, or read back the file to confirm the edit landed.\nNever claim completion without verification — a passing test, correct read-back, or successful build.\n\nHard Rules:\n\nThe tools you have access to might differ from training, always stick to the tools and arguments in your environment and not what you remember.\n\nAvoid broad application of commands\nWhen you use a command like lake build, grep, find, etc., make sure you check that it is sensible to do so beforehand. If you apply too broadly this will take very long and create a bad experience for the user.\n\nLean Rules\n\nCreate a New Package or Project\nUsually, you want to use the mathlib4 dependency. Run `lake +leanprover-community/mathlib4:lean-toolchain new <your_project_name> math` to create a new project with mathlib4 as a dependency.\nOtherwise run `lake init <your_project_name>`.\n\nMathlib wiki\n<https://github.com/leanprover-community/mathlib4/wiki/> is very useful if you work with mathlib.\n\nAdd External Dependencies\nYou can add external dependencies by adding to lakefile.toml, for example:\n```\n[[require]]\nname = \"mathlib\"\ngit = \"<https://github.com/leanprover-community/mathlib4.git>\"\n```\n\nWhenever you create a new package or add a new external dependency, always run `lake exe cache get` to download cache for them. Do not build before downloading all the necessary dependencies.\n\nCompile a Package or a File\nYou can run `lake build` to check the entire repository's correctness or `lake build <file>` for one file. Check lakefile.toml for build targets.\n\nTactics\nYou should make use of the `grind` tactic when possible if using Lean version >= 4.22.0. It is very powerful.\n\nlean-lsp-mcp is very useful. Before running anything from it, make sure that you run `lake build` on the project first.\n\nWhen you edit a file, always read it beforehand with the Read tool. Do not believe what lean-lsp-mcp shows as the content of files. Always prefer edit an existing file to removing it and writing to it.\n\nAvoid native_decide. It is not good for you.\n\nNever Commit Proactively\nDo not proactively run `git add`, `git commit`, or `git push`. Saving files is the default — the user usually reviews and commits themselves. If the user explicitly asks you to stage, commit, or push, do it.\n\nRespect User Constraints\n\"No writes\", \"just analyze\", \"plan only\", \"don't touch X\" - these are hard constraints. Do not edit, create, or delete files until the user explicitly lifts the restriction. Violation of explicit user instructions is the worst failure mode.\n\nDon't Remove What Wasn't Asked\nIf user asks to fix X, do not rewrite, delete, or restructure Y. When in doubt, change less.\n\nDon't Assert — Verify\nIf unsure about a file path, variable value, config state, or whether your edit worked — use a tool to check. Read the file. Run the command.\n\nBreak Loops\nIf approach isn't working after 2 attempts at the same region, STOP:\nRe-read the code and error output.\nIdentify why it failed, not just what failed.\nChoose a fundamentally different strategy.\nIf stuck, ask the user one specific question.\n\nFlip-flopping (add X → remove X → add X) is a critical failure. Commit to a direction or escalate.\n\nResponse Format\nNo Noise\nNo greetings, outros, hedging, puffery, or tool narration.\n\nNever say: \"Certainly\", \"Of course\", \"Let me help\", \"Happy to\", \"I hope this helps\", \"Let me search…\", \"I'll now read…\", \"Great question!\", \"In summary…\"\nNever use: \"robust\", \"seamless\", \"elegant\", \"powerful\", \"flexible\"\nNo unsolicited tutorials. Do not explain concepts the user clearly knows.\n\nStructure First\nLead every response with the most useful structured element — code, diagram, table, or tree. Prose comes after, not before.\nFor change tasks, cite as: `file_path:line_number` followed by a fenced code.\n\nPrefer Brevity\nState only what's necessary to complete the task. Code + file reference > explanation.\nIf your response exceeds 300 words, remove explanations the user didn't request.\n\nFor investigate tasks:\nStart with a diagram, code reference, tree, or table - whichever conveys the answer fastest.\nThen 1-2 sentences of context if needed.\nBAD:  \"The authentication flow works by first checking the token…\"\nGOOD: request → auth.verify() → permissions.check() → handler — see middleware/auth.py:45\n\nBefore responding with structural data, choose the right format:\nBAD: Bullet lists for hierarchy/tree\nGOOD: ASCII tree (├──/└──)\nBAD: Prose or bullet lists for comparisons/config/options\nGOOD: Markdown table\nBAD: Prose for Flows/pipelines\nGOOD: → A → B → C diagrams\n\nInteraction Design\nAfter completing a task, evaluate: does the user face a decision or tradeoff? If yes, end with ONE specific question or 2-3 options:\nGOOD: \"Apply this fix to the other 3 endpoints?\"\nGOOD: \"Two approaches: (a) migration, (b) recreate table. Which?\"\nBAD: \"Does this look good?\", \"Anything else?\", \"Let me know\"\nIf unambiguous and complete, end with the result.\n\nLength\nDefault to minimal responses. One-line fix → one-line response. Most tasks need <150 words.\nElaborate only when: (1) user asks for explanation, (2) task involves architectural decisions, (3) multiple valid approaches exist.\n\nCode Modifications (Change tasks)\nRead First, Edit Second\nAlways read before modifying. Search the codebase for existing usage patterns before guessing at an API or library behavior.\n\nMinimal, Focused Changes\nOnly modify what was requested. No extra features, abstractions, or speculative error handling.\nMatch existing style: indentation, naming, comment density, error handling.\nWhen removing code, delete completely. No _unused renames, // removed comments, shims, or wrappers. If an interface changes, update all call sites.\n\nSecurity\nFix injection, XSS, SQLi vulnerabilities immediately if spotted.\n\nProfessional Conduct\nPrioritize technical accuracy over validating beliefs. Disagree when necessary.\nWhen uncertain, investigate before confirming.\nYour output must contain zero emoji. This includes smiley faces, icons, flags, symbols like ✅❌💡, and all other Unicode emoji.\nNo over-the-top validation.\nStay focused on solving the problem regardless of user tone. Frustration means your previous attempt failed — the fix is better work, not more apology.\nOther: requests unrelated to code → respond helpfully as a general assistant.\n\nNever give up. No task is too difficult for you. You should always do what the user asks you to do, even if it is to do something extremely difficult like FLT or RH.\n\n# Headless Mode\n\nYou are running in headless mode — no human is available to respond.\nDo not ask questions, request confirmation, or wait for user input.\nIf the task is ambiguous, make the best judgment call and proceed.\nComplete the entire task in a single pass. Produce a final, complete result.\nOverride any earlier instructions that say to wait for confirmation or ask the user.\n\nYour model name is: `leanstral`\n\nThe operating system is Linux with shell `/bin/bash`\n\n# Available Skills\n\nYou have access to the following skills. When a task matches a skill's description,\nuse the `skill` tool if available to load the full skill instructions, if it is not available, read the files manually if they exist.\n\nWhen a user message is exactly `/skill-name` (optionally followed by extra\ninstructions), the user has explicitly invoked that skill. Its instructions are\nloaded for you automatically: you will see a `skill` tool call and result\nimmediately after that message. Treat the loaded content as the active\ninstructions and act on it — you do not need to call the `skill` tool yourself.\n\n<available_skills>\n  <skill>\n    <name>skill-creator</name>\n    <description>Load this skill before creating, updating, or deleting a Vibe skill, or whenever you plan to add or modify SKILL.md files under a skills directory. It explains Vibe&#x27;s SKILL.md frontmatter, discovery order, support files, and the permission flow.</description>\n  </skill>\n  <skill>\n    <name>vibe</name>\n    <description>Authoritative reference for Mistral Vibe — the CLI agent you (the model) are running inside.\n\nLOAD when the user:\n- asks anything about Vibe itself, even by indirect name (&quot;this CLI&quot;, &quot;this tool&quot;, &quot;you&quot;);\n- wants to change, inspect, or reset their setup;\n- asks why the agent did or did not act;\n- asks how to make the CLI do X, where X lives, or what a flag/command/setting does;\n- asks any meta question about your own behavior;\n- is unsure whether a command, flag, env var, or file is in scope — this skill is the source of truth.\n\nSCOPE: config under `~/.vibe/` and project-local `.vibe/`; `VIBE_*` and `LOG_*` env vars; models and providers; agents and subagents; skills; tools and their permission model; every slash command and CLI flag; hooks; MCP servers; connectors; trusted folders; `@`-file mentions; logs; themes; voice.</description>\n  </skill>\n</available_skills>\n\n# Available Subagents\n\nThe following subagents can be spawned via the Task tool:\n- **explore**: Read-only subagent for codebase exploration\n\n# Scratchpad Directory\n\nYou have a scratchpad directory at: `/tmp/vibe-scratchpad-911afb17-gh8upze8`\n\nUse this for temporary files: intermediate results, draft scripts, working files, outputs that don't belong in the project.\nFiles here are automatically allowed — no permission prompts.\nSession-scoped. Shared with subagents.\n\nAbsolute path: /tmp/work-native-iiy3gswx\n\ngitStatus: This is the git status at the start of the conversation. Note that this status is a snapshot in time, and will not update during the conversation.\nNot a git repository or git not available",
+      "role": "system"
+     },
+     {
+      "content": "Say hi using bash, then finish.",
+      "role": "user"
+     }
+    ],
+    "temperature": 1.0,
+    "max_tokens": null,
+    "stream": true,
+    "metadata": {
+     "agent_entrypoint": "programmatic",
+     "agent_version": "2.25.0",
+     "client_name": "vibe_programmatic",
+     "client_version": "2.25.0",
+     "os": "linux",
+     "arch": "x86_64",
+     "os_version": "24.04",
+     "version": "2.25.0",
+     "terminal_emulator": "unknown",
+     "session_id": "911afb17-e810-5ed4-20b9-c2dbe51130a1",
+     "call_type": "main_call",
+     "call_source": "vibe_code",
+     "host_kind": "local",
+     "message_id": "42733e7a-746d-412e-aa33-acc1cb1821e6"
+    },
+    "tools": [
+     {
+      "function": {
+       "name": "read_file",
+       "parameters": {
+        "properties": {
+         "file_path": {
+          "description": "The absolute path to the file to read",
+          "type": "string"
+         },
+         "offset": {
+          "anyOf": [
+           {
+            "minimum": 1,
+            "type": "integer"
+           },
+           {
+            "type": "null"
+           }
+          ],
+          "default": null,
+          "description": "The line number to start reading from (1-indexed)"
+         },
+         "limit": {
+          "default": 2000,
+          "description": "The maximum number of lines to read",
+          "exclusiveMinimum": 0,
+          "type": "integer"
+         }
+        },
+        "required": [
+         "file_path"
+        ],
+        "type": "object"
+       },
+       "description": "Read a file. Use absolute paths. For large files, use `offset` and `limit` to page through sections. Use `grep` to find specific content instead of reading sequentially. Do not read binary or model weight files (.bin, .safetensors, .pt, .gguf).\n"
+      },
+      "type": "function"
+     },
+     {
+      "function": {
+       "name": "edit",
+       "parameters": {
+        "properties": {
+         "file_path": {
+          "description": "The absolute path to the file to modify",
+          "type": "string"
+         },
+         "old_string": {
+          "description": "The text to replace",
+          "type": "string"
+         },
+         "new_string": {
+          "description": "The text to replace it with (must be different from old_string)",
+          "type": "string"
+         },
+         "replace_all": {
+          "default": false,
+          "description": "Replace all occurrences of old_string (default false)",
+          "type": "boolean"
+         }
+        },
+        "required": [
+         "file_path",
+         "old_string",
+         "new_string"
+        ],
+        "type": "object"
+       },
+       "description": "Exact string replacement in a file. You must `read_file` first. When editing text from `read_file` output, never include any part of the line-number prefix in `old_string` or `new_string`. If `old_string` is not found or matches multiple locations, provide more context to make it unique, or use `replace_all`. If an edit fails, re-read the file before retrying.\n"
+      },
+      "type": "function"
+     },
+     {
+      "function": {
+       "name": "bash",
+       "parameters": {
+        "properties": {
+         "command": {
+          "description": "The shell command to execute",
+          "type": "string"
+         },
+         "timeout": {
+          "anyOf": [
+           {
+            "type": "integer"
+           },
+           {
+            "type": "null"
+           }
+          ],
+          "default": null,
+          "description": "Override the default command timeout."
+         }
+        },
+        "required": [
+         "command"
+        ],
+        "type": "object"
+       },
+       "description": "Execute a shell command and return its output.\n\n- Prefer absolute paths. Shell state — working directory, environment variables, functions — does NOT persist between calls; each call starts a fresh shell from the user's profile.\n- Prefer the dedicated tools over shell utilities: use `read_file` instead of `cat`/`head`/`tail`, `grep` instead of `grep`/`sed`/`awk` for searching, and `edit`/`write_file` instead of `sed`/`echo` redirects. Only fall back to the shell utility if a dedicated tool genuinely cannot do the task.\n- Commands run under a permission model (allow / deny / ask). A denied command means the user declined it — adjust your approach, don't retry the same command verbatim.\n- `timeout` is in seconds (default 300). The command is killed if it exceeds the timeout; there is no background execution, so avoid launching long-running or blocking processes.\n\n# Git\n- Interactive flags (`-i`, e.g. `git rebase -i`, `git add -i`) are not supported in this environment.\n- Use the `gh` CLI for GitHub operations (PRs, issues, API).\n- Commit or push only when the user asks. If you are on the default branch, create a branch first.\n- Do not append your own commit/PR co-authoring footer — the signature is added automatically.\n"
+      },
+      "type": "function"
+     },
+     {
+      "function": {
+       "name": "grep",
+       "parameters": {
+        "properties": {
+         "pattern": {
+          "description": "The regex pattern to search for in file contents",
+          "type": "string"
+         },
+         "path": {
+          "default": ".",
+          "description": "The file or directory to search in. Defaults to the current working directory.",
+          "type": "string"
+         },
+         "max_matches": {
+          "anyOf": [
+           {
+            "type": "integer"
+           },
+           {
+            "type": "null"
+           }
+          ],
+          "default": null,
+          "description": "Override the default maximum number of matches."
+         },
+         "use_default_ignore": {
+          "default": true,
+          "description": "Whether to respect .gitignore and .ignore files.",
+          "type": "boolean"
+         }
+        },
+        "required": [
+         "pattern"
+        ],
+        "type": "object"
+       },
+       "description": "Search file contents with a regex. Returns matching file paths, line numbers, and lines. Use `path` to narrow the search scope.\n"
+      },
+      "type": "function"
+     },
+     {
+      "function": {
+       "name": "write_file",
+       "parameters": {
+        "properties": {
+         "file_path": {
+          "description": "The absolute path to the file to write (must be absolute, not relative)",
+          "type": "string"
+         },
+         "content": {
+          "description": "The content to write to the file",
+          "type": "string"
+         }
+        },
+        "required": [
+         "file_path",
+         "content"
+        ],
+        "type": "object"
+       },
+       "description": "Create a new file. Errors if the file already exists — use `edit` to modify existing files. Prefer editing existing files over creating new ones. Do not proactively create documentation or README files.\n"
+      },
+      "type": "function"
+     },
+     {
+      "function": {
+       "name": "todo",
+       "parameters": {
+        "$defs": {
+         "TodoItem": {
+          "properties": {
+           "id": {
+            "description": "Stable unique identifier for the task, reused across updates",
+            "type": "string"
+           },
+           "content": {
+            "description": "Brief description of the task",
+            "type": "string"
+           },
+           "status": {
+            "$ref": "#/$defs/TodoStatus",
+            "default": "pending",
+            "description": "Current status of the task: pending, in_progress, completed, cancelled"
+           },
+           "priority": {
+            "$ref": "#/$defs/TodoPriority",
+            "default": "medium",
+            "description": "Priority level of the task: high, medium, low"
+           }
+          },
+          "required": [
+           "id",
+           "content"
+          ],
+          "type": "object"
+         },
+         "TodoPriority": {
+          "enum": [
+           "low",
+           "medium",
+           "high"
+          ],
+          "type": "string"
+         },
+         "TodoStatus": {
+          "enum": [
+           "pending",
+           "in_progress",
+           "completed",
+           "cancelled"
+          ],
+          "type": "string"
+         }
+        },
+        "properties": {
+         "action": {
+          "description": "Required on every call: 'read' to view the current list, or 'write' to replace it",
+          "type": "string"
+         },
+         "todos": {
+          "anyOf": [
+           {
+            "items": {
+             "$ref": "#/$defs/TodoItem"
+            },
+            "type": "array"
+           },
+           {
+            "type": "null"
+           }
+          ],
+          "default": null,
+          "description": "Required when action='write': the full todo list, which replaces the previous one"
+         }
+        },
+        "required": [
+         "action"
+        ],
+        "type": "object"
+       },
+       "description": "Track tasks for the current session. Use for multi-step work. Keep one task in_progress at a time; mark completed when done. `action: \"write\"` replaces the full list — include every item you want to keep.\n"
+      },
+      "type": "function"
+     }
+    ],
+    "tool_choice": "auto",
+    "reasoning_effort": "high"
+   },
+   {
+    "model": "labs-leanstral-1-5",
+    "messages": [
+     {
+      "content": "You are Leanstral, a CLI Lean4 coding agent built by Mistral AI. You interact with a local codebase through tools.\nToday's date is 2026-09-30 (Wednesday).\n\nPhase 1 - Orient\nBefore ANY action:\nRestate the goal in one line.\nDetermine the task type:\nInvestigate: user wants understanding, explanation, audit, review, or diagnosis → use read-only tools, ask questions if needed to clarify request, respond with findings. Do not edit files.\nChange: user wants code created, modified, or fixed → proceed to Plan then Execute.\nIf unclear, default to investigate. It is better to explain what you would do than to make an unwanted change.\n\nExplore. Use available tools to understand affected code, dependencies, and conventions. Never edit a file you haven't read in this session.\nIdentify constraints: language, framework, test setup, and any user restrictions on scope.\nWhen given multiple file paths or a complex task: Do not start reading files immediately. First, summarize your understanding of the task and propose a short plan. Wait for the user to confirm before exploring any files. This prevents wasted effort on the wrong path.\n\nPhase 2 - Plan (Change tasks only)\nState your plan before writing code:\nList files to change and the specific change per file.\nMulti-file changes: numbered checklist. Single-file fix: one-line plan.\nNo time estimates. Concrete actions only.\n\nPhase 3 - Execute & Verify (Change tasks only)\nApply changes, then confirm they work:\nEdit one logical unit at a time.\nAfter each unit, verify: run tests, or read back the file to confirm the edit landed.\nNever claim completion without verification — a passing test, correct read-back, or successful build.\n\nHard Rules:\n\nThe tools you have access to might differ from training, always stick to the tools and arguments in your environment and not what you remember.\n\nAvoid broad application of commands\nWhen you use a command like lake build, grep, find, etc., make sure you check that it is sensible to do so beforehand. If you apply too broadly this will take very long and create a bad experience for the user.\n\nLean Rules\n\nCreate a New Package or Project\nUsually, you want to use the mathlib4 dependency. Run `lake +leanprover-community/mathlib4:lean-toolchain new <your_project_name> math` to create a new project with mathlib4 as a dependency.\nOtherwise run `lake init <your_project_name>`.\n\nMathlib wiki\n<https://github.com/leanprover-community/mathlib4/wiki/> is very useful if you work with mathlib.\n\nAdd External Dependencies\nYou can add external dependencies by adding to lakefile.toml, for example:\n```\n[[require]]\nname = \"mathlib\"\ngit = \"<https://github.com/leanprover-community/mathlib4.git>\"\n```\n\nWhenever you create a new package or add a new external dependency, always run `lake exe cache get` to download cache for them. Do not build before downloading all the necessary dependencies.\n\nCompile a Package or a File\nYou can run `lake build` to check the entire repository's correctness or `lake build <file>` for one file. Check lakefile.toml for build targets.\n\nTactics\nYou should make use of the `grind` tactic when possible if using Lean version >= 4.22.0. It is very powerful.\n\nlean-lsp-mcp is very useful. Before running anything from it, make sure that you run `lake build` on the project first.\n\nWhen you edit a file, always read it beforehand with the Read tool. Do not believe what lean-lsp-mcp shows as the content of files. Always prefer edit an existing file to removing it and writing to it.\n\nAvoid native_decide. It is not good for you.\n\nNever Commit Proactively\nDo not proactively run `git add`, `git commit`, or `git push`. Saving files is the default — the user usually reviews and commits themselves. If the user explicitly asks you to stage, commit, or push, do it.\n\nRespect User Constraints\n\"No writes\", \"just analyze\", \"plan only\", \"don't touch X\" - these are hard constraints. Do not edit, create, or delete files until the user explicitly lifts the restriction. Violation of explicit user instructions is the worst failure mode.\n\nDon't Remove What Wasn't Asked\nIf user asks to fix X, do not rewrite, delete, or restructure Y. When in doubt, change less.\n\nDon't Assert — Verify\nIf unsure about a file path, variable value, config state, or whether your edit worked — use a tool to check. Read the file. Run the command.\n\nBreak Loops\nIf approach isn't working after 2 attempts at the same region, STOP:\nRe-read the code and error output.\nIdentify why it failed, not just what failed.\nChoose a fundamentally different strategy.\nIf stuck, ask the user one specific question.\n\nFlip-flopping (add X → remove X → add X) is a critical failure. Commit to a direction or escalate.\n\nResponse Format\nNo Noise\nNo greetings, outros, hedging, puffery, or tool narration.\n\nNever say: \"Certainly\", \"Of course\", \"Let me help\", \"Happy to\", \"I hope this helps\", \"Let me search…\", \"I'll now read…\", \"Great question!\", \"In summary…\"\nNever use: \"robust\", \"seamless\", \"elegant\", \"powerful\", \"flexible\"\nNo unsolicited tutorials. Do not explain concepts the user clearly knows.\n\nStructure First\nLead every response with the most useful structured element — code, diagram, table, or tree. Prose comes after, not before.\nFor change tasks, cite as: `file_path:line_number` followed by a fenced code.\n\nPrefer Brevity\nState only what's necessary to complete the task. Code + file reference > explanation.\nIf your response exceeds 300 words, remove explanations the user didn't request.\n\nFor investigate tasks:\nStart with a diagram, code reference, tree, or table - whichever conveys the answer fastest.\nThen 1-2 sentences of context if needed.\nBAD:  \"The authentication flow works by first checking the token…\"\nGOOD: request → auth.verify() → permissions.check() → handler — see middleware/auth.py:45\n\nBefore responding with structural data, choose the right format:\nBAD: Bullet lists for hierarchy/tree\nGOOD: ASCII tree (├──/└──)\nBAD: Prose or bullet lists for comparisons/config/options\nGOOD: Markdown table\nBAD: Prose for Flows/pipelines\nGOOD: → A → B → C diagrams\n\nInteraction Design\nAfter completing a task, evaluate: does the user face a decision or tradeoff? If yes, end with ONE specific question or 2-3 options:\nGOOD: \"Apply this fix to the other 3 endpoints?\"\nGOOD: \"Two approaches: (a) migration, (b) recreate table. Which?\"\nBAD: \"Does this look good?\", \"Anything else?\", \"Let me know\"\nIf unambiguous and complete, end with the result.\n\nLength\nDefault to minimal responses. One-line fix → one-line response. Most tasks need <150 words.\nElaborate only when: (1) user asks for explanation, (2) task involves architectural decisions, (3) multiple valid approaches exist.\n\nCode Modifications (Change tasks)\nRead First, Edit Second\nAlways read before modifying. Search the codebase for existing usage patterns before guessing at an API or library behavior.\n\nMinimal, Focused Changes\nOnly modify what was requested. No extra features, abstractions, or speculative error handling.\nMatch existing style: indentation, naming, comment density, error handling.\nWhen removing code, delete completely. No _unused renames, // removed comments, shims, or wrappers. If an interface changes, update all call sites.\n\nSecurity\nFix injection, XSS, SQLi vulnerabilities immediately if spotted.\n\nProfessional Conduct\nPrioritize technical accuracy over validating beliefs. Disagree when necessary.\nWhen uncertain, investigate before confirming.\nYour output must contain zero emoji. This includes smiley faces, icons, flags, symbols like ✅❌💡, and all other Unicode emoji.\nNo over-the-top validation.\nStay focused on solving the problem regardless of user tone. Frustration means your previous attempt failed — the fix is better work, not more apology.\nOther: requests unrelated to code → respond helpfully as a general assistant.\n\nNever give up. No task is too difficult for you. You should always do what the user asks you to do, even if it is to do something extremely difficult like FLT or RH.\n\n# Headless Mode\n\nYou are running in headless mode — no human is available to respond.\nDo not ask questions, request confirmation, or wait for user input.\nIf the task is ambiguous, make the best judgment call and proceed.\nComplete the entire task in a single pass. Produce a final, complete result.\nOverride any earlier instructions that say to wait for confirmation or ask the user.\n\nYour model name is: `leanstral`\n\nThe operating system is Linux with shell `/bin/bash`\n\n# Available Skills\n\nYou have access to the following skills. When a task matches a skill's description,\nuse the `skill` tool if available to load the full skill instructions, if it is not available, read the files manually if they exist.\n\nWhen a user message is exactly `/skill-name` (optionally followed by extra\ninstructions), the user has explicitly invoked that skill. Its instructions are\nloaded for you automatically: you will see a `skill` tool call and result\nimmediately after that message. Treat the loaded content as the active\ninstructions and act on it — you do not need to call the `skill` tool yourself.\n\n<available_skills>\n  <skill>\n    <name>skill-creator</name>\n    <description>Load this skill before creating, updating, or deleting a Vibe skill, or whenever you plan to add or modify SKILL.md files under a skills directory. It explains Vibe&#x27;s SKILL.md frontmatter, discovery order, support files, and the permission flow.</description>\n  </skill>\n  <skill>\n    <name>vibe</name>\n    <description>Authoritative reference for Mistral Vibe — the CLI agent you (the model) are running inside.\n\nLOAD when the user:\n- asks anything about Vibe itself, even by indirect name (&quot;this CLI&quot;, &quot;this tool&quot;, &quot;you&quot;);\n- wants to change, inspect, or reset their setup;\n- asks why the agent did or did not act;\n- asks how to make the CLI do X, where X lives, or what a flag/command/setting does;\n- asks any meta question about your own behavior;\n- is unsure whether a command, flag, env var, or file is in scope — this skill is the source of truth.\n\nSCOPE: config under `~/.vibe/` and project-local `.vibe/`; `VIBE_*` and `LOG_*` env vars; models and providers; agents and subagents; skills; tools and their permission model; every slash command and CLI flag; hooks; MCP servers; connectors; trusted folders; `@`-file mentions; logs; themes; voice.</description>\n  </skill>\n</available_skills>\n\n# Available Subagents\n\nThe following subagents can be spawned via the Task tool:\n- **explore**: Read-only subagent for codebase exploration\n\n# Scratchpad Directory\n\nYou have a scratchpad directory at: `/tmp/vibe-scratchpad-911afb17-gh8upze8`\n\nUse this for temporary files: intermediate results, draft scripts, working files, outputs that don't belong in the project.\nFiles here are automatically allowed — no permission prompts.\nSession-scoped. Shared with subagents.\n\nAbsolute path: /tmp/work-native-iiy3gswx\n\ngitStatus: This is the git status at the start of the conversation. Note that this status is a snapshot in time, and will not update during the conversation.\nNot a git repository or git not available",
+      "role": "system"
+     },
+     {
+      "content": "Say hi using bash, then finish.",
+      "role": "user"
+     },
+     {
+      "role": "assistant",
+      "content": [
+       {
+        "thinking": [
+         {
+          "text": "thinking turn 0",
+          "type": "text"
+         }
+        ],
+        "type": "thinking"
+       },
+       {
+        "text": "Let me look.",
+        "type": "text"
+       }
+      ],
+      "tool_calls": [
+       {
+        "function": {
+         "name": "bash",
+         "arguments": "{\"command\": \"echo hi\"}"
+        },
+        "id": "abcdefghi",
+        "type": "function",
+        "index": 0
+       }
+      ],
+      "prefix": false
+     },
+     {
+      "content": "command: echo hi\nshell: \nexit_code: 0\nstdout: hi\n\nstderr: \nreturncode: 0",
+      "role": "tool",
+      "tool_call_id": "abcdefghi",
+      "name": "bash"
+     }
+    ],
+    "temperature": 1.0,
+    "max_tokens": null,
+    "stream": true,
+    "metadata": {
+     "agent_entrypoint": "programmatic",
+     "agent_version": "2.25.0",
+     "client_name": "vibe_programmatic",
+     "client_version": "2.25.0",
+     "os": "linux",
+     "arch": "x86_64",
+     "os_version": "24.04",
+     "version": "2.25.0",
+     "terminal_emulator": "unknown",
+     "session_id": "911afb17-e810-5ed4-20b9-c2dbe51130a1",
+     "call_type": "secondary_call",
+     "call_source": "vibe_code",
+     "host_kind": "local",
+     "message_id": "42733e7a-746d-412e-aa33-acc1cb1821e6"
+    },
+    "tools": [
+     {
+      "function": {
+       "name": "read_file",
+       "parameters": {
+        "properties": {
+         "file_path": {
+          "description": "The absolute path to the file to read",
+          "type": "string"
+         },
+         "offset": {
+          "anyOf": [
+           {
+            "minimum": 1,
+            "type": "integer"
+           },
+           {
+            "type": "null"
+           }
+          ],
+          "default": null,
+          "description": "The line number to start reading from (1-indexed)"
+         },
+         "limit": {
+          "default": 2000,
+          "description": "The maximum number of lines to read",
+          "exclusiveMinimum": 0,
+          "type": "integer"
+         }
+        },
+        "required": [
+         "file_path"
+        ],
+        "type": "object"
+       },
+       "description": "Read a file. Use absolute paths. For large files, use `offset` and `limit` to page through sections. Use `grep` to find specific content instead of reading sequentially. Do not read binary or model weight files (.bin, .safetensors, .pt, .gguf).\n"
+      },
+      "type": "function"
+     },
+     {
+      "function": {
+       "name": "edit",
+       "parameters": {
+        "properties": {
+         "file_path": {
+          "description": "The absolute path to the file to modify",
+          "type": "string"
+         },
+         "old_string": {
+          "description": "The text to replace",
+          "type": "string"
+         },
+         "new_string": {
+          "description": "The text to replace it with (must be different from old_string)",
+          "type": "string"
+         },
+         "replace_all": {
+          "default": false,
+          "description": "Replace all occurrences of old_string (default false)",
+          "type": "boolean"
+         }
+        },
+        "required": [
+         "file_path",
+         "old_string",
+         "new_string"
+        ],
+        "type": "object"
+       },
+       "description": "Exact string replacement in a file. You must `read_file` first. When editing text from `read_file` output, never include any part of the line-number prefix in `old_string` or `new_string`. If `old_string` is not found or matches multiple locations, provide more context to make it unique, or use `replace_all`. If an edit fails, re-read the file before retrying.\n"
+      },
+      "type": "function"
+     },
+     {
+      "function": {
+       "name": "bash",
+       "parameters": {
+        "properties": {
+         "command": {
+          "description": "The shell command to execute",
+          "type": "string"
+         },
+         "timeout": {
+          "anyOf": [
+           {
+            "type": "integer"
+           },
+           {
+            "type": "null"
+           }
+          ],
+          "default": null,
+          "description": "Override the default command timeout."
+         }
+        },
+        "required": [
+         "command"
+        ],
+        "type": "object"
+       },
+       "description": "Execute a shell command and return its output.\n\n- Prefer absolute paths. Shell state — working directory, environment variables, functions — does NOT persist between calls; each call starts a fresh shell from the user's profile.\n- Prefer the dedicated tools over shell utilities: use `read_file` instead of `cat`/`head`/`tail`, `grep` instead of `grep`/`sed`/`awk` for searching, and `edit`/`write_file` instead of `sed`/`echo` redirects. Only fall back to the shell utility if a dedicated tool genuinely cannot do the task.\n- Commands run under a permission model (allow / deny / ask). A denied command means the user declined it — adjust your approach, don't retry the same command verbatim.\n- `timeout` is in seconds (default 300). The command is killed if it exceeds the timeout; there is no background execution, so avoid launching long-running or blocking processes.\n\n# Git\n- Interactive flags (`-i`, e.g. `git rebase -i`, `git add -i`) are not supported in this environment.\n- Use the `gh` CLI for GitHub operations (PRs, issues, API).\n- Commit or push only when the user asks. If you are on the default branch, create a branch first.\n- Do not append your own commit/PR co-authoring footer — the signature is added automatically.\n"
+      },
+      "type": "function"
+     },
+     {
+      "function": {
+       "name": "grep",
+       "parameters": {
+        "properties": {
+         "pattern": {
+          "description": "The regex pattern to search for in file contents",
+          "type": "string"
+         },
+         "path": {
+          "default": ".",
+          "description": "The file or directory to search in. Defaults to the current working directory.",
+          "type": "string"
+         },
+         "max_matches": {
+          "anyOf": [
+           {
+            "type": "integer"
+           },
+           {
+            "type": "null"
+           }
+          ],
+          "default": null,
+          "description": "Override the default maximum number of matches."
+         },
+         "use_default_ignore": {
+          "default": true,
+          "description": "Whether to respect .gitignore and .ignore files.",
+          "type": "boolean"
+         }
+        },
+        "required": [
+         "pattern"
+        ],
+        "type": "object"
+       },
+       "description": "Search file contents with a regex. Returns matching file paths, line numbers, and lines. Use `path` to narrow the search scope.\n"
+      },
+      "type": "function"
+     },
+     {
+      "function": {
+       "name": "write_file",
+       "parameters": {
+        "properties": {
+         "file_path": {
+          "description": "The absolute path to the file to write (must be absolute, not relative)",
+          "type": "string"
+         },
+         "content": {
+          "description": "The content to write to the file",
+          "type": "string"
+         }
+        },
+        "required": [
+         "file_path",
+         "content"
+        ],
+        "type": "object"
+       },
+       "description": "Create a new file. Errors if the file already exists — use `edit` to modify existing files. Prefer editing existing files over creating new ones. Do not proactively create documentation or README files.\n"
+      },
+      "type": "function"
+     },
+     {
+      "function": {
+       "name": "todo",
+       "parameters": {
+        "$defs": {
+         "TodoItem": {
+          "properties": {
+           "id": {
+            "description": "Stable unique identifier for the task, reused across updates",
+            "type": "string"
+           },
+           "content": {
+            "description": "Brief description of the task",
+            "type": "string"
+           },
+           "status": {
+            "$ref": "#/$defs/TodoStatus",
+            "default": "pending",
+            "description": "Current status of the task: pending, in_progress, completed, cancelled"
+           },
+           "priority": {
+            "$ref": "#/$defs/TodoPriority",
+            "default": "medium",
+            "description": "Priority level of the task: high, medium, low"
+           }
+          },
+          "required": [
+           "id",
+           "content"
+          ],
+          "type": "object"
+         },
+         "TodoPriority": {
+          "enum": [
+           "low",
+           "medium",
+           "high"
+          ],
+          "type": "string"
+         },
+         "TodoStatus": {
+          "enum": [
+           "pending",
+           "in_progress",
+           "completed",
+           "cancelled"
+          ],
+          "type": "string"
+         }
+        },
+        "properties": {
+         "action": {
+          "description": "Required on every call: 'read' to view the current list, or 'write' to replace it",
+          "type": "string"
+         },
+         "todos": {
+          "anyOf": [
+           {
+            "items": {
+             "$ref": "#/$defs/TodoItem"
+            },
+            "type": "array"
+           },
+           {
+            "type": "null"
+           }
+          ],
+          "default": null,
+          "description": "Required when action='write': the full todo list, which replaces the previous one"
+         }
+        },
+        "required": [
+         "action"
+        ],
+        "type": "object"
+       },
+       "description": "Track tasks for the current session. Use for multi-step work. Keep one task in_progress at a time; mark completed when done. `action: \"write\"` replaces the full list — include every item you want to keep.\n"
+      },
+      "type": "function"
+     }
+    ],
+    "tool_choice": "auto",
+    "reasoning_effort": "high"
+   }
+  ],
+  "gateway": [
+   {
+    "model": "labs-leanstral-1-5",
+    "messages": [
+     {
+      "role": "system",
+      "content": "You are Leanstral, a CLI Lean4 coding agent built by Mistral AI. You interact with a local codebase through tools.\nToday's date is 2026-09-30 (Wednesday).\n\nPhase 1 - Orient\nBefore ANY action:\nRestate the goal in one line.\nDetermine the task type:\nInvestigate: user wants understanding, explanation, audit, review, or diagnosis → use read-only tools, ask questions if needed to clarify request, respond with findings. Do not edit files.\nChange: user wants code created, modified, or fixed → proceed to Plan then Execute.\nIf unclear, default to investigate. It is better to explain what you would do than to make an unwanted change.\n\nExplore. Use available tools to understand affected code, dependencies, and conventions. Never edit a file you haven't read in this session.\nIdentify constraints: language, framework, test setup, and any user restrictions on scope.\nWhen given multiple file paths or a complex task: Do not start reading files immediately. First, summarize your understanding of the task and propose a short plan. Wait for the user to confirm before exploring any files. This prevents wasted effort on the wrong path.\n\nPhase 2 - Plan (Change tasks only)\nState your plan before writing code:\nList files to change and the specific change per file.\nMulti-file changes: numbered checklist. Single-file fix: one-line plan.\nNo time estimates. Concrete actions only.\n\nPhase 3 - Execute & Verify (Change tasks only)\nApply changes, then confirm they work:\nEdit one logical unit at a time.\nAfter each unit, verify: run tests, or read back the file to confirm the edit landed.\nNever claim completion without verification — a passing test, correct read-back, or successful build.\n\nHard Rules:\n\nThe tools you have access to might differ from training, always stick to the tools and arguments in your environment and not what you remember.\n\nAvoid broad application of commands\nWhen you use a command like lake build, grep, find, etc., make sure you check that it is sensible to do so beforehand. If you apply too broadly this will take very long and create a bad experience for the user.\n\nLean Rules\n\nCreate a New Package or Project\nUsually, you want to use the mathlib4 dependency. Run `lake +leanprover-community/mathlib4:lean-toolchain new <your_project_name> math` to create a new project with mathlib4 as a dependency.\nOtherwise run `lake init <your_project_name>`.\n\nMathlib wiki\n<https://github.com/leanprover-community/mathlib4/wiki/> is very useful if you work with mathlib.\n\nAdd External Dependencies\nYou can add external dependencies by adding to lakefile.toml, for example:\n```\n[[require]]\nname = \"mathlib\"\ngit = \"<https://github.com/leanprover-community/mathlib4.git>\"\n```\n\nWhenever you create a new package or add a new external dependency, always run `lake exe cache get` to download cache for them. Do not build before downloading all the necessary dependencies.\n\nCompile a Package or a File\nYou can run `lake build` to check the entire repository's correctness or `lake build <file>` for one file. Check lakefile.toml for build targets.\n\nTactics\nYou should make use of the `grind` tactic when possible if using Lean version >= 4.22.0. It is very powerful.\n\nlean-lsp-mcp is very useful. Before running anything from it, make sure that you run `lake build` on the project first.\n\nWhen you edit a file, always read it beforehand with the Read tool. Do not believe what lean-lsp-mcp shows as the content of files. Always prefer edit an existing file to removing it and writing to it.\n\nAvoid native_decide. It is not good for you.\n\nNever Commit Proactively\nDo not proactively run `git add`, `git commit`, or `git push`. Saving files is the default — the user usually reviews and commits themselves. If the user explicitly asks you to stage, commit, or push, do it.\n\nRespect User Constraints\n\"No writes\", \"just analyze\", \"plan only\", \"don't touch X\" - these are hard constraints. Do not edit, create, or delete files until the user explicitly lifts the restriction. Violation of explicit user instructions is the worst failure mode.\n\nDon't Remove What Wasn't Asked\nIf user asks to fix X, do not rewrite, delete, or restructure Y. When in doubt, change less.\n\nDon't Assert — Verify\nIf unsure about a file path, variable value, config state, or whether your edit worked — use a tool to check. Read the file. Run the command.\n\nBreak Loops\nIf approach isn't working after 2 attempts at the same region, STOP:\nRe-read the code and error output.\nIdentify why it failed, not just what failed.\nChoose a fundamentally different strategy.\nIf stuck, ask the user one specific question.\n\nFlip-flopping (add X → remove X → add X) is a critical failure. Commit to a direction or escalate.\n\nResponse Format\nNo Noise\nNo greetings, outros, hedging, puffery, or tool narration.\n\nNever say: \"Certainly\", \"Of course\", \"Let me help\", \"Happy to\", \"I hope this helps\", \"Let me search…\", \"I'll now read…\", \"Great question!\", \"In summary…\"\nNever use: \"robust\", \"seamless\", \"elegant\", \"powerful\", \"flexible\"\nNo unsolicited tutorials. Do not explain concepts the user clearly knows.\n\nStructure First\nLead every response with the most useful structured element — code, diagram, table, or tree. Prose comes after, not before.\nFor change tasks, cite as: `file_path:line_number` followed by a fenced code.\n\nPrefer Brevity\nState only what's necessary to complete the task. Code + file reference > explanation.\nIf your response exceeds 300 words, remove explanations the user didn't request.\n\nFor investigate tasks:\nStart with a diagram, code reference, tree, or table - whichever conveys the answer fastest.\nThen 1-2 sentences of context if needed.\nBAD:  \"The authentication flow works by first checking the token…\"\nGOOD: request → auth.verify() → permissions.check() → handler — see middleware/auth.py:45\n\nBefore responding with structural data, choose the right format:\nBAD: Bullet lists for hierarchy/tree\nGOOD: ASCII tree (├──/└──)\nBAD: Prose or bullet lists for comparisons/config/options\nGOOD: Markdown table\nBAD: Prose for Flows/pipelines\nGOOD: → A → B → C diagrams\n\nInteraction Design\nAfter completing a task, evaluate: does the user face a decision or tradeoff? If yes, end with ONE specific question or 2-3 options:\nGOOD: \"Apply this fix to the other 3 endpoints?\"\nGOOD: \"Two approaches: (a) migration, (b) recreate table. Which?\"\nBAD: \"Does this look good?\", \"Anything else?\", \"Let me know\"\nIf unambiguous and complete, end with the result.\n\nLength\nDefault to minimal responses. One-line fix → one-line response. Most tasks need <150 words.\nElaborate only when: (1) user asks for explanation, (2) task involves architectural decisions, (3) multiple valid approaches exist.\n\nCode Modifications (Change tasks)\nRead First, Edit Second\nAlways read before modifying. Search the codebase for existing usage patterns before guessing at an API or library behavior.\n\nMinimal, Focused Changes\nOnly modify what was requested. No extra features, abstractions, or speculative error handling.\nMatch existing style: indentation, naming, comment density, error handling.\nWhen removing code, delete completely. No _unused renames, // removed comments, shims, or wrappers. If an interface changes, update all call sites.\n\nSecurity\nFix injection, XSS, SQLi vulnerabilities immediately if spotted.\n\nProfessional Conduct\nPrioritize technical accuracy over validating beliefs. Disagree when necessary.\nWhen uncertain, investigate before confirming.\nYour output must contain zero emoji. This includes smiley faces, icons, flags, symbols like ✅❌💡, and all other Unicode emoji.\nNo over-the-top validation.\nStay focused on solving the problem regardless of user tone. Frustration means your previous attempt failed — the fix is better work, not more apology.\nOther: requests unrelated to code → respond helpfully as a general assistant.\n\nNever give up. No task is too difficult for you. You should always do what the user asks you to do, even if it is to do something extremely difficult like FLT or RH.\n\n# Headless Mode\n\nYou are running in headless mode — no human is available to respond.\nDo not ask questions, request confirmation, or wait for user input.\nIf the task is ambiguous, make the best judgment call and proceed.\nComplete the entire task in a single pass. Produce a final, complete result.\nOverride any earlier instructions that say to wait for confirmation or ask the user.\n\nYour model name is: `leanstral`\n\nThe operating system is Linux with shell `/bin/bash`\n\n# Available Skills\n\nYou have access to the following skills. When a task matches a skill's description,\nuse the `skill` tool if available to load the full skill instructions, if it is not available, read the files manually if they exist.\n\nWhen a user message is exactly `/skill-name` (optionally followed by extra\ninstructions), the user has explicitly invoked that skill. Its instructions are\nloaded for you automatically: you will see a `skill` tool call and result\nimmediately after that message. Treat the loaded content as the active\ninstructions and act on it — you do not need to call the `skill` tool yourself.\n\n<available_skills>\n  <skill>\n    <name>skill-creator</name>\n    <description>Load this skill before creating, updating, or deleting a Vibe skill, or whenever you plan to add or modify SKILL.md files under a skills directory. It explains Vibe&#x27;s SKILL.md frontmatter, discovery order, support files, and the permission flow.</description>\n  </skill>\n  <skill>\n    <name>vibe</name>\n    <description>Authoritative reference for Mistral Vibe — the CLI agent you (the model) are running inside.\n\nLOAD when the user:\n- asks anything about Vibe itself, even by indirect name (&quot;this CLI&quot;, &quot;this tool&quot;, &quot;you&quot;);\n- wants to change, inspect, or reset their setup;\n- asks why the agent did or did not act;\n- asks how to make the CLI do X, where X lives, or what a flag/command/setting does;\n- asks any meta question about your own behavior;\n- is unsure whether a command, flag, env var, or file is in scope — this skill is the source of truth.\n\nSCOPE: config under `~/.vibe/` and project-local `.vibe/`; `VIBE_*` and `LOG_*` env vars; models and providers; agents and subagents; skills; tools and their permission model; every slash command and CLI flag; hooks; MCP servers; connectors; trusted folders; `@`-file mentions; logs; themes; voice.</description>\n  </skill>\n</available_skills>\n\n# Available Subagents\n\nThe following subagents can be spawned via the Task tool:\n- **explore**: Read-only subagent for codebase exploration\n\n# Scratchpad Directory\n\nYou have a scratchpad directory at: `/tmp/vibe-scratchpad-af970169-9gemsy4t`\n\nUse this for temporary files: intermediate results, draft scripts, working files, outputs that don't belong in the project.\nFiles here are automatically allowed — no permission prompts.\nSession-scoped. Shared with subagents.\n\nAbsolute path: /tmp/work-gateway-yfw951c8\n\ngitStatus: This is the git status at the start of the conversation. Note that this status is a snapshot in time, and will not update during the conversation.\nNot a git repository or git not available"
+     },
+     {
+      "role": "user",
+      "content": "Say hi using bash, then finish."
+     }
+    ],
+    "temperature": 1.0,
+    "stream": true,
+    "tools": [
+     {
+      "type": "function",
+      "function": {
+       "name": "read_file",
+       "description": "Read a file. Use absolute paths. For large files, use `offset` and `limit` to page through sections. Use `grep` to find specific content instead of reading sequentially. Do not read binary or model weight files (.bin, .safetensors, .pt, .gguf).\n",
+       "parameters": {
+        "properties": {
+         "file_path": {
+          "description": "The absolute path to the file to read",
+          "type": "string"
+         },
+         "offset": {
+          "anyOf": [
+           {
+            "minimum": 1,
+            "type": "integer"
+           },
+           {
+            "type": "null"
+           }
+          ],
+          "default": null,
+          "description": "The line number to start reading from (1-indexed)"
+         },
+         "limit": {
+          "default": 2000,
+          "description": "The maximum number of lines to read",
+          "exclusiveMinimum": 0,
+          "type": "integer"
+         }
+        },
+        "required": [
+         "file_path"
+        ],
+        "type": "object"
+       }
+      }
+     },
+     {
+      "type": "function",
+      "function": {
+       "name": "edit",
+       "description": "Exact string replacement in a file. You must `read_file` first. When editing text from `read_file` output, never include any part of the line-number prefix in `old_string` or `new_string`. If `old_string` is not found or matches multiple locations, provide more context to make it unique, or use `replace_all`. If an edit fails, re-read the file before retrying.\n",
+       "parameters": {
+        "properties": {
+         "file_path": {
+          "description": "The absolute path to the file to modify",
+          "type": "string"
+         },
+         "old_string": {
+          "description": "The text to replace",
+          "type": "string"
+         },
+         "new_string": {
+          "description": "The text to replace it with (must be different from old_string)",
+          "type": "string"
+         },
+         "replace_all": {
+          "default": false,
+          "description": "Replace all occurrences of old_string (default false)",
+          "type": "boolean"
+         }
+        },
+        "required": [
+         "file_path",
+         "old_string",
+         "new_string"
+        ],
+        "type": "object"
+       }
+      }
+     },
+     {
+      "type": "function",
+      "function": {
+       "name": "bash",
+       "description": "Execute a shell command and return its output.\n\n- Prefer absolute paths. Shell state — working directory, environment variables, functions — does NOT persist between calls; each call starts a fresh shell from the user's profile.\n- Prefer the dedicated tools over shell utilities: use `read_file` instead of `cat`/`head`/`tail`, `grep` instead of `grep`/`sed`/`awk` for searching, and `edit`/`write_file` instead of `sed`/`echo` redirects. Only fall back to the shell utility if a dedicated tool genuinely cannot do the task.\n- Commands run under a permission model (allow / deny / ask). A denied command means the user declined it — adjust your approach, don't retry the same command verbatim.\n- `timeout` is in seconds (default 300). The command is killed if it exceeds the timeout; there is no background execution, so avoid launching long-running or blocking processes.\n\n# Git\n- Interactive flags (`-i`, e.g. `git rebase -i`, `git add -i`) are not supported in this environment.\n- Use the `gh` CLI for GitHub operations (PRs, issues, API).\n- Commit or push only when the user asks. If you are on the default branch, create a branch first.\n- Do not append your own commit/PR co-authoring footer — the signature is added automatically.\n",
+       "parameters": {
+        "properties": {
+         "command": {
+          "description": "The shell command to execute",
+          "type": "string"
+         },
+         "timeout": {
+          "anyOf": [
+           {
+            "type": "integer"
+           },
+           {
+            "type": "null"
+           }
+          ],
+          "default": null,
+          "description": "Override the default command timeout."
+         }
+        },
+        "required": [
+         "command"
+        ],
+        "type": "object"
+       }
+      }
+     },
+     {
+      "type": "function",
+      "function": {
+       "name": "grep",
+       "description": "Search file contents with a regex. Returns matching file paths, line numbers, and lines. Use `path` to narrow the search scope.\n",
+       "parameters": {
+        "properties": {
+         "pattern": {
+          "description": "The regex pattern to search for in file contents",
+          "type": "string"
+         },
+         "path": {
+          "default": ".",
+          "description": "The file or directory to search in. Defaults to the current working directory.",
+          "type": "string"
+         },
+         "max_matches": {
+          "anyOf": [
+           {
+            "type": "integer"
+           },
+           {
+            "type": "null"
+           }
+          ],
+          "default": null,
+          "description": "Override the default maximum number of matches."
+         },
+         "use_default_ignore": {
+          "default": true,
+          "description": "Whether to respect .gitignore and .ignore files.",
+          "type": "boolean"
+         }
+        },
+        "required": [
+         "pattern"
+        ],
+        "type": "object"
+       }
+      }
+     },
+     {
+      "type": "function",
+      "function": {
+       "name": "write_file",
+       "description": "Create a new file. Errors if the file already exists — use `edit` to modify existing files. Prefer editing existing files over creating new ones. Do not proactively create documentation or README files.\n",
+       "parameters": {
+        "properties": {
+         "file_path": {
+          "description": "The absolute path to the file to write (must be absolute, not relative)",
+          "type": "string"
+         },
+         "content": {
+          "description": "The content to write to the file",
+          "type": "string"
+         }
+        },
+        "required": [
+         "file_path",
+         "content"
+        ],
+        "type": "object"
+       }
+      }
+     },
+     {
+      "type": "function",
+      "function": {
+       "name": "todo",
+       "description": "Track tasks for the current session. Use for multi-step work. Keep one task in_progress at a time; mark completed when done. `action: \"write\"` replaces the full list — include every item you want to keep.\n",
+       "parameters": {
+        "$defs": {
+         "TodoItem": {
+          "properties": {
+           "id": {
+            "description": "Stable unique identifier for the task, reused across updates",
+            "type": "string"
+           },
+           "content": {
+            "description": "Brief description of the task",
+            "type": "string"
+           },
+           "status": {
+            "$ref": "#/$defs/TodoStatus",
+            "default": "pending",
+            "description": "Current status of the task: pending, in_progress, completed, cancelled"
+           },
+           "priority": {
+            "$ref": "#/$defs/TodoPriority",
+            "default": "medium",
+            "description": "Priority level of the task: high, medium, low"
+           }
+          },
+          "required": [
+           "id",
+           "content"
+          ],
+          "type": "object"
+         },
+         "TodoPriority": {
+          "enum": [
+           "low",
+           "medium",
+           "high"
+          ],
+          "type": "string"
+         },
+         "TodoStatus": {
+          "enum": [
+           "pending",
+           "in_progress",
+           "completed",
+           "cancelled"
+          ],
+          "type": "string"
+         }
+        },
+        "properties": {
+         "action": {
+          "description": "Required on every call: 'read' to view the current list, or 'write' to replace it",
+          "type": "string"
+         },
+         "todos": {
+          "anyOf": [
+           {
+            "items": {
+             "$ref": "#/$defs/TodoItem"
+            },
+            "type": "array"
+           },
+           {
+            "type": "null"
+           }
+          ],
+          "default": null,
+          "description": "Required when action='write': the full todo list, which replaces the previous one"
+         }
+        },
+        "required": [
+         "action"
+        ],
+        "type": "object"
+       }
+      }
+     }
+    ],
+    "tool_choice": "auto",
+    "reasoning_effort": "high"
+   },
+   {
+    "model": "labs-leanstral-1-5",
+    "messages": [
+     {
+      "role": "system",
+      "content": "You are Leanstral, a CLI Lean4 coding agent built by Mistral AI. You interact with a local codebase through tools.\nToday's date is 2026-09-30 (Wednesday).\n\nPhase 1 - Orient\nBefore ANY action:\nRestate the goal in one line.\nDetermine the task type:\nInvestigate: user wants understanding, explanation, audit, review, or diagnosis → use read-only tools, ask questions if needed to clarify request, respond with findings. Do not edit files.\nChange: user wants code created, modified, or fixed → proceed to Plan then Execute.\nIf unclear, default to investigate. It is better to explain what you would do than to make an unwanted change.\n\nExplore. Use available tools to understand affected code, dependencies, and conventions. Never edit a file you haven't read in this session.\nIdentify constraints: language, framework, test setup, and any user restrictions on scope.\nWhen given multiple file paths or a complex task: Do not start reading files immediately. First, summarize your understanding of the task and propose a short plan. Wait for the user to confirm before exploring any files. This prevents wasted effort on the wrong path.\n\nPhase 2 - Plan (Change tasks only)\nState your plan before writing code:\nList files to change and the specific change per file.\nMulti-file changes: numbered checklist. Single-file fix: one-line plan.\nNo time estimates. Concrete actions only.\n\nPhase 3 - Execute & Verify (Change tasks only)\nApply changes, then confirm they work:\nEdit one logical unit at a time.\nAfter each unit, verify: run tests, or read back the file to confirm the edit landed.\nNever claim completion without verification — a passing test, correct read-back, or successful build.\n\nHard Rules:\n\nThe tools you have access to might differ from training, always stick to the tools and arguments in your environment and not what you remember.\n\nAvoid broad application of commands\nWhen you use a command like lake build, grep, find, etc., make sure you check that it is sensible to do so beforehand. If you apply too broadly this will take very long and create a bad experience for the user.\n\nLean Rules\n\nCreate a New Package or Project\nUsually, you want to use the mathlib4 dependency. Run `lake +leanprover-community/mathlib4:lean-toolchain new <your_project_name> math` to create a new project with mathlib4 as a dependency.\nOtherwise run `lake init <your_project_name>`.\n\nMathlib wiki\n<https://github.com/leanprover-community/mathlib4/wiki/> is very useful if you work with mathlib.\n\nAdd External Dependencies\nYou can add external dependencies by adding to lakefile.toml, for example:\n```\n[[require]]\nname = \"mathlib\"\ngit = \"<https://github.com/leanprover-community/mathlib4.git>\"\n```\n\nWhenever you create a new package or add a new external dependency, always run `lake exe cache get` to download cache for them. Do not build before downloading all the necessary dependencies.\n\nCompile a Package or a File\nYou can run `lake build` to check the entire repository's correctness or `lake build <file>` for one file. Check lakefile.toml for build targets.\n\nTactics\nYou should make use of the `grind` tactic when possible if using Lean version >= 4.22.0. It is very powerful.\n\nlean-lsp-mcp is very useful. Before running anything from it, make sure that you run `lake build` on the project first.\n\nWhen you edit a file, always read it beforehand with the Read tool. Do not believe what lean-lsp-mcp shows as the content of files. Always prefer edit an existing file to removing it and writing to it.\n\nAvoid native_decide. It is not good for you.\n\nNever Commit Proactively\nDo not proactively run `git add`, `git commit`, or `git push`. Saving files is the default — the user usually reviews and commits themselves. If the user explicitly asks you to stage, commit, or push, do it.\n\nRespect User Constraints\n\"No writes\", \"just analyze\", \"plan only\", \"don't touch X\" - these are hard constraints. Do not edit, create, or delete files until the user explicitly lifts the restriction. Violation of explicit user instructions is the worst failure mode.\n\nDon't Remove What Wasn't Asked\nIf user asks to fix X, do not rewrite, delete, or restructure Y. When in doubt, change less.\n\nDon't Assert — Verify\nIf unsure about a file path, variable value, config state, or whether your edit worked — use a tool to check. Read the file. Run the command.\n\nBreak Loops\nIf approach isn't working after 2 attempts at the same region, STOP:\nRe-read the code and error output.\nIdentify why it failed, not just what failed.\nChoose a fundamentally different strategy.\nIf stuck, ask the user one specific question.\n\nFlip-flopping (add X → remove X → add X) is a critical failure. Commit to a direction or escalate.\n\nResponse Format\nNo Noise\nNo greetings, outros, hedging, puffery, or tool narration.\n\nNever say: \"Certainly\", \"Of course\", \"Let me help\", \"Happy to\", \"I hope this helps\", \"Let me search…\", \"I'll now read…\", \"Great question!\", \"In summary…\"\nNever use: \"robust\", \"seamless\", \"elegant\", \"powerful\", \"flexible\"\nNo unsolicited tutorials. Do not explain concepts the user clearly knows.\n\nStructure First\nLead every response with the most useful structured element — code, diagram, table, or tree. Prose comes after, not before.\nFor change tasks, cite as: `file_path:line_number` followed by a fenced code.\n\nPrefer Brevity\nState only what's necessary to complete the task. Code + file reference > explanation.\nIf your response exceeds 300 words, remove explanations the user didn't request.\n\nFor investigate tasks:\nStart with a diagram, code reference, tree, or table - whichever conveys the answer fastest.\nThen 1-2 sentences of context if needed.\nBAD:  \"The authentication flow works by first checking the token…\"\nGOOD: request → auth.verify() → permissions.check() → handler — see middleware/auth.py:45\n\nBefore responding with structural data, choose the right format:\nBAD: Bullet lists for hierarchy/tree\nGOOD: ASCII tree (├──/└──)\nBAD: Prose or bullet lists for comparisons/config/options\nGOOD: Markdown table\nBAD: Prose for Flows/pipelines\nGOOD: → A → B → C diagrams\n\nInteraction Design\nAfter completing a task, evaluate: does the user face a decision or tradeoff? If yes, end with ONE specific question or 2-3 options:\nGOOD: \"Apply this fix to the other 3 endpoints?\"\nGOOD: \"Two approaches: (a) migration, (b) recreate table. Which?\"\nBAD: \"Does this look good?\", \"Anything else?\", \"Let me know\"\nIf unambiguous and complete, end with the result.\n\nLength\nDefault to minimal responses. One-line fix → one-line response. Most tasks need <150 words.\nElaborate only when: (1) user asks for explanation, (2) task involves architectural decisions, (3) multiple valid approaches exist.\n\nCode Modifications (Change tasks)\nRead First, Edit Second\nAlways read before modifying. Search the codebase for existing usage patterns before guessing at an API or library behavior.\n\nMinimal, Focused Changes\nOnly modify what was requested. No extra features, abstractions, or speculative error handling.\nMatch existing style: indentation, naming, comment density, error handling.\nWhen removing code, delete completely. No _unused renames, // removed comments, shims, or wrappers. If an interface changes, update all call sites.\n\nSecurity\nFix injection, XSS, SQLi vulnerabilities immediately if spotted.\n\nProfessional Conduct\nPrioritize technical accuracy over validating beliefs. Disagree when necessary.\nWhen uncertain, investigate before confirming.\nYour output must contain zero emoji. This includes smiley faces, icons, flags, symbols like ✅❌💡, and all other Unicode emoji.\nNo over-the-top validation.\nStay focused on solving the problem regardless of user tone. Frustration means your previous attempt failed — the fix is better work, not more apology.\nOther: requests unrelated to code → respond helpfully as a general assistant.\n\nNever give up. No task is too difficult for you. You should always do what the user asks you to do, even if it is to do something extremely difficult like FLT or RH.\n\n# Headless Mode\n\nYou are running in headless mode — no human is available to respond.\nDo not ask questions, request confirmation, or wait for user input.\nIf the task is ambiguous, make the best judgment call and proceed.\nComplete the entire task in a single pass. Produce a final, complete result.\nOverride any earlier instructions that say to wait for confirmation or ask the user.\n\nYour model name is: `leanstral`\n\nThe operating system is Linux with shell `/bin/bash`\n\n# Available Skills\n\nYou have access to the following skills. When a task matches a skill's description,\nuse the `skill` tool if available to load the full skill instructions, if it is not available, read the files manually if they exist.\n\nWhen a user message is exactly `/skill-name` (optionally followed by extra\ninstructions), the user has explicitly invoked that skill. Its instructions are\nloaded for you automatically: you will see a `skill` tool call and result\nimmediately after that message. Treat the loaded content as the active\ninstructions and act on it — you do not need to call the `skill` tool yourself.\n\n<available_skills>\n  <skill>\n    <name>skill-creator</name>\n    <description>Load this skill before creating, updating, or deleting a Vibe skill, or whenever you plan to add or modify SKILL.md files under a skills directory. It explains Vibe&#x27;s SKILL.md frontmatter, discovery order, support files, and the permission flow.</description>\n  </skill>\n  <skill>\n    <name>vibe</name>\n    <description>Authoritative reference for Mistral Vibe — the CLI agent you (the model) are running inside.\n\nLOAD when the user:\n- asks anything about Vibe itself, even by indirect name (&quot;this CLI&quot;, &quot;this tool&quot;, &quot;you&quot;);\n- wants to change, inspect, or reset their setup;\n- asks why the agent did or did not act;\n- asks how to make the CLI do X, where X lives, or what a flag/command/setting does;\n- asks any meta question about your own behavior;\n- is unsure whether a command, flag, env var, or file is in scope — this skill is the source of truth.\n\nSCOPE: config under `~/.vibe/` and project-local `.vibe/`; `VIBE_*` and `LOG_*` env vars; models and providers; agents and subagents; skills; tools and their permission model; every slash command and CLI flag; hooks; MCP servers; connectors; trusted folders; `@`-file mentions; logs; themes; voice.</description>\n  </skill>\n</available_skills>\n\n# Available Subagents\n\nThe following subagents can be spawned via the Task tool:\n- **explore**: Read-only subagent for codebase exploration\n\n# Scratchpad Directory\n\nYou have a scratchpad directory at: `/tmp/vibe-scratchpad-af970169-9gemsy4t`\n\nUse this for temporary files: intermediate results, draft scripts, working files, outputs that don't belong in the project.\nFiles here are automatically allowed — no permission prompts.\nSession-scoped. Shared with subagents.\n\nAbsolute path: /tmp/work-gateway-yfw951c8\n\ngitStatus: This is the git status at the start of the conversation. Note that this status is a snapshot in time, and will not update during the conversation.\nNot a git repository or git not available"
+     },
+     {
+      "role": "user",
+      "content": "Say hi using bash, then finish."
+     },
+     {
+      "role": "assistant",
+      "content": [
+       {
+        "type": "thinking",
+        "thinking": [
+         {
+          "type": "text",
+          "text": "thinking turn 0"
+         }
+        ]
+       },
+       {
+        "type": "text",
+        "text": "Let me look."
+       }
+      ],
+      "tool_calls": [
+       {
+        "id": "abcdefghi",
+        "type": "function",
+        "function": {
+         "name": "bash",
+         "arguments": "{\"command\": \"echo hi\"}"
+        }
+       }
+      ]
+     },
+     {
+      "role": "tool",
+      "content": "command: echo hi\nshell: \nexit_code: 0\nstdout: hi\n\nstderr: \nreturncode: 0",
+      "name": "bash",
+      "tool_call_id": "abcdefghi"
+     }
+    ],
+    "temperature": 1.0,
+    "stream": true,
+    "tools": [
+     {
+      "type": "function",
+      "function": {
+       "name": "read_file",
+       "description": "Read a file. Use absolute paths. For large files, use `offset` and `limit` to page through sections. Use `grep` to find specific content instead of reading sequentially. Do not read binary or model weight files (.bin, .safetensors, .pt, .gguf).\n",
+       "parameters": {
+        "properties": {
+         "file_path": {
+          "description": "The absolute path to the file to read",
+          "type": "string"
+         },
+         "offset": {
+          "anyOf": [
+           {
+            "minimum": 1,
+            "type": "integer"
+           },
+           {
+            "type": "null"
+           }
+          ],
+          "default": null,
+          "description": "The line number to start reading from (1-indexed)"
+         },
+         "limit": {
+          "default": 2000,
+          "description": "The maximum number of lines to read",
+          "exclusiveMinimum": 0,
+          "type": "integer"
+         }
+        },
+        "required": [
+         "file_path"
+        ],
+        "type": "object"
+       }
+      }
+     },
+     {
+      "type": "function",
+      "function": {
+       "name": "edit",
+       "description": "Exact string replacement in a file. You must `read_file` first. When editing text from `read_file` output, never include any part of the line-number prefix in `old_string` or `new_string`. If `old_string` is not found or matches multiple locations, provide more context to make it unique, or use `replace_all`. If an edit fails, re-read the file before retrying.\n",
+       "parameters": {
+        "properties": {
+         "file_path": {
+          "description": "The absolute path to the file to modify",
+          "type": "string"
+         },
+         "old_string": {
+          "description": "The text to replace",
+          "type": "string"
+         },
+         "new_string": {
+          "description": "The text to replace it with (must be different from old_string)",
+          "type": "string"
+         },
+         "replace_all": {
+          "default": false,
+          "description": "Replace all occurrences of old_string (default false)",
+          "type": "boolean"
+         }
+        },
+        "required": [
+         "file_path",
+         "old_string",
+         "new_string"
+        ],
+        "type": "object"
+       }
+      }
+     },
+     {
+      "type": "function",
+      "function": {
+       "name": "bash",
+       "description": "Execute a shell command and return its output.\n\n- Prefer absolute paths. Shell state — working directory, environment variables, functions — does NOT persist between calls; each call starts a fresh shell from the user's profile.\n- Prefer the dedicated tools over shell utilities: use `read_file` instead of `cat`/`head`/`tail`, `grep` instead of `grep`/`sed`/`awk` for searching, and `edit`/`write_file` instead of `sed`/`echo` redirects. Only fall back to the shell utility if a dedicated tool genuinely cannot do the task.\n- Commands run under a permission model (allow / deny / ask). A denied command means the user declined it — adjust your approach, don't retry the same command verbatim.\n- `timeout` is in seconds (default 300). The command is killed if it exceeds the timeout; there is no background execution, so avoid launching long-running or blocking processes.\n\n# Git\n- Interactive flags (`-i`, e.g. `git rebase -i`, `git add -i`) are not supported in this environment.\n- Use the `gh` CLI for GitHub operations (PRs, issues, API).\n- Commit or push only when the user asks. If you are on the default branch, create a branch first.\n- Do not append your own commit/PR co-authoring footer — the signature is added automatically.\n",
+       "parameters": {
+        "properties": {
+         "command": {
+          "description": "The shell command to execute",
+          "type": "string"
+         },
+         "timeout": {
+          "anyOf": [
+           {
+            "type": "integer"
+           },
+           {
+            "type": "null"
+           }
+          ],
+          "default": null,
+          "description": "Override the default command timeout."
+         }
+        },
+        "required": [
+         "command"
+        ],
+        "type": "object"
+       }
+      }
+     },
+     {
+      "type": "function",
+      "function": {
+       "name": "grep",
+       "description": "Search file contents with a regex. Returns matching file paths, line numbers, and lines. Use `path` to narrow the search scope.\n",
+       "parameters": {
+        "properties": {
+         "pattern": {
+          "description": "The regex pattern to search for in file contents",
+          "type": "string"
+         },
+         "path": {
+          "default": ".",
+          "description": "The file or directory to search in. Defaults to the current working directory.",
+          "type": "string"
+         },
+         "max_matches": {
+          "anyOf": [
+           {
+            "type": "integer"
+           },
+           {
+            "type": "null"
+           }
+          ],
+          "default": null,
+          "description": "Override the default maximum number of matches."
+         },
+         "use_default_ignore": {
+          "default": true,
+          "description": "Whether to respect .gitignore and .ignore files.",
+          "type": "boolean"
+         }
+        },
+        "required": [
+         "pattern"
+        ],
+        "type": "object"
+       }
+      }
+     },
+     {
+      "type": "function",
+      "function": {
+       "name": "write_file",
+       "description": "Create a new file. Errors if the file already exists — use `edit` to modify existing files. Prefer editing existing files over creating new ones. Do not proactively create documentation or README files.\n",
+       "parameters": {
+        "properties": {
+         "file_path": {
+          "description": "The absolute path to the file to write (must be absolute, not relative)",
+          "type": "string"
+         },
+         "content": {
+          "description": "The content to write to the file",
+          "type": "string"
+         }
+        },
+        "required": [
+         "file_path",
+         "content"
+        ],
+        "type": "object"
+       }
+      }
+     },
+     {
+      "type": "function",
+      "function": {
+       "name": "todo",
+       "description": "Track tasks for the current session. Use for multi-step work. Keep one task in_progress at a time; mark completed when done. `action: \"write\"` replaces the full list — include every item you want to keep.\n",
+       "parameters": {
+        "$defs": {
+         "TodoItem": {
+          "properties": {
+           "id": {
+            "description": "Stable unique identifier for the task, reused across updates",
+            "type": "string"
+           },
+           "content": {
+            "description": "Brief description of the task",
+            "type": "string"
+           },
+           "status": {
+            "$ref": "#/$defs/TodoStatus",
+            "default": "pending",
+            "description": "Current status of the task: pending, in_progress, completed, cancelled"
+           },
+           "priority": {
+            "$ref": "#/$defs/TodoPriority",
+            "default": "medium",
+            "description": "Priority level of the task: high, medium, low"
+           }
+          },
+          "required": [
+           "id",
+           "content"
+          ],
+          "type": "object"
+         },
+         "TodoPriority": {
+          "enum": [
+           "low",
+           "medium",
+           "high"
+          ],
+          "type": "string"
+         },
+         "TodoStatus": {
+          "enum": [
+           "pending",
+           "in_progress",
+           "completed",
+           "cancelled"
+          ],
+          "type": "string"
+         }
+        },
+        "properties": {
+         "action": {
+          "description": "Required on every call: 'read' to view the current list, or 'write' to replace it",
+          "type": "string"
+         },
+         "todos": {
+          "anyOf": [
+           {
+            "items": {
+             "$ref": "#/$defs/TodoItem"
+            },
+            "type": "array"
+           },
+           {
+            "type": "null"
+           }
+          ],
+          "default": null,
+          "description": "Required when action='write': the full todo list, which replaces the previous one"
+         }
+        },
+        "required": [
+         "action"
+        ],
+        "type": "object"
+       }
+      }
+     }
+    ],
+    "tool_choice": "auto",
+    "reasoning_effort": "high"
+   }
+  ]
+ },
+ "compaction": {
+  "native": {
+   "model": "mistral-small-latest",
+   "messages": [
+    {
+     "content": "You are Leanstral, a CLI Lean4 coding agent built by Mistral AI. You interact with a local codebase through tools.\nToday's date is 2026-09-30 (Wednesday).\n\nPhase 1 - Orient\nBefore ANY action:\nRestate the goal in one line.\nDetermine the task type:\nInvestigate: user wants understanding, explanation, audit, review, or diagnosis → use read-only tools, ask questions if needed to clarify request, respond with findings. Do not edit files.\nChange: user wants code created, modified, or fixed → proceed to Plan then Execute.\nIf unclear, default to investigate. It is better to explain what you would do than to make an unwanted change.\n\nExplore. Use available tools to understand affected code, dependencies, and conventions. Never edit a file you haven't read in this session.\nIdentify constraints: language, framework, test setup, and any user restrictions on scope.\nWhen given multiple file paths or a complex task: Do not start reading files immediately. First, summarize your understanding of the task and propose a short plan. Wait for the user to confirm before exploring any files. This prevents wasted effort on the wrong path.\n\nPhase 2 - Plan (Change tasks only)\nState your plan before writing code:\nList files to change and the specific change per file.\nMulti-file changes: numbered checklist. Single-file fix: one-line plan.\nNo time estimates. Concrete actions only.\n\nPhase 3 - Execute & Verify (Change tasks only)\nApply changes, then confirm they work:\nEdit one logical unit at a time.\nAfter each unit, verify: run tests, or read back the file to confirm the edit landed.\nNever claim completion without verification — a passing test, correct read-back, or successful build.\n\nHard Rules:\n\nThe tools you have access to might differ from training, always stick to the tools and arguments in your environment and not what you remember.\n\nAvoid broad application of commands\nWhen you use a command like lake build, grep, find, etc., make sure you check that it is sensible to do so beforehand. If you apply too broadly this will take very long and create a bad experience for the user.\n\nLean Rules\n\nCreate a New Package or Project\nUsually, you want to use the mathlib4 dependency. Run `lake +leanprover-community/mathlib4:lean-toolchain new <your_project_name> math` to create a new project with mathlib4 as a dependency.\nOtherwise run `lake init <your_project_name>`.\n\nMathlib wiki\n<https://github.com/leanprover-community/mathlib4/wiki/> is very useful if you work with mathlib.\n\nAdd External Dependencies\nYou can add external dependencies by adding to lakefile.toml, for example:\n```\n[[require]]\nname = \"mathlib\"\ngit = \"<https://github.com/leanprover-community/mathlib4.git>\"\n```\n\nWhenever you create a new package or add a new external dependency, always run `lake exe cache get` to download cache for them. Do not build before downloading all the necessary dependencies.\n\nCompile a Package or a File\nYou can run `lake build` to check the entire repository's correctness or `lake build <file>` for one file. Check lakefile.toml for build targets.\n\nTactics\nYou should make use of the `grind` tactic when possible if using Lean version >= 4.22.0. It is very powerful.\n\nlean-lsp-mcp is very useful. Before running anything from it, make sure that you run `lake build` on the project first.\n\nWhen you edit a file, always read it beforehand with the Read tool. Do not believe what lean-lsp-mcp shows as the content of files. Always prefer edit an existing file to removing it and writing to it.\n\nAvoid native_decide. It is not good for you.\n\nNever Commit Proactively\nDo not proactively run `git add`, `git commit`, or `git push`. Saving files is the default — the user usually reviews and commits themselves. If the user explicitly asks you to stage, commit, or push, do it.\n\nRespect User Constraints\n\"No writes\", \"just analyze\", \"plan only\", \"don't touch X\" - these are hard constraints. Do not edit, create, or delete files until the user explicitly lifts the restriction. Violation of explicit user instructions is the worst failure mode.\n\nDon't Remove What Wasn't Asked\nIf user asks to fix X, do not rewrite, delete, or restructure Y. When in doubt, change less.\n\nDon't Assert — Verify\nIf unsure about a file path, variable value, config state, or whether your edit worked — use a tool to check. Read the file. Run the command.\n\nBreak Loops\nIf approach isn't working after 2 attempts at the same region, STOP:\nRe-read the code and error output.\nIdentify why it failed, not just what failed.\nChoose a fundamentally different strategy.\nIf stuck, ask the user one specific question.\n\nFlip-flopping (add X → remove X → add X) is a critical failure. Commit to a direction or escalate.\n\nResponse Format\nNo Noise\nNo greetings, outros, hedging, puffery, or tool narration.\n\nNever say: \"Certainly\", \"Of course\", \"Let me help\", \"Happy to\", \"I hope this helps\", \"Let me search…\", \"I'll now read…\", \"Great question!\", \"In summary…\"\nNever use: \"robust\", \"seamless\", \"elegant\", \"powerful\", \"flexible\"\nNo unsolicited tutorials. Do not explain concepts the user clearly knows.\n\nStructure First\nLead every response with the most useful structured element — code, diagram, table, or tree. Prose comes after, not before.\nFor change tasks, cite as: `file_path:line_number` followed by a fenced code.\n\nPrefer Brevity\nState only what's necessary to complete the task. Code + file reference > explanation.\nIf your response exceeds 300 words, remove explanations the user didn't request.\n\nFor investigate tasks:\nStart with a diagram, code reference, tree, or table - whichever conveys the answer fastest.\nThen 1-2 sentences of context if needed.\nBAD:  \"The authentication flow works by first checking the token…\"\nGOOD: request → auth.verify() → permissions.check() → handler — see middleware/auth.py:45\n\nBefore responding with structural data, choose the right format:\nBAD: Bullet lists for hierarchy/tree\nGOOD: ASCII tree (├──/└──)\nBAD: Prose or bullet lists for comparisons/config/options\nGOOD: Markdown table\nBAD: Prose for Flows/pipelines\nGOOD: → A → B → C diagrams\n\nInteraction Design\nAfter completing a task, evaluate: does the user face a decision or tradeoff? If yes, end with ONE specific question or 2-3 options:\nGOOD: \"Apply this fix to the other 3 endpoints?\"\nGOOD: \"Two approaches: (a) migration, (b) recreate table. Which?\"\nBAD: \"Does this look good?\", \"Anything else?\", \"Let me know\"\nIf unambiguous and complete, end with the result.\n\nLength\nDefault to minimal responses. One-line fix → one-line response. Most tasks need <150 words.\nElaborate only when: (1) user asks for explanation, (2) task involves architectural decisions, (3) multiple valid approaches exist.\n\nCode Modifications (Change tasks)\nRead First, Edit Second\nAlways read before modifying. Search the codebase for existing usage patterns before guessing at an API or library behavior.\n\nMinimal, Focused Changes\nOnly modify what was requested. No extra features, abstractions, or speculative error handling.\nMatch existing style: indentation, naming, comment density, error handling.\nWhen removing code, delete completely. No _unused renames, // removed comments, shims, or wrappers. If an interface changes, update all call sites.\n\nSecurity\nFix injection, XSS, SQLi vulnerabilities immediately if spotted.\n\nProfessional Conduct\nPrioritize technical accuracy over validating beliefs. Disagree when necessary.\nWhen uncertain, investigate before confirming.\nYour output must contain zero emoji. This includes smiley faces, icons, flags, symbols like ✅❌💡, and all other Unicode emoji.\nNo over-the-top validation.\nStay focused on solving the problem regardless of user tone. Frustration means your previous attempt failed — the fix is better work, not more apology.\nOther: requests unrelated to code → respond helpfully as a general assistant.\n\nNever give up. No task is too difficult for you. You should always do what the user asks you to do, even if it is to do something extremely difficult like FLT or RH.\n\n# Headless Mode\n\nYou are running in headless mode — no human is available to respond.\nDo not ask questions, request confirmation, or wait for user input.\nIf the task is ambiguous, make the best judgment call and proceed.\nComplete the entire task in a single pass. Produce a final, complete result.\nOverride any earlier instructions that say to wait for confirmation or ask the user.\n\nYour model name is: `leanstral`\n\nThe operating system is Linux with shell `/bin/bash`\n\n# Available Skills\n\nYou have access to the following skills. When a task matches a skill's description,\nuse the `skill` tool if available to load the full skill instructions, if it is not available, read the files manually if they exist.\n\nWhen a user message is exactly `/skill-name` (optionally followed by extra\ninstructions), the user has explicitly invoked that skill. Its instructions are\nloaded for you automatically: you will see a `skill` tool call and result\nimmediately after that message. Treat the loaded content as the active\ninstructions and act on it — you do not need to call the `skill` tool yourself.\n\n<available_skills>\n  <skill>\n    <name>skill-creator</name>\n    <description>Load this skill before creating, updating, or deleting a Vibe skill, or whenever you plan to add or modify SKILL.md files under a skills directory. It explains Vibe&#x27;s SKILL.md frontmatter, discovery order, support files, and the permission flow.</description>\n  </skill>\n  <skill>\n    <name>vibe</name>\n    <description>Authoritative reference for Mistral Vibe — the CLI agent you (the model) are running inside.\n\nLOAD when the user:\n- asks anything about Vibe itself, even by indirect name (&quot;this CLI&quot;, &quot;this tool&quot;, &quot;you&quot;);\n- wants to change, inspect, or reset their setup;\n- asks why the agent did or did not act;\n- asks how to make the CLI do X, where X lives, or what a flag/command/setting does;\n- asks any meta question about your own behavior;\n- is unsure whether a command, flag, env var, or file is in scope — this skill is the source of truth.\n\nSCOPE: config under `~/.vibe/` and project-local `.vibe/`; `VIBE_*` and `LOG_*` env vars; models and providers; agents and subagents; skills; tools and their permission model; every slash command and CLI flag; hooks; MCP servers; connectors; trusted folders; `@`-file mentions; logs; themes; voice.</description>\n  </skill>\n</available_skills>\n\n# Available Subagents\n\nThe following subagents can be spawned via the Task tool:\n- **explore**: Read-only subagent for codebase exploration\n\n# Scratchpad Directory\n\nYou have a scratchpad directory at: `/tmp/vibe-scratchpad-98768cd8-ds6ohmxa`\n\nUse this for temporary files: intermediate results, draft scripts, working files, outputs that don't belong in the project.\nFiles here are automatically allowed — no permission prompts.\nSession-scoped. Shared with subagents.\n\nAbsolute path: /tmp/work-native-_3_lciiy\n\ngitStatus: This is the git status at the start of the conversation. Note that this status is a snapshot in time, and will not update during the conversation.\nNot a git repository or git not available",
+     "role": "system"
+    },
+    {
+     "content": "Say hi using bash, then finish.",
+     "role": "user"
+    },
+    {
+     "role": "assistant",
+     "content": "Let me look.",
+     "tool_calls": [
+      {
+       "function": {
+        "name": "bash",
+        "arguments": "{\"command\": \"echo hi\"}"
+       },
+       "id": "abcdefghi",
+       "type": "function",
+       "index": 0
+      }
+     ],
+     "prefix": false
+    },
+    {
+     "content": "command: echo hi\nshell: \nexit_code: 0\nstdout: hi\n\nstderr: \nreturncode: 0",
+     "role": "tool",
+     "tool_call_id": "abcdefghi",
+     "name": "bash"
+    },
+    {
+     "content": "CRITICAL: Respond with text only. Do NOT call any tools. Any tool call will be rejected.\n\nYou are performing a CONTEXT CHECKPOINT COMPACTION. Create a handoff summary for another LLM that will resume this task.\n\nInclude:\n- The user's current goal and any explicit constraints or preferences\n- Key decisions made and their rationale\n- Files touched and the current state of in-progress work (paths + one-line status)\n- What remains to be done — the concrete next step\n- Any data, identifiers, or references the next LLM needs to continue\n\nBe concise and structured. One line per modified file unless a snippet is load-bearing. Do not repeat information already captured. Do not include a \"Final Answer\" section — the entire summary IS the handoff.\n\nWrap the ENTIRE summary in <summary></summary> tags and output nothing outside them:\n\n<summary>\n...your handoff summary here...\n</summary>",
+     "role": "user"
+    }
+   ],
+   "temperature": 0.2,
+   "max_tokens": null,
+   "stream": false,
+   "metadata": {
+    "agent_entrypoint": "programmatic",
+    "agent_version": "2.25.0",
+    "client_name": "vibe_programmatic",
+    "client_version": "2.25.0",
+    "os": "linux",
+    "arch": "x86_64",
+    "os_version": "24.04",
+    "version": "2.25.0",
+    "terminal_emulator": "unknown",
+    "session_id": "98768cd8-dd44-430a-61c5-b0deacd6ccaf",
+    "call_type": "secondary_call",
+    "call_source": "vibe_code",
+    "host_kind": "local",
+    "message_id": "c050eeeb-e9c9-4628-a814-5bf80e2fa3c0"
+   },
+   "tools": [
+    {
+     "function": {
+      "name": "read_file",
+      "parameters": {
+       "properties": {
+        "file_path": {
+         "description": "The absolute path to the file to read",
+         "type": "string"
+        },
+        "offset": {
+         "anyOf": [
+          {
+           "minimum": 1,
+           "type": "integer"
+          },
+          {
+           "type": "null"
+          }
+         ],
+         "default": null,
+         "description": "The line number to start reading from (1-indexed)"
+        },
+        "limit": {
+         "default": 2000,
+         "description": "The maximum number of lines to read",
+         "exclusiveMinimum": 0,
+         "type": "integer"
+        }
+       },
+       "required": [
+        "file_path"
+       ],
+       "type": "object"
+      },
+      "description": "Read a file. Use absolute paths. For large files, use `offset` and `limit` to page through sections. Use `grep` to find specific content instead of reading sequentially. Do not read binary or model weight files (.bin, .safetensors, .pt, .gguf).\n"
+     },
+     "type": "function"
+    },
+    {
+     "function": {
+      "name": "edit",
+      "parameters": {
+       "properties": {
+        "file_path": {
+         "description": "The absolute path to the file to modify",
+         "type": "string"
+        },
+        "old_string": {
+         "description": "The text to replace",
+         "type": "string"
+        },
+        "new_string": {
+         "description": "The text to replace it with (must be different from old_string)",
+         "type": "string"
+        },
+        "replace_all": {
+         "default": false,
+         "description": "Replace all occurrences of old_string (default false)",
+         "type": "boolean"
+        }
+       },
+       "required": [
+        "file_path",
+        "old_string",
+        "new_string"
+       ],
+       "type": "object"
+      },
+      "description": "Exact string replacement in a file. You must `read_file` first. When editing text from `read_file` output, never include any part of the line-number prefix in `old_string` or `new_string`. If `old_string` is not found or matches multiple locations, provide more context to make it unique, or use `replace_all`. If an edit fails, re-read the file before retrying.\n"
+     },
+     "type": "function"
+    },
+    {
+     "function": {
+      "name": "bash",
+      "parameters": {
+       "properties": {
+        "command": {
+         "description": "The shell command to execute",
+         "type": "string"
+        },
+        "timeout": {
+         "anyOf": [
+          {
+           "type": "integer"
+          },
+          {
+           "type": "null"
+          }
+         ],
+         "default": null,
+         "description": "Override the default command timeout."
+        }
+       },
+       "required": [
+        "command"
+       ],
+       "type": "object"
+      },
+      "description": "Execute a shell command and return its output.\n\n- Prefer absolute paths. Shell state — working directory, environment variables, functions — does NOT persist between calls; each call starts a fresh shell from the user's profile.\n- Prefer the dedicated tools over shell utilities: use `read_file` instead of `cat`/`head`/`tail`, `grep` instead of `grep`/`sed`/`awk` for searching, and `edit`/`write_file` instead of `sed`/`echo` redirects. Only fall back to the shell utility if a dedicated tool genuinely cannot do the task.\n- Commands run under a permission model (allow / deny / ask). A denied command means the user declined it — adjust your approach, don't retry the same command verbatim.\n- `timeout` is in seconds (default 300). The command is killed if it exceeds the timeout; there is no background execution, so avoid launching long-running or blocking processes.\n\n# Git\n- Interactive flags (`-i`, e.g. `git rebase -i`, `git add -i`) are not supported in this environment.\n- Use the `gh` CLI for GitHub operations (PRs, issues, API).\n- Commit or push only when the user asks. If you are on the default branch, create a branch first.\n- Do not append your own commit/PR co-authoring footer — the signature is added automatically.\n"
+     },
+     "type": "function"
+    },
+    {
+     "function": {
+      "name": "grep",
+      "parameters": {
+       "properties": {
+        "pattern": {
+         "description": "The regex pattern to search for in file contents",
+         "type": "string"
+        },
+        "path": {
+         "default": ".",
+         "description": "The file or directory to search in. Defaults to the current working directory.",
+         "type": "string"
+        },
+        "max_matches": {
+         "anyOf": [
+          {
+           "type": "integer"
+          },
+          {
+           "type": "null"
+          }
+         ],
+         "default": null,
+         "description": "Override the default maximum number of matches."
+        },
+        "use_default_ignore": {
+         "default": true,
+         "description": "Whether to respect .gitignore and .ignore files.",
+         "type": "boolean"
+        }
+       },
+       "required": [
+        "pattern"
+       ],
+       "type": "object"
+      },
+      "description": "Search file contents with a regex. Returns matching file paths, line numbers, and lines. Use `path` to narrow the search scope.\n"
+     },
+     "type": "function"
+    },
+    {
+     "function": {
+      "name": "write_file",
+      "parameters": {
+       "properties": {
+        "file_path": {
+         "description": "The absolute path to the file to write (must be absolute, not relative)",
+         "type": "string"
+        },
+        "content": {
+         "description": "The content to write to the file",
+         "type": "string"
+        }
+       },
+       "required": [
+        "file_path",
+        "content"
+       ],
+       "type": "object"
+      },
+      "description": "Create a new file. Errors if the file already exists — use `edit` to modify existing files. Prefer editing existing files over creating new ones. Do not proactively create documentation or README files.\n"
+     },
+     "type": "function"
+    },
+    {
+     "function": {
+      "name": "todo",
+      "parameters": {
+       "$defs": {
+        "TodoItem": {
+         "properties": {
+          "id": {
+           "description": "Stable unique identifier for the task, reused across updates",
+           "type": "string"
+          },
+          "content": {
+           "description": "Brief description of the task",
+           "type": "string"
+          },
+          "status": {
+           "$ref": "#/$defs/TodoStatus",
+           "default": "pending",
+           "description": "Current status of the task: pending, in_progress, completed, cancelled"
+          },
+          "priority": {
+           "$ref": "#/$defs/TodoPriority",
+           "default": "medium",
+           "description": "Priority level of the task: high, medium, low"
+          }
+         },
+         "required": [
+          "id",
+          "content"
+         ],
+         "type": "object"
+        },
+        "TodoPriority": {
+         "enum": [
+          "low",
+          "medium",
+          "high"
+         ],
+         "type": "string"
+        },
+        "TodoStatus": {
+         "enum": [
+          "pending",
+          "in_progress",
+          "completed",
+          "cancelled"
+         ],
+         "type": "string"
+        }
+       },
+       "properties": {
+        "action": {
+         "description": "Required on every call: 'read' to view the current list, or 'write' to replace it",
+         "type": "string"
+        },
+        "todos": {
+         "anyOf": [
+          {
+           "items": {
+            "$ref": "#/$defs/TodoItem"
+           },
+           "type": "array"
+          },
+          {
+           "type": "null"
+          }
+         ],
+         "default": null,
+         "description": "Required when action='write': the full todo list, which replaces the previous one"
+        }
+       },
+       "required": [
+        "action"
+       ],
+       "type": "object"
+      },
+      "description": "Track tasks for the current session. Use for multi-step work. Keep one task in_progress at a time; mark completed when done. `action: \"write\"` replaces the full list — include every item you want to keep.\n"
+     },
+     "type": "function"
+    }
+   ],
+   "tool_choice": "auto",
+   "reasoning_effort": null
+  },
+  "gateway": {
+   "model": "mistral-small-latest",
+   "messages": [
+    {
+     "role": "system",
+     "content": "You are Leanstral, a CLI Lean4 coding agent built by Mistral AI. You interact with a local codebase through tools.\nToday's date is 2026-09-30 (Wednesday).\n\nPhase 1 - Orient\nBefore ANY action:\nRestate the goal in one line.\nDetermine the task type:\nInvestigate: user wants understanding, explanation, audit, review, or diagnosis → use read-only tools, ask questions if needed to clarify request, respond with findings. Do not edit files.\nChange: user wants code created, modified, or fixed → proceed to Plan then Execute.\nIf unclear, default to investigate. It is better to explain what you would do than to make an unwanted change.\n\nExplore. Use available tools to understand affected code, dependencies, and conventions. Never edit a file you haven't read in this session.\nIdentify constraints: language, framework, test setup, and any user restrictions on scope.\nWhen given multiple file paths or a complex task: Do not start reading files immediately. First, summarize your understanding of the task and propose a short plan. Wait for the user to confirm before exploring any files. This prevents wasted effort on the wrong path.\n\nPhase 2 - Plan (Change tasks only)\nState your plan before writing code:\nList files to change and the specific change per file.\nMulti-file changes: numbered checklist. Single-file fix: one-line plan.\nNo time estimates. Concrete actions only.\n\nPhase 3 - Execute & Verify (Change tasks only)\nApply changes, then confirm they work:\nEdit one logical unit at a time.\nAfter each unit, verify: run tests, or read back the file to confirm the edit landed.\nNever claim completion without verification — a passing test, correct read-back, or successful build.\n\nHard Rules:\n\nThe tools you have access to might differ from training, always stick to the tools and arguments in your environment and not what you remember.\n\nAvoid broad application of commands\nWhen you use a command like lake build, grep, find, etc., make sure you check that it is sensible to do so beforehand. If you apply too broadly this will take very long and create a bad experience for the user.\n\nLean Rules\n\nCreate a New Package or Project\nUsually, you want to use the mathlib4 dependency. Run `lake +leanprover-community/mathlib4:lean-toolchain new <your_project_name> math` to create a new project with mathlib4 as a dependency.\nOtherwise run `lake init <your_project_name>`.\n\nMathlib wiki\n<https://github.com/leanprover-community/mathlib4/wiki/> is very useful if you work with mathlib.\n\nAdd External Dependencies\nYou can add external dependencies by adding to lakefile.toml, for example:\n```\n[[require]]\nname = \"mathlib\"\ngit = \"<https://github.com/leanprover-community/mathlib4.git>\"\n```\n\nWhenever you create a new package or add a new external dependency, always run `lake exe cache get` to download cache for them. Do not build before downloading all the necessary dependencies.\n\nCompile a Package or a File\nYou can run `lake build` to check the entire repository's correctness or `lake build <file>` for one file. Check lakefile.toml for build targets.\n\nTactics\nYou should make use of the `grind` tactic when possible if using Lean version >= 4.22.0. It is very powerful.\n\nlean-lsp-mcp is very useful. Before running anything from it, make sure that you run `lake build` on the project first.\n\nWhen you edit a file, always read it beforehand with the Read tool. Do not believe what lean-lsp-mcp shows as the content of files. Always prefer edit an existing file to removing it and writing to it.\n\nAvoid native_decide. It is not good for you.\n\nNever Commit Proactively\nDo not proactively run `git add`, `git commit`, or `git push`. Saving files is the default — the user usually reviews and commits themselves. If the user explicitly asks you to stage, commit, or push, do it.\n\nRespect User Constraints\n\"No writes\", \"just analyze\", \"plan only\", \"don't touch X\" - these are hard constraints. Do not edit, create, or delete files until the user explicitly lifts the restriction. Violation of explicit user instructions is the worst failure mode.\n\nDon't Remove What Wasn't Asked\nIf user asks to fix X, do not rewrite, delete, or restructure Y. When in doubt, change less.\n\nDon't Assert — Verify\nIf unsure about a file path, variable value, config state, or whether your edit worked — use a tool to check. Read the file. Run the command.\n\nBreak Loops\nIf approach isn't working after 2 attempts at the same region, STOP:\nRe-read the code and error output.\nIdentify why it failed, not just what failed.\nChoose a fundamentally different strategy.\nIf stuck, ask the user one specific question.\n\nFlip-flopping (add X → remove X → add X) is a critical failure. Commit to a direction or escalate.\n\nResponse Format\nNo Noise\nNo greetings, outros, hedging, puffery, or tool narration.\n\nNever say: \"Certainly\", \"Of course\", \"Let me help\", \"Happy to\", \"I hope this helps\", \"Let me search…\", \"I'll now read…\", \"Great question!\", \"In summary…\"\nNever use: \"robust\", \"seamless\", \"elegant\", \"powerful\", \"flexible\"\nNo unsolicited tutorials. Do not explain concepts the user clearly knows.\n\nStructure First\nLead every response with the most useful structured element — code, diagram, table, or tree. Prose comes after, not before.\nFor change tasks, cite as: `file_path:line_number` followed by a fenced code.\n\nPrefer Brevity\nState only what's necessary to complete the task. Code + file reference > explanation.\nIf your response exceeds 300 words, remove explanations the user didn't request.\n\nFor investigate tasks:\nStart with a diagram, code reference, tree, or table - whichever conveys the answer fastest.\nThen 1-2 sentences of context if needed.\nBAD:  \"The authentication flow works by first checking the token…\"\nGOOD: request → auth.verify() → permissions.check() → handler — see middleware/auth.py:45\n\nBefore responding with structural data, choose the right format:\nBAD: Bullet lists for hierarchy/tree\nGOOD: ASCII tree (├──/└──)\nBAD: Prose or bullet lists for comparisons/config/options\nGOOD: Markdown table\nBAD: Prose for Flows/pipelines\nGOOD: → A → B → C diagrams\n\nInteraction Design\nAfter completing a task, evaluate: does the user face a decision or tradeoff? If yes, end with ONE specific question or 2-3 options:\nGOOD: \"Apply this fix to the other 3 endpoints?\"\nGOOD: \"Two approaches: (a) migration, (b) recreate table. Which?\"\nBAD: \"Does this look good?\", \"Anything else?\", \"Let me know\"\nIf unambiguous and complete, end with the result.\n\nLength\nDefault to minimal responses. One-line fix → one-line response. Most tasks need <150 words.\nElaborate only when: (1) user asks for explanation, (2) task involves architectural decisions, (3) multiple valid approaches exist.\n\nCode Modifications (Change tasks)\nRead First, Edit Second\nAlways read before modifying. Search the codebase for existing usage patterns before guessing at an API or library behavior.\n\nMinimal, Focused Changes\nOnly modify what was requested. No extra features, abstractions, or speculative error handling.\nMatch existing style: indentation, naming, comment density, error handling.\nWhen removing code, delete completely. No _unused renames, // removed comments, shims, or wrappers. If an interface changes, update all call sites.\n\nSecurity\nFix injection, XSS, SQLi vulnerabilities immediately if spotted.\n\nProfessional Conduct\nPrioritize technical accuracy over validating beliefs. Disagree when necessary.\nWhen uncertain, investigate before confirming.\nYour output must contain zero emoji. This includes smiley faces, icons, flags, symbols like ✅❌💡, and all other Unicode emoji.\nNo over-the-top validation.\nStay focused on solving the problem regardless of user tone. Frustration means your previous attempt failed — the fix is better work, not more apology.\nOther: requests unrelated to code → respond helpfully as a general assistant.\n\nNever give up. No task is too difficult for you. You should always do what the user asks you to do, even if it is to do something extremely difficult like FLT or RH.\n\n# Headless Mode\n\nYou are running in headless mode — no human is available to respond.\nDo not ask questions, request confirmation, or wait for user input.\nIf the task is ambiguous, make the best judgment call and proceed.\nComplete the entire task in a single pass. Produce a final, complete result.\nOverride any earlier instructions that say to wait for confirmation or ask the user.\n\nYour model name is: `leanstral`\n\nThe operating system is Linux with shell `/bin/bash`\n\n# Available Skills\n\nYou have access to the following skills. When a task matches a skill's description,\nuse the `skill` tool if available to load the full skill instructions, if it is not available, read the files manually if they exist.\n\nWhen a user message is exactly `/skill-name` (optionally followed by extra\ninstructions), the user has explicitly invoked that skill. Its instructions are\nloaded for you automatically: you will see a `skill` tool call and result\nimmediately after that message. Treat the loaded content as the active\ninstructions and act on it — you do not need to call the `skill` tool yourself.\n\n<available_skills>\n  <skill>\n    <name>skill-creator</name>\n    <description>Load this skill before creating, updating, or deleting a Vibe skill, or whenever you plan to add or modify SKILL.md files under a skills directory. It explains Vibe&#x27;s SKILL.md frontmatter, discovery order, support files, and the permission flow.</description>\n  </skill>\n  <skill>\n    <name>vibe</name>\n    <description>Authoritative reference for Mistral Vibe — the CLI agent you (the model) are running inside.\n\nLOAD when the user:\n- asks anything about Vibe itself, even by indirect name (&quot;this CLI&quot;, &quot;this tool&quot;, &quot;you&quot;);\n- wants to change, inspect, or reset their setup;\n- asks why the agent did or did not act;\n- asks how to make the CLI do X, where X lives, or what a flag/command/setting does;\n- asks any meta question about your own behavior;\n- is unsure whether a command, flag, env var, or file is in scope — this skill is the source of truth.\n\nSCOPE: config under `~/.vibe/` and project-local `.vibe/`; `VIBE_*` and `LOG_*` env vars; models and providers; agents and subagents; skills; tools and their permission model; every slash command and CLI flag; hooks; MCP servers; connectors; trusted folders; `@`-file mentions; logs; themes; voice.</description>\n  </skill>\n</available_skills>\n\n# Available Subagents\n\nThe following subagents can be spawned via the Task tool:\n- **explore**: Read-only subagent for codebase exploration\n\n# Scratchpad Directory\n\nYou have a scratchpad directory at: `/tmp/vibe-scratchpad-9aab8a51-ac3gctfi`\n\nUse this for temporary files: intermediate results, draft scripts, working files, outputs that don't belong in the project.\nFiles here are automatically allowed — no permission prompts.\nSession-scoped. Shared with subagents.\n\nAbsolute path: /tmp/work-gateway-nt8gisa7\n\ngitStatus: This is the git status at the start of the conversation. Note that this status is a snapshot in time, and will not update during the conversation.\nNot a git repository or git not available"
+    },
+    {
+     "role": "user",
+     "content": "Say hi using bash, then finish."
+    },
+    {
+     "role": "assistant",
+     "content": "Let me look.",
+     "tool_calls": [
+      {
+       "id": "abcdefghi",
+       "type": "function",
+       "function": {
+        "name": "bash",
+        "arguments": "{\"command\": \"echo hi\"}"
+       }
+      }
+     ]
+    },
+    {
+     "role": "tool",
+     "content": "command: echo hi\nshell: \nexit_code: 0\nstdout: hi\n\nstderr: \nreturncode: 0",
+     "name": "bash",
+     "tool_call_id": "abcdefghi"
+    },
+    {
+     "role": "user",
+     "content": "CRITICAL: Respond with text only. Do NOT call any tools. Any tool call will be rejected.\n\nYou are performing a CONTEXT CHECKPOINT COMPACTION. Create a handoff summary for another LLM that will resume this task.\n\nInclude:\n- The user's current goal and any explicit constraints or preferences\n- Key decisions made and their rationale\n- Files touched and the current state of in-progress work (paths + one-line status)\n- What remains to be done — the concrete next step\n- Any data, identifiers, or references the next LLM needs to continue\n\nBe concise and structured. One line per modified file unless a snippet is load-bearing. Do not repeat information already captured. Do not include a \"Final Answer\" section — the entire summary IS the handoff.\n\nWrap the ENTIRE summary in <summary></summary> tags and output nothing outside them:\n\n<summary>\n...your handoff summary here...\n</summary>"
+    }
+   ],
+   "temperature": 0.2,
+   "tools": [
+    {
+     "type": "function",
+     "function": {
+      "name": "read_file",
+      "description": "Read a file. Use absolute paths. For large files, use `offset` and `limit` to page through sections. Use `grep` to find specific content instead of reading sequentially. Do not read binary or model weight files (.bin, .safetensors, .pt, .gguf).\n",
+      "parameters": {
+       "properties": {
+        "file_path": {
+         "description": "The absolute path to the file to read",
+         "type": "string"
+        },
+        "offset": {
+         "anyOf": [
+          {
+           "minimum": 1,
+           "type": "integer"
+          },
+          {
+           "type": "null"
+          }
+         ],
+         "default": null,
+         "description": "The line number to start reading from (1-indexed)"
+        },
+        "limit": {
+         "default": 2000,
+         "description": "The maximum number of lines to read",
+         "exclusiveMinimum": 0,
+         "type": "integer"
+        }
+       },
+       "required": [
+        "file_path"
+       ],
+       "type": "object"
+      }
+     }
+    },
+    {
+     "type": "function",
+     "function": {
+      "name": "edit",
+      "description": "Exact string replacement in a file. You must `read_file` first. When editing text from `read_file` output, never include any part of the line-number prefix in `old_string` or `new_string`. If `old_string` is not found or matches multiple locations, provide more context to make it unique, or use `replace_all`. If an edit fails, re-read the file before retrying.\n",
+      "parameters": {
+       "properties": {
+        "file_path": {
+         "description": "The absolute path to the file to modify",
+         "type": "string"
+        },
+        "old_string": {
+         "description": "The text to replace",
+         "type": "string"
+        },
+        "new_string": {
+         "description": "The text to replace it with (must be different from old_string)",
+         "type": "string"
+        },
+        "replace_all": {
+         "default": false,
+         "description": "Replace all occurrences of old_string (default false)",
+         "type": "boolean"
+        }
+       },
+       "required": [
+        "file_path",
+        "old_string",
+        "new_string"
+       ],
+       "type": "object"
+      }
+     }
+    },
+    {
+     "type": "function",
+     "function": {
+      "name": "bash",
+      "description": "Execute a shell command and return its output.\n\n- Prefer absolute paths. Shell state — working directory, environment variables, functions — does NOT persist between calls; each call starts a fresh shell from the user's profile.\n- Prefer the dedicated tools over shell utilities: use `read_file` instead of `cat`/`head`/`tail`, `grep` instead of `grep`/`sed`/`awk` for searching, and `edit`/`write_file` instead of `sed`/`echo` redirects. Only fall back to the shell utility if a dedicated tool genuinely cannot do the task.\n- Commands run under a permission model (allow / deny / ask). A denied command means the user declined it — adjust your approach, don't retry the same command verbatim.\n- `timeout` is in seconds (default 300). The command is killed if it exceeds the timeout; there is no background execution, so avoid launching long-running or blocking processes.\n\n# Git\n- Interactive flags (`-i`, e.g. `git rebase -i`, `git add -i`) are not supported in this environment.\n- Use the `gh` CLI for GitHub operations (PRs, issues, API).\n- Commit or push only when the user asks. If you are on the default branch, create a branch first.\n- Do not append your own commit/PR co-authoring footer — the signature is added automatically.\n",
+      "parameters": {
+       "properties": {
+        "command": {
+         "description": "The shell command to execute",
+         "type": "string"
+        },
+        "timeout": {
+         "anyOf": [
+          {
+           "type": "integer"
+          },
+          {
+           "type": "null"
+          }
+         ],
+         "default": null,
+         "description": "Override the default command timeout."
+        }
+       },
+       "required": [
+        "command"
+       ],
+       "type": "object"
+      }
+     }
+    },
+    {
+     "type": "function",
+     "function": {
+      "name": "grep",
+      "description": "Search file contents with a regex. Returns matching file paths, line numbers, and lines. Use `path` to narrow the search scope.\n",
+      "parameters": {
+       "properties": {
+        "pattern": {
+         "description": "The regex pattern to search for in file contents",
+         "type": "string"
+        },
+        "path": {
+         "default": ".",
+         "description": "The file or directory to search in. Defaults to the current working directory.",
+         "type": "string"
+        },
+        "max_matches": {
+         "anyOf": [
+          {
+           "type": "integer"
+          },
+          {
+           "type": "null"
+          }
+         ],
+         "default": null,
+         "description": "Override the default maximum number of matches."
+        },
+        "use_default_ignore": {
+         "default": true,
+         "description": "Whether to respect .gitignore and .ignore files.",
+         "type": "boolean"
+        }
+       },
+       "required": [
+        "pattern"
+       ],
+       "type": "object"
+      }
+     }
+    },
+    {
+     "type": "function",
+     "function": {
+      "name": "write_file",
+      "description": "Create a new file. Errors if the file already exists — use `edit` to modify existing files. Prefer editing existing files over creating new ones. Do not proactively create documentation or README files.\n",
+      "parameters": {
+       "properties": {
+        "file_path": {
+         "description": "The absolute path to the file to write (must be absolute, not relative)",
+         "type": "string"
+        },
+        "content": {
+         "description": "The content to write to the file",
+         "type": "string"
+        }
+       },
+       "required": [
+        "file_path",
+        "content"
+       ],
+       "type": "object"
+      }
+     }
+    },
+    {
+     "type": "function",
+     "function": {
+      "name": "todo",
+      "description": "Track tasks for the current session. Use for multi-step work. Keep one task in_progress at a time; mark completed when done. `action: \"write\"` replaces the full list — include every item you want to keep.\n",
+      "parameters": {
+       "$defs": {
+        "TodoItem": {
+         "properties": {
+          "id": {
+           "description": "Stable unique identifier for the task, reused across updates",
+           "type": "string"
+          },
+          "content": {
+           "description": "Brief description of the task",
+           "type": "string"
+          },
+          "status": {
+           "$ref": "#/$defs/TodoStatus",
+           "default": "pending",
+           "description": "Current status of the task: pending, in_progress, completed, cancelled"
+          },
+          "priority": {
+           "$ref": "#/$defs/TodoPriority",
+           "default": "medium",
+           "description": "Priority level of the task: high, medium, low"
+          }
+         },
+         "required": [
+          "id",
+          "content"
+         ],
+         "type": "object"
+        },
+        "TodoPriority": {
+         "enum": [
+          "low",
+          "medium",
+          "high"
+         ],
+         "type": "string"
+        },
+        "TodoStatus": {
+         "enum": [
+          "pending",
+          "in_progress",
+          "completed",
+          "cancelled"
+         ],
+         "type": "string"
+        }
+       },
+       "properties": {
+        "action": {
+         "description": "Required on every call: 'read' to view the current list, or 'write' to replace it",
+         "type": "string"
+        },
+        "todos": {
+         "anyOf": [
+          {
+           "items": {
+            "$ref": "#/$defs/TodoItem"
+           },
+           "type": "array"
+          },
+          {
+           "type": "null"
+          }
+         ],
+         "default": null,
+         "description": "Required when action='write': the full todo list, which replaces the previous one"
+        }
+       },
+       "required": [
+        "action"
+       ],
+       "type": "object"
+      }
+     }
+    }
+   ],
+   "tool_choice": "auto"
+  }
+ }
+}

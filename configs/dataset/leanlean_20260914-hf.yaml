@@ -1,0 +1,62 @@
+# The published benchmark from Hugging Face (scripts/fetch_dataset.py), whose bundle does not include
+# the prebuilt shared environments: each repository's image is built from its stripped tree, warmed on
+# the repository's own build target, before the agent starts. Otherwise identical to leanlean_20260914.yaml.
+kind: leanlean_evaluation_dataset
+schema_version: 1
+
+dataset: datasets/leanlean_20260914/dataset.yaml
+repositories: all
+shuffle: true
+rounds: 1
+max_api_retries: 0
+
+agent:
+  system_prompt: native
+  prompt: |-
+    Refactor the proofs in this codebase.
+    Remove all dead code and do real simplification, i.e. use powerful tactics or factor out shared logic to simplify the code while preserving the main results.
+    Success is measured by three factors:
+
+    (1) The repo compiling without errors and relying only on standard axioms.
+    (2) The benchmark's protected main results compile and remain equivalent. Run the no-argument command `lean_verify` from the repository root to verify the signatures, exit code 0 means the main results are preserved according to the lean comparator.
+    (3) The scoring metric is the reduction in non-whitespace, non-comment "Lean tokens" across all .lean files, compared to the starting state. Compressing imports does not count towards the compression metric. Run python3 proof_length.py to measure it.
+
+    You are working in a Docker container that is limited to {container_cpus} CPUs and {container_memory} of RAM.
+
+    You have a wall-clock budget of {time_limit}. It started at {current_time} and expires at {deadline}.
+
+    When you believe there is no more refactoring to be done, output <submit> and terminate.
+  allowed_skills: []
+  mcp_servers: []
+  enable_subagents: false
+  enable_lean_verify: true
+  enable_proof_length: true
+
+container:
+  cpus: 8
+  build_jobs: 8
+  memory: 64g
+  max_total_memory: 384g
+  pids_limit: 4096
+  timeout: 12h
+  cgroup_parent: lean.slice
+  network_policy: model_proxy_only
+
+monitoring:
+  snapshots: true
+  every_n_edits: 1
+  reconciliation_interval_seconds: 30
+
+postprocessing:
+  # Checkpoint replay runs only with --replay (README section 3).
+  replay: false
+  workers: 2
+  threads_per_repository: 8
+
+image_materialization:
+  mode: build_before_agent
+  backend: dockerfile_network_v1
+  build_target: repository
+  cache: disabled
+  image_persistence: persist
+  minimum_free_disk_gib: 50

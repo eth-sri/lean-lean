@@ -1,0 +1,48 @@
+# Four small Palomar repositories for the end-to-end demo.
+kind: leanlean_preprocessing
+schema_version: 3
+run_id: palomar-compact4
+output: datasets/palomar-compact4
+dataset:
+  id: palomar-compact4
+  version: lean-strip-v1
+registry:
+  url: https://data.palomar-registry.org/recent.json
+  mapping: examples/palomar-compact4/registry.json
+  sha256: 378513d0c9b2f651e166c33dd2edfc03dfa52c7ba2a543e71261b7b3ce30d90e
+toolchains:
+  leanprover/lean4:v4.30.0:
+    url: https://github.com/leanprover/lean4/releases/download/v4.30.0/lean-4.30.0-linux.tar.zst
+    sha256: 4dad74141c2c119ca1aa626656be83b8e14238afba97271fd7bf1eb3f081b319
+  leanprover/lean4:v4.31.0:
+    url: https://github.com/leanprover/lean4/releases/download/v4.31.0/lean-4.31.0-linux.tar.zst
+    sha256: 07a633cc8d9151cbc08825ea4cdda50d4b02a2c9cb852c0131b13046f49cad7f
+  leanprover/lean4:v4.32.0:
+    url: https://github.com/leanprover/lean4/releases/download/v4.32.0/lean-4.32.0-linux.tar.zst
+    sha256: fca846f3588724a38ad19ee40292c67cb7438d7555903372e3308eef795ba516
+  leanprover/lean4:v4.33.0:
+    url: https://github.com/leanprover/lean4/releases/download/v4.33.0/lean-4.33.0-linux.tar.zst
+    sha256: 4b3fb03c29a1e0a253fb1d11f9bae3725f19a0dc6fc09b3ea16d2c9df3349e2c
+repositories:
+- palomar__2026-08-20-000004
+- palomar__2026-08-29-000003
+- palomar__2026-08-27-000020
+- palomar__2026-08-21-000002
+lean_strip:
+  version: 1.0.0
+  commit: cbca97147bc4763dd2a5b27a923d3a122d3af39e
+  jobs: 8
+  timeout_seconds: 21600
+workers: 2
+container:
+  cpus: 8
+  memory: 64g
+  pids_limit: 4096
+  nofile_limit: 1048576
+timeouts:
+  record_download_seconds: 90
+  archive_download_seconds: 180
+  source_image_seconds: 14400
+  strip_seconds: 43200
+  comparator_seconds: 21600
+keep_source_images: false

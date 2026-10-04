@@ -1,0 +1,49 @@
+kind: leanlean_evaluation_model
+schema_version: 1
+model: gpt-6-astra
+harness: codex_sub
+harness_version: 0.154.0
+reasoning_effort: xhigh
+parallelism:
+  workers: 6
+  start_interval_seconds: 2
+system_prompt:
+  mode: native
+  snapshot: experiments/payload_audit/prompts/openai-gpt-6-astra-xhigh.json
+  sha256: efa7969891e7e045a25e71c54fc0710195aef31dfbf61bf5f4695f883234b640
+generation_parameters:
+  policy: native_harness_defaults
+  observed_at: '2026-09-13'
+  request_sha256: 6cf4d76e0f2bddb63462c0acc06c97409df5155b276b21adf12745e6203b07ad
+  request:
+    reasoning:
+      effort: xhigh
+      context: all_turns
+    text_verbosity: low
+    stream: true
+    tool_choice: auto
+    parallel_tool_calls: false
+    store: false
+    known_dynamic_inputs:
+    - current_date
+    - working_directory
+    - session_identifiers
+    include:
+    - reasoning.encrypted_content
+pricing:
+  basis: benchmark_cost_accounting_snapshot
+  observed_at: '2026-09-08'
+  source: src/configs/model_constants.py
+  currency: USD
+  unit: per_million_tokens
+  reasoning_tokens_billed_as: output
+  rates:
+    input: 10.0
+    output: 50.0
+    cache_read: 1.0
+    cache_creation: 12.5
+access:
+  mode: subscription
+  limits:
+    five_hour: true
+    weekly: true

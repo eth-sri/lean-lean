@@ -1,0 +1,79 @@
+ARG BASE_IMAGE=scratch
+FROM ${BASE_IMAGE}
+
+ARG INSTANCE_ID
+ARG SOURCE_TREE_SHA256
+ARG ENVIRONMENT_ID
+ARG BUILD_TARGET=""
+ARG LEAN_BUILD_THREADS=8
+ARG MAIN_PATCH_SHA256
+ARG OTHER_PATCH_SHA256
+
+COPY source/ /testbed/
+COPY warm-build/ /testbed/.lake/build/
+# Seed patches live outside /testbed so the agent never sees them and they
+# cannot pollute the extracted diff.
+COPY seed/ /seed/
+WORKDIR /testbed
+
+# Seed the two refactor branches BEFORE lake build, so the warm cache that the
+# agent inherits matches `main` (the state the task prompt calls the starting
+# point) rather than the uncompressed baseline.
+#
+#   main            init -> <main refactor>     (HEAD, checked out)
+#   other-refactor  init -> <other refactor>
+#
+# /.init_commit is recorded on the `main` refactor commit, NOT the init commit.
+# The pipeline diffs the agent's result against /.init_commit and postprocessing
+# resets to it, so pointing it at `main` makes the submitted patch the agent's
+# own work relative to the state it was handed, and makes the scoring baseline
+# `main` -- which is what the task prompt calls the starting state.  Pointing it
+# at the init commit instead makes every patch span the seeded `main` refactor,
+# which no verifier can reconstruct: submission verification then fails before a
+# build is ever attempted.  The prompt's "initial commit on the main branch"
+# reference is still reachable as main~1.
+RUN test -s lean-toolchain && \
+    { test -s lakefile.toml || test -s lakefile.lean; } && \
+    test -d .lake/packages && test -d .lake/build && \
+    test -s /seed/main.patch && test -s /seed/other.patch && \
+    echo "${MAIN_PATCH_SHA256}  /seed/main.patch" | sha256sum -c - && \
+    echo "${OTHER_PATCH_SHA256}  /seed/other.patch" | sha256sum -c - && \
+    rm -rf .git && \
+    git init -q && \
+    git config user.name "A U Thor" && \
+    git config user.email "author@example.com" && \
+    printf '.lake/\n' > .gitignore && \
+    git add . && \
+    git commit -qm init && \
+    git branch -M main && \
+    git checkout -q -b other-refactor && \
+    git apply --whitespace=nowarn /seed/other.patch && \
+    git add -A && \
+    git commit -qm "refactor" && \
+    git checkout -q main && \
+    git apply --whitespace=nowarn /seed/main.patch && \
+    git add -A && \
+    git commit -qm "refactor" && \
+    git checkout -q main && \
+    git rev-parse HEAD > /.init_commit && \
+    rm -rf /seed && \
+    test "$(git rev-parse --abbrev-ref HEAD)" = "main" && \
+    git rev-parse --verify other-refactor >/dev/null
+
+RUN ulimit -n 1048576 && \
+    if [ -n "${BUILD_TARGET}" ]; then \
+      LEAN_NUM_THREADS="${LEAN_BUILD_THREADS}" lake build ${BUILD_TARGET}; \
+    else \
+      LEAN_NUM_THREADS="${LEAN_BUILD_THREADS}" lake build; \
+    fi
+
+LABEL org.openai.leanlean.instance_id="${INSTANCE_ID}" \
+      org.openai.leanlean.repo_variant="stripped" \
+      org.openai.leanlean.source_isolation="standalone_v3" \
+      org.openai.leanlean.materialization="shared_environment_v1" \
+      org.openai.leanlean.environment_id="${ENVIRONMENT_ID}" \
+      org.openai.leanlean.source_tree_sha256="${SOURCE_TREE_SHA256}" \
+      org.openai.leanlean.reconciliation_main_patch_sha256="${MAIN_PATCH_SHA256}" \
+      org.openai.leanlean.reconciliation_other_patch_sha256="${OTHER_PATCH_SHA256}"
+
+CMD ["sleep", "infinity"]

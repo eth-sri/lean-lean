@@ -1,0 +1,481 @@
+{
+  "kind": "palomar_candidate_mapping",
+  "schema_version": 3,
+  "snapshot": {
+    "id": "20260901_registry_solution_v5",
+    "date": "2026-09-01",
+    "registry_url": "https://data.palomar-registry.org/recent.json",
+    "registry_sha256": "d5384a9700543de0310363be4eebbc818684bebeef3c9adf5980af748629d3f4",
+    "latest_published_at": "2026-08-31T21:34:38Z"
+  },
+  "tiering": {
+    "metric": "raw_words",
+    "source_scope": "normalized_isolated_raw_after_removing_palomar_challenge_files",
+    "thresholds": {
+      "compact": {
+        "min_inclusive": 0,
+        "max_exclusive": 10000
+      },
+      "standard": {
+        "min_inclusive": 10000,
+        "max_exclusive": 50000
+      },
+      "large": {
+        "min_inclusive": 50000,
+        "max_exclusive": 200000
+      },
+      "massive": {
+        "min_inclusive": 200000,
+        "max_exclusive": null
+      }
+    }
+  },
+  "summary": {
+    "selected_repositories": 4,
+    "selection": "four smallest compact LeanLean 2026-09-14 repositories"
+  },
+  "results": [
+    {
+      "palomar_id": "PALOMAR-2026-08-29-000003",
+      "version": 1,
+      "record_path": "entries/PALOMAR-2026-08-29-000003-v1.json",
+      "record_sha256": "c92c1ec2f6221eeba6fde1f883f4a7518bdc0ec498e443263cd0ce39e1b64f90",
+      "title": "Arthur742Ramos/dinitz-garg-goemans-counterexample-lean",
+      "published_at": "2026-08-29T00:52:16Z",
+      "repository_role": "substantive-development",
+      "registry_repository": "Arthur742Ramos/dinitz-garg-goemans-counterexample-lean",
+      "registry_commit": "cc7284cf415fc2a773f00d400319ef39663c277a",
+      "registry_project_path": null,
+      "benchmark_id": "palomar__2026-08-29-000003",
+      "target_repository": "Arthur742Ramos/dinitz-garg-goemans-counterexample-lean",
+      "target_commit": "cc7284cf415fc2a773f00d400319ef39663c277a",
+      "target_project_path": null,
+      "raw_words": 2612,
+      "size_tier": "compact",
+      "challenge_path": "Challenge.lean",
+      "challenge_sha256": "dfa1adf7e6eee3fdedbd5f4ad47406487ab42e04a5165bbaec8d38d11716882f",
+      "solution_path": "Solution.lean",
+      "solution_sha256": "2e8e32e2c8cab154582e9ac25ebbf1333987b99e0eb7e96b04389b624b99354d",
+      "solution_source": "Solution.lean",
+      "solution_module": "Solution",
+      "challenge_module": "Challenge",
+      "comparator_config_path": "comparator.json",
+      "comparator_config_sha256": "53e661fe6492fe14d60c1c23ac2b083bbf78e1642a498f454d9150895e24df02",
+      "lean_toolchain": "leanprover/lean4:v4.33.0",
+      "theorem_names": [
+        "DinitzGargGoemans.allSourceTerminalPaths",
+        "DinitzGargGoemans.splitFlowFeasible",
+        "DinitzGargGoemans.fractionalCostValue",
+        "DinitzGargGoemans.boundedUnsplittableCost",
+        "DinitzGargGoemans.dggCounterexampleWitness",
+        "DinitzGargGoemans.weakDggCostConjectureFalse",
+        "DinitzGargGoemans.strictDggCostConjectureFalse"
+      ],
+      "definition_names": [
+        "DinitzGargGoemans.fractionalLoad",
+        "DinitzGargGoemans.fractionalCost",
+        "DinitzGargGoemans.maximumDemand",
+        "DinitzGargGoemans.fractionalFeasible",
+        "DinitzGargGoemans.unsplittableLoad",
+        "DinitzGargGoemans.unsplittableCost",
+        "DinitzGargGoemans.weakDggRounding",
+        "DinitzGargGoemans.strictDggRounding",
+        "DinitzGargGoemans.counterexampleInstance",
+        "DinitzGargGoemans.splitFlow"
+      ],
+      "permitted_axioms": [
+        "propext",
+        "Quot.sound",
+        "Classical.choice"
+      ]
+    },
+    {
+      "palomar_id": "PALOMAR-2026-08-27-000020",
+      "version": 1,
+      "record_path": "entries/PALOMAR-2026-08-27-000020-v1.json",
+      "record_sha256": "e2e6c8b215f0ebc442e36cfdb5fa51c18b589371106c1dff84c4f30ecb8b555b",
+      "title": "BrandonMYates/schwarzschild-comparator",
+      "published_at": "2026-08-27T22:42:40Z",
+      "repository_role": "thin-wrapper",
+      "registry_repository": "BrandonMYates/schwarzschild-comparator",
+      "registry_commit": "d8b6acf8263d4924356ac8abb62668c137ab61cd",
+      "registry_project_path": null,
+      "benchmark_id": "palomar__2026-08-27-000020",
+      "target_repository": "BrandonMYates/schwarzschild-comparator",
+      "target_commit": "d8b6acf8263d4924356ac8abb62668c137ab61cd",
+      "target_project_path": null,
+      "raw_words": 2553,
+      "size_tier": "compact",
+      "challenge_path": "Challenge.lean",
+      "challenge_sha256": "ee623d56cf3b47a904cb0c95229f5051283fe7039aea94355960735adf868702",
+      "solution_path": "Solution.lean",
+      "solution_sha256": "c0a63fd7b13ba17fc78cdad53bb91666201702410623eb0c614384590cb7cf0a",
+      "solution_source": "Solution.lean",
+      "solution_module": "Solution",
+      "challenge_module": "Challenge",
+      "comparator_config_path": "comparator.json",
+      "comparator_config_sha256": "7329fd976eceac09448547d2d4847bb1567751155baedd2d86fa53b9d46b3b10",
+      "lean_toolchain": "leanprover/lean4:v4.32.0",
+      "theorem_names": [
+        "SchwarzschildVacuum.einstein_eq_zero_iff_ricciFlat",
+        "SchwarzschildVacuum.schwarzschild_ricciFlat",
+        "SchwarzschildVacuum.schwarzschild_einstein_eq_zero",
+        "SchwarzschildVacuum.schwarzschild_scalarCurvature_eq_zero",
+        "SchwarzschildVacuum.ricci_sds",
+        "SchwarzschildVacuum.exists_mass_of_areal_vacuum",
+        "SchwarzschildVacuum.ricci_rn_thetaTheta",
+        "SchwarzschildVacuum.reissnerNordstrom_scalarCurvature_eq_zero",
+        "SchwarzschildVacuum.faradayInvariant_coulomb",
+        "SchwarzschildVacuum.reissnerNordstrom_einstein_eq_maxwell",
+        "SchwarzschildVacuum.ricci_vaidya_null_dust",
+        "SchwarzschildVacuum.vaidya_scalarCurvature_eq_zero",
+        "SchwarzschildVacuum.einstein_vaidya",
+        "SchwarzschildVacuum.friedmann_first",
+        "SchwarzschildVacuum.friedmann_second",
+        "SchwarzschildVacuum.einstein_flrw_offDiag",
+        "SchwarzschildVacuum.ricci_deSitterStatic",
+        "SchwarzschildVacuum.deSitterStatic_scalarCurvature",
+        "SchwarzschildVacuum.minkowskiSpherical_ricciFlat",
+        "SchwarzschildVacuum.ricci_kiselev_thetaTheta",
+        "SchwarzschildVacuum.kiselev_ricciFlat_of_w_eq_zero"
+      ],
+      "definition_names": [
+        "SchwarzschildVacuum.coordLine",
+        "SchwarzschildVacuum.pderiv",
+        "SchwarzschildVacuum.MetricFn",
+        "SchwarzschildVacuum.IsSymmetricMetric",
+        "SchwarzschildVacuum.christoffel",
+        "SchwarzschildVacuum.riemann",
+        "SchwarzschildVacuum.ricci",
+        "SchwarzschildVacuum.scalarCurvature",
+        "SchwarzschildVacuum.einstein",
+        "SchwarzschildVacuum.RicciFlatAt",
+        "SchwarzschildVacuum.ssMetric",
+        "SchwarzschildVacuum.schwF",
+        "SchwarzschildVacuum.schwarzschild",
+        "SchwarzschildVacuum.SchwExterior",
+        "SchwarzschildVacuum.sdsF",
+        "SchwarzschildVacuum.rnF",
+        "SchwarzschildVacuum.reissnerNordstrom",
+        "SchwarzschildVacuum.RNRegion",
+        "SchwarzschildVacuum.coulombF",
+        "SchwarzschildVacuum.faradayUp",
+        "SchwarzschildVacuum.faradayInvariant",
+        "SchwarzschildVacuum.faradayContract",
+        "SchwarzschildVacuum.stressEM",
+        "SchwarzschildVacuum.vaidyaMetric",
+        "SchwarzschildVacuum.vRicci",
+        "SchwarzschildVacuum.flrwMetric",
+        "SchwarzschildVacuum.dsF",
+        "SchwarzschildVacuum.deSitterStatic",
+        "SchwarzschildVacuum.DSRegion",
+        "SchwarzschildVacuum.flatF",
+        "SchwarzschildVacuum.minkowskiSpherical",
+        "SchwarzschildVacuum.kiselevF",
+        "SchwarzschildVacuum.kiselev"
+      ],
+      "permitted_axioms": [
+        "propext",
+        "Quot.sound",
+        "Classical.choice"
+      ]
+    },
+    {
+      "palomar_id": "PALOMAR-2026-08-21-000002",
+      "version": 1,
+      "record_path": "entries/PALOMAR-2026-08-21-000002-v1.json",
+      "record_sha256": "a9b75e61bf8c81746a9e7dc6b39ba4e2bace03f8ea430ceefa7db477e9e4b3de",
+      "title": "lennrt/palomar-formalizations",
+      "published_at": "2026-08-21T04:45:28Z",
+      "repository_role": "substantive-development",
+      "registry_repository": "lennrt/palomar-formalizations",
+      "registry_commit": "090b3b300ba8ec76fdba09a17f086953d13f2653",
+      "registry_project_path": "zenodo-21890733/palomar",
+      "benchmark_id": "palomar__2026-08-21-000002",
+      "target_repository": "lennrt/palomar-formalizations",
+      "target_commit": "090b3b300ba8ec76fdba09a17f086953d13f2653",
+      "target_project_path": "zenodo-21890733/palomar",
+      "raw_words": 3687,
+      "size_tier": "compact",
+      "challenge_path": "zenodo-21890733/palomar/Challenge.lean",
+      "challenge_sha256": "a89eb3bd90f23a9316fc623c0737c1f99b4403b2d1aa1d8bdc096cc5eb878599",
+      "solution_path": "zenodo-21890733/palomar/Solution.lean",
+      "solution_sha256": "ab6b0de6dc35bc6175ecf4af1408eb699dd2ac9da9ea04bba9580ad432c26c1c",
+      "solution_source": "Solution.lean",
+      "solution_module": "Solution",
+      "challenge_module": "Challenge",
+      "comparator_config_path": "zenodo-21890733/palomar/comparator.json",
+      "comparator_config_sha256": "563ff906b373b0228d8e4b5752838e22d2b828f135cbd38108c92ad40f5c741e",
+      "lean_toolchain": "leanprover/lean4:v4.30.0",
+      "theorem_names": [
+        "BarnettePalomar.concrete_graph_certificate",
+        "BarnettePalomar.deletion_connectivity_certificate",
+        "BarnettePalomar.hamiltonian_cycle_and_matching_certificate",
+        "BarnettePalomar.plane_embedding_certificate",
+        "BarnettePalomar.face_coloring_certificate",
+        "BarnettePalomar.property_one_excludes_prescribed_cycle"
+      ],
+      "definition_names": [],
+      "permitted_axioms": [
+        "propext",
+        "Quot.sound",
+        "Classical.choice"
+      ]
+    },
+    {
+      "palomar_id": "PALOMAR-2026-08-20-000004",
+      "version": 1,
+      "record_path": "entries/PALOMAR-2026-08-20-000004-v1.json",
+      "record_sha256": "eaaab6b7691ad8bc29c98a447c66488200d3bbb72252c5c2107999612264bf45",
+      "title": "guanyangwang/ktv-swap-lean-comparator",
+      "published_at": "2026-08-20T05:28:41Z",
+      "repository_role": "thin-wrapper",
+      "registry_repository": "guanyangwang/ktv-swap-lean-comparator",
+      "registry_commit": "fd4dc985900b1fba59791067dcf3bf9341a94bda",
+      "registry_project_path": null,
+      "benchmark_id": "palomar__2026-08-20-000004",
+      "target_repository": "guanyangwang/ktv-swap-lean-comparator",
+      "target_commit": "fd4dc985900b1fba59791067dcf3bf9341a94bda",
+      "target_project_path": null,
+      "raw_words": 1538,
+      "size_tier": "compact",
+      "challenge_path": "Challenge.lean",
+      "challenge_sha256": "ae58491c1a42af7f31c294d35d14bc6a11429e4666fe49f3dbac0318e1ae73c5",
+      "solution_path": "Solution.lean",
+      "solution_sha256": "6458a1de7eb46814f0c868c80e9c2fd6875dd8d0934922569606350d6613bac8",
+      "solution_source": "Solution.lean",
+      "solution_module": "Solution",
+      "challenge_module": "Challenge",
+      "comparator_config_path": "comparator.json",
+      "comparator_config_sha256": "7fa708de033796ee36999e6872309acec77ac0dd10ad46d3ab671b68dd703095",
+      "lean_toolchain": "leanprover/lean4:v4.31.0",
+      "theorem_names": [
+        "KTV.Johnson.MathlibOnly.binaryFixedMarginLazySwapChain_spectralGap_card"
+      ],
+      "definition_names": [],
+      "permitted_axioms": [
+        "propext",
+        "Quot.sound",
+        "Classical.choice"
+      ]
+    }
+  ],
+  "targets": [
+    {
+      "benchmark_id": "palomar__2026-08-29-000003",
+      "repository": "Arthur742Ramos/dinitz-garg-goemans-counterexample-lean",
+      "commit": "cc7284cf415fc2a773f00d400319ef39663c277a",
+      "project_path": null,
+      "palomar_ids": [
+        "PALOMAR-2026-08-29-000003"
+      ],
+      "registered_solution_path": "Solution.lean",
+      "registered_solution_sha256": "2e8e32e2c8cab154582e9ac25ebbf1333987b99e0eb7e96b04389b624b99354d",
+      "solution_source": "Solution.lean",
+      "registered_solution_module": "Solution",
+      "registered_challenge_path": "Challenge.lean",
+      "registered_challenge_sha256": "dfa1adf7e6eee3fdedbd5f4ad47406487ab42e04a5165bbaec8d38d11716882f",
+      "challenge_source": "Challenge.lean",
+      "registered_challenge_module": "Challenge",
+      "registered_comparator_config_path": "comparator.json",
+      "registered_comparator_config_sha256": "53e661fe6492fe14d60c1c23ac2b083bbf78e1642a498f454d9150895e24df02",
+      "raw_words": 2612,
+      "raw_lean_bytes": 18471,
+      "lean_file_count": 4,
+      "size_tier": "compact",
+      "excluded_challenge_paths": [
+        "Challenge.lean"
+      ],
+      "registered_theorem_names": [
+        "DinitzGargGoemans.allSourceTerminalPaths",
+        "DinitzGargGoemans.boundedUnsplittableCost",
+        "DinitzGargGoemans.dggCounterexampleWitness",
+        "DinitzGargGoemans.fractionalCostValue",
+        "DinitzGargGoemans.splitFlowFeasible",
+        "DinitzGargGoemans.strictDggCostConjectureFalse",
+        "DinitzGargGoemans.weakDggCostConjectureFalse"
+      ],
+      "registered_definition_names": [
+        "DinitzGargGoemans.counterexampleInstance",
+        "DinitzGargGoemans.fractionalCost",
+        "DinitzGargGoemans.fractionalFeasible",
+        "DinitzGargGoemans.fractionalLoad",
+        "DinitzGargGoemans.maximumDemand",
+        "DinitzGargGoemans.splitFlow",
+        "DinitzGargGoemans.strictDggRounding",
+        "DinitzGargGoemans.unsplittableCost",
+        "DinitzGargGoemans.unsplittableLoad",
+        "DinitzGargGoemans.weakDggRounding"
+      ],
+      "registered_permitted_axioms": [
+        "Classical.choice",
+        "Quot.sound",
+        "propext"
+      ]
+    },
+    {
+      "benchmark_id": "palomar__2026-08-27-000020",
+      "repository": "BrandonMYates/schwarzschild-comparator",
+      "commit": "d8b6acf8263d4924356ac8abb62668c137ab61cd",
+      "project_path": null,
+      "palomar_ids": [
+        "PALOMAR-2026-08-27-000020"
+      ],
+      "registered_solution_path": "Solution.lean",
+      "registered_solution_sha256": "c0a63fd7b13ba17fc78cdad53bb91666201702410623eb0c614384590cb7cf0a",
+      "solution_source": "Solution.lean",
+      "registered_solution_module": "Solution",
+      "registered_challenge_path": "Challenge.lean",
+      "registered_challenge_sha256": "ee623d56cf3b47a904cb0c95229f5051283fe7039aea94355960735adf868702",
+      "challenge_source": "Challenge.lean",
+      "registered_challenge_module": "Challenge",
+      "registered_comparator_config_path": "comparator.json",
+      "registered_comparator_config_sha256": "7329fd976eceac09448547d2d4847bb1567751155baedd2d86fa53b9d46b3b10",
+      "raw_words": 2553,
+      "raw_lean_bytes": 15049,
+      "lean_file_count": 1,
+      "size_tier": "compact",
+      "excluded_challenge_paths": [
+        "Challenge.lean"
+      ],
+      "registered_theorem_names": [
+        "SchwarzschildVacuum.deSitterStatic_scalarCurvature",
+        "SchwarzschildVacuum.einstein_eq_zero_iff_ricciFlat",
+        "SchwarzschildVacuum.einstein_flrw_offDiag",
+        "SchwarzschildVacuum.einstein_vaidya",
+        "SchwarzschildVacuum.exists_mass_of_areal_vacuum",
+        "SchwarzschildVacuum.faradayInvariant_coulomb",
+        "SchwarzschildVacuum.friedmann_first",
+        "SchwarzschildVacuum.friedmann_second",
+        "SchwarzschildVacuum.kiselev_ricciFlat_of_w_eq_zero",
+        "SchwarzschildVacuum.minkowskiSpherical_ricciFlat",
+        "SchwarzschildVacuum.reissnerNordstrom_einstein_eq_maxwell",
+        "SchwarzschildVacuum.reissnerNordstrom_scalarCurvature_eq_zero",
+        "SchwarzschildVacuum.ricci_deSitterStatic",
+        "SchwarzschildVacuum.ricci_kiselev_thetaTheta",
+        "SchwarzschildVacuum.ricci_rn_thetaTheta",
+        "SchwarzschildVacuum.ricci_sds",
+        "SchwarzschildVacuum.ricci_vaidya_null_dust",
+        "SchwarzschildVacuum.schwarzschild_einstein_eq_zero",
+        "SchwarzschildVacuum.schwarzschild_ricciFlat",
+        "SchwarzschildVacuum.schwarzschild_scalarCurvature_eq_zero",
+        "SchwarzschildVacuum.vaidya_scalarCurvature_eq_zero"
+      ],
+      "registered_definition_names": [
+        "SchwarzschildVacuum.DSRegion",
+        "SchwarzschildVacuum.IsSymmetricMetric",
+        "SchwarzschildVacuum.MetricFn",
+        "SchwarzschildVacuum.RNRegion",
+        "SchwarzschildVacuum.RicciFlatAt",
+        "SchwarzschildVacuum.SchwExterior",
+        "SchwarzschildVacuum.christoffel",
+        "SchwarzschildVacuum.coordLine",
+        "SchwarzschildVacuum.coulombF",
+        "SchwarzschildVacuum.deSitterStatic",
+        "SchwarzschildVacuum.dsF",
+        "SchwarzschildVacuum.einstein",
+        "SchwarzschildVacuum.faradayContract",
+        "SchwarzschildVacuum.faradayInvariant",
+        "SchwarzschildVacuum.faradayUp",
+        "SchwarzschildVacuum.flatF",
+        "SchwarzschildVacuum.flrwMetric",
+        "SchwarzschildVacuum.kiselev",
+        "SchwarzschildVacuum.kiselevF",
+        "SchwarzschildVacuum.minkowskiSpherical",
+        "SchwarzschildVacuum.pderiv",
+        "SchwarzschildVacuum.reissnerNordstrom",
+        "SchwarzschildVacuum.ricci",
+        "SchwarzschildVacuum.riemann",
+        "SchwarzschildVacuum.rnF",
+        "SchwarzschildVacuum.scalarCurvature",
+        "SchwarzschildVacuum.schwF",
+        "SchwarzschildVacuum.schwarzschild",
+        "SchwarzschildVacuum.sdsF",
+        "SchwarzschildVacuum.ssMetric",
+        "SchwarzschildVacuum.stressEM",
+        "SchwarzschildVacuum.vRicci",
+        "SchwarzschildVacuum.vaidyaMetric"
+      ],
+      "registered_permitted_axioms": [
+        "Classical.choice",
+        "Quot.sound",
+        "propext"
+      ]
+    },
+    {
+      "benchmark_id": "palomar__2026-08-21-000002",
+      "repository": "lennrt/palomar-formalizations",
+      "commit": "090b3b300ba8ec76fdba09a17f086953d13f2653",
+      "project_path": "zenodo-21890733/palomar",
+      "palomar_ids": [
+        "PALOMAR-2026-08-21-000002"
+      ],
+      "registered_solution_path": "zenodo-21890733/palomar/Solution.lean",
+      "registered_solution_sha256": "ab6b0de6dc35bc6175ecf4af1408eb699dd2ac9da9ea04bba9580ad432c26c1c",
+      "solution_source": "Solution.lean",
+      "registered_solution_module": "Solution",
+      "registered_challenge_path": "zenodo-21890733/palomar/Challenge.lean",
+      "registered_challenge_sha256": "a89eb3bd90f23a9316fc623c0737c1f99b4403b2d1aa1d8bdc096cc5eb878599",
+      "challenge_source": "Challenge.lean",
+      "registered_challenge_module": "Challenge",
+      "registered_comparator_config_path": "zenodo-21890733/palomar/comparator.json",
+      "registered_comparator_config_sha256": "563ff906b373b0228d8e4b5752838e22d2b828f135cbd38108c92ad40f5c741e",
+      "raw_words": 3687,
+      "raw_lean_bytes": 28845,
+      "lean_file_count": 2,
+      "size_tier": "compact",
+      "excluded_challenge_paths": [
+        "zenodo-21890733/palomar/Challenge.lean"
+      ],
+      "registered_theorem_names": [
+        "BarnettePalomar.concrete_graph_certificate",
+        "BarnettePalomar.deletion_connectivity_certificate",
+        "BarnettePalomar.face_coloring_certificate",
+        "BarnettePalomar.hamiltonian_cycle_and_matching_certificate",
+        "BarnettePalomar.plane_embedding_certificate",
+        "BarnettePalomar.property_one_excludes_prescribed_cycle"
+      ],
+      "registered_definition_names": [],
+      "registered_permitted_axioms": [
+        "Classical.choice",
+        "Quot.sound",
+        "propext"
+      ]
+    },
+    {
+      "benchmark_id": "palomar__2026-08-20-000004",
+      "repository": "guanyangwang/ktv-swap-lean-comparator",
+      "commit": "fd4dc985900b1fba59791067dcf3bf9341a94bda",
+      "project_path": null,
+      "palomar_ids": [
+        "PALOMAR-2026-08-20-000004"
+      ],
+      "registered_solution_path": "Solution.lean",
+      "registered_solution_sha256": "6458a1de7eb46814f0c868c80e9c2fd6875dd8d0934922569606350d6613bac8",
+      "solution_source": "Solution.lean",
+      "registered_solution_module": "Solution",
+      "registered_challenge_path": "Challenge.lean",
+      "registered_challenge_sha256": "ae58491c1a42af7f31c294d35d14bc6a11429e4666fe49f3dbac0318e1ae73c5",
+      "challenge_source": "Challenge.lean",
+      "registered_challenge_module": "Challenge",
+      "registered_comparator_config_path": "comparator.json",
+      "registered_comparator_config_sha256": "7fa708de033796ee36999e6872309acec77ac0dd10ad46d3ab671b68dd703095",
+      "raw_words": 1538,
+      "raw_lean_bytes": 13058,
+      "lean_file_count": 2,
+      "size_tier": "compact",
+      "excluded_challenge_paths": [
+        "Challenge.lean"
+      ],
+      "registered_theorem_names": [
+        "KTV.Johnson.MathlibOnly.binaryFixedMarginLazySwapChain_spectralGap_card"
+      ],
+      "registered_definition_names": [],
+      "registered_permitted_axioms": [
+        "Classical.choice",
+        "Quot.sound",
+        "propext"
+      ]
+    }
+  ]
+}

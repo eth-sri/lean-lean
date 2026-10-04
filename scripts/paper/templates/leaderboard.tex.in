@@ -1,0 +1,29 @@
+\begin{table}[t]
+  \begin{minipage}[b]{\dimexpr\textwidth-2.35in-1em\relax}
+  \centering
+  \setlength{\tabcolsep}{3pt}
+  \renewcommand{\arraystretch}{1.2}
+  \caption{Frontier agents achieve average compression rates of below $50\%$ at considerable cost.}
+    \vspace{-2mm}
+  \label{tab:leaderboard}
+  \resizebox{\linewidth}{!}{%
+  \begin{tabular}{lrrr}
+    \toprule
+    Model & Score (\%) & Cost (\$) & $t$ (h) \\
+    \midrule
+@@ROWS@@
+    \bottomrule
+  \end{tabular}%
+  }
+
+  \vspace{2pt}
+  \end{minipage}\hfill
+  \begin{minipage}[b]{2.35in}
+    \centering
+    \includegraphics[width=\linewidth]{figures/experiments/frontier.pdf}
+    \vspace{-6mm}
+    \captionof{figure}{Compression increases roughly logarithmically with cost.}
+    \label{fig:frontier}
+  \end{minipage}
+   \vspace{-3mm}
+\end{table}

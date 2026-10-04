@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>LeanLean · Run monitor</title><meta name="description" content="Local run, worker, capacity and quota monitoring"><link rel="stylesheet" href="/style.css"><script src="/app.js" defer></script></head>
+<body>
+<header><div class="brand"><span class="mark">LL</span><div><strong>LeanLean</strong><span class="subbrand">RUN MONITOR</span></div></div><div class="live"><span id="live-dot" class="dot"></span><span id="connection" role="status">Connecting</span><button id="pause">Pause display</button></div></header>
+<main>
+<div id="notice" role="status"></div>
+<section class="section-heading"><h1>Room to run.</h1><span id="machine-note" class="muted">Reading machine capacity…</span></section>
+<section id="capacity" class="capacity"><div class="card empty">Loading machine measurements…</div></section>
+<section class="quota-heading"><h2>Limits & balances</h2><span id="quota-updated" class="muted">Cached provider readings</span><button id="refresh-limits" type="button">Refresh all limits</button></section>
+<p id="quota-refresh-status" class="muted" role="status"></p>
+<section id="quotas" class="quotas"><div class="card empty">Checking provider limits…</div></section>
+<div class="workspace">
+<nav aria-label="Monitor views"><button data-tab="runs" class="selected">Runs <span id="run-count"></span></button><button data-tab="workers">Workers <span id="worker-count"></span></button><button data-tab="models">Models</button><button data-tab="quota">Quota history</button><button data-tab="storage">Storage</button><button data-tab="sessions">Sessions</button></nav>
+<section id="runs-view" class="view">
+<div class="toolbar"><div class="search"><label class="sr-only" for="search">Find a run, model or dataset</label><input id="search" placeholder="Find a run, model or dataset…" type="search"></div><label>Status <select id="status-filter"><option value="live">Live & waiting</option><option value="all">All runs</option><option value="complete">Completed</option><option value="failed">Failed</option><option value="unverified">Unverified activity</option></select></label><label>Type <select id="type-filter"><option value="all">All types</option></select></label><label>Sort <select id="sort"><option value="memory">RAM usage</option><option value="recent">Recent activity</option><option value="cost">Recorded cost</option></select></label></div>
+<div id="run-status" class="table-note"></div><div id="runs-table" class="table-wrap"></div>
+</section>
+<section id="workers-view" class="view" hidden><div class="toolbar"><h2>Live containers</h2><span class="muted">CPU: 100% = one core · RAM excludes reclaimable cache</span></div><div id="workers-table" class="table-wrap"></div><h2 class="pad">Largest host processes</h2><div id="processes-table" class="table-wrap"></div></section>
+<section id="models-view" class="view" hidden><div class="toolbar"><h2>Evaluations by model</h2><span class="muted">Grouped by dataset, variant, effort and harness</span></div><div id="models-table" class="table-wrap"></div></section>
+<section id="quota-view" class="view" hidden>
+<div class="toolbar"><h2>Subscription drain</h2><label>Window <select id="quota-window"></select></label><label>History <select id="quota-range"><option value="18000">Last 5 hours</option><option value="86400">Last 24 hours</option></select></label><label>Show <select id="quota-metric"><option value="used">Quota used</option><option value="drain">Drain per hour</option></select></label></div>
+<div id="quota-chart" class="pad"></div><p id="quota-method" class="pad muted"></p>
+<h2 class="pad">Estimated quota used by each run</h2><p class="pad muted">Percentage points consumed while monitoring, over the last 30 days. Five-hour, weekly overall and model-specific windows overlap; don’t add them together.</p><div id="quota-runs" class="table-wrap"></div>
+</section>
+<section id="storage-view" class="view" hidden><div class="toolbar"><h2>Disk usage</h2><span id="disk-updated" class="muted">First scan runs in the background</span></div><div id="disk-content"></div></section>
+<section id="sessions-view" class="view" hidden><div class="toolbar"><h2>tmux sessions</h2><span class="muted">Host process RAM; container memory is listed separately</span></div><div id="sessions-table" class="table-wrap"></div></section>
+</div>
+<footer><span id="root"></span><span>Local & read-only · No model calls · <span id="last-update">Waiting for data</span></span></footer>
+</main>
+<dialog id="detail"><div class="dialog-heading"><div><span class="eyebrow">RUN DETAILS</span><h2 id="detail-title"></h2></div><button id="close-detail" aria-label="Close run details">✕</button></div><div id="detail-body"></div></dialog>
+</body></html>

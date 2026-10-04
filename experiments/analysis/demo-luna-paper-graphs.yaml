@@ -1,0 +1,41 @@
+# Paper dependency graphs for the four-repository demo evaluated with GPT-5.6 Luna (README quick start).
+kind: leanlean_paper_graphs
+schema_version: 1
+run_id: demo-luna-paper-graphs
+model: gpt-5.6-luna
+reasoning_effort: xhigh
+generator: codex_sub
+repository_variant: stripped
+rounds: 1
+additional_model_requests: 0
+dataset: datasets/palomar-compact4/dataset.yaml
+evaluation:
+  experiment: experiments/evaluation/demo/openai/gpt-5.6-luna-xhigh/manifest.yaml
+  output_directory: output/evaluation/demo/openai/gpt-5.6-luna-xhigh
+repositories:
+- palomar__2026-08-20-000004
+- palomar__2026-08-29-000003
+- palomar__2026-08-27-000020
+- palomar__2026-08-21-000002
+baseline_graphs: output/analysis/palomar-compact4-baseline-graphs
+resources:
+  workers: 4
+  cpus_per_worker: 8
+  memory_per_worker: 32g
+  cgroup_parent: lean.slice
+  pids_limit: 4096
+  nofile_limit: 1048576
+  network_policy: none
+timeouts:
+  restore_seconds: 900
+  build_seconds: 14400
+  graph_seconds: 43200
+  container_seconds: 57600
+monitoring:
+  snapshots: true
+  every_n_edits: 1
+  retain_native_rollouts: true
+  retain_baseline: true
+  retain_terminal: true
+outputs:
+  directory: output/analysis/demo-luna-paper-graphs

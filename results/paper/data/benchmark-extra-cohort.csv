@@ -1,0 +1,20 @@
+model,repository,recorded_eligible,included,reason
+fable-5.1-mini-v3,palomar__2026-08-17-000002,True,True,matched Fable valid cohort
+fable-5.1-mini-v3,palomar__2026-08-17-000003,,False,invalid_unchanged_submissions
+fable-5.1-mini-v3,palomar__2026-08-19-000003,True,True,matched Fable valid cohort
+fable-5.1-mini-v3,palomar__2026-08-21-000004,False,False,Fable final verdict failed
+fable-5.1-mini-v3,palomar__2026-08-22-000003,,False,invalid_unchanged_submissions
+fable-5.1-mini-v3,palomar__2026-08-22-000006,,False,not_retained_as_completed_submissions
+fable-5.1-mini-v3,palomar__2026-08-23-000003,True,True,matched Fable valid cohort
+fable-5.1-mini-v3,palomar__2026-08-24-000002,,False,invalid_unchanged_submissions
+fable-5.1-mini-v3,palomar__2026-08-24-000005,True,True,matched Fable valid cohort
+fable-5.1-mini-v3,palomar__2026-08-26-000006,,False,not_retained_as_completed_submissions
+fable-5.1-mini-v3,palomar__2026-08-29-000003,True,True,matched Fable valid cohort
+fable-5.1-remaining6-20260924,palomar__2026-08-17-000003,True,True,matched Fable valid cohort
+fable-5.1-remaining6-20260924,palomar__2026-08-21-000004,True,True,matched Fable valid cohort
+fable-5.1-remaining6-20260924,palomar__2026-08-22-000003,True,True,matched Fable valid cohort
+fable-5.1-remaining6-20260924,palomar__2026-08-22-000006,True,True,matched Fable valid cohort
+fable-5.1-remaining6-20260924,palomar__2026-08-24-000002,True,True,matched Fable valid cohort
+fable-5.1-remaining6-20260924,palomar__2026-08-26-000006,True,True,matched Fable valid cohort
+fable-5.1-langlib-rerun-20260925,palomar__2026-08-27-000011,True,True,matched Fable valid cohort
+fable-5.1-mini-v3,palomar__2026-08-27-000011,,False,"superseded: claude CLI aborted (SIGABRT, core dumped) 7 h into the 12 h budget with no native result event; the harness still recorded Submitted. Replaced by a clean rerun."

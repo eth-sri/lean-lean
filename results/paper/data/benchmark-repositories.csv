@@ -1,0 +1,65 @@
+repository,token_band,raw_tokens,stripped_tokens,core_theorems,loc,primary_arxiv_tag,source
+palomar__2026-08-24-000006,> 250k,1001770,871337,1,51045,math.OA,benchmark/artifacts/datasets/leanlean_20260914/repos/palomar__2026-08-24-000006/prod-strip-report.json
+palomar__2026-08-29-000003,≤ 10k,3380,3087,17,428,cs.DS,benchmark/artifacts/datasets/leanlean_20260914/repos/palomar__2026-08-29-000003/prod-strip-report.json
+palomar__2026-08-29-000001,10k–50k,73984,38359,4,3689,math.RA,benchmark/artifacts/datasets/leanlean_20260914/repos/palomar__2026-08-29-000001/prod-strip-report.json
+palomar__2026-08-21-000004,50k–250k,143155,109250,3,6839,math.NT,benchmark/artifacts/datasets/leanlean_20260914/repos/palomar__2026-08-21-000004/prod-strip-report.json
+palomar__2026-08-13-000001,50k–250k,199380,195549,2,9837,math.CV,benchmark/artifacts/datasets/leanlean_20260914/repos/palomar__2026-08-13-000001/prod-strip-report.json
+palomar__2026-08-17-000003,10k–50k,18980,17422,1,1848,math.CO,benchmark/artifacts/datasets/leanlean_20260914/repos/palomar__2026-08-17-000003/prod-strip-report.json
+palomar__2026-08-19-000002,> 250k,411782,276328,7,21835,math.LO,benchmark/artifacts/datasets/leanlean_20260914/repos/palomar__2026-08-19-000002/prod-strip-report.json
+palomar__2026-08-21-000010,≤ 10k,5800,4325,5,400,cs.GR,benchmark/artifacts/datasets/leanlean_20260914/repos/palomar__2026-08-21-000010/prod-strip-report.json
+palomar__2026-08-29-000010,10k–50k,31982,27382,1,2474,math.CV,benchmark/artifacts/datasets/leanlean_20260914/repos/palomar__2026-08-29-000010/prod-strip-report.json
+palomar__2026-09-02-000012,> 250k,1214204,1133524,29,111918,math.CO,benchmark/artifacts/datasets/leanlean_20260914/repos/palomar__2026-09-02-000012/prod-strip-report.json
+palomar__2026-08-31-000018,50k–250k,223483,136200,1,12185,math.PR,benchmark/artifacts/datasets/leanlean_20260914/repos/palomar__2026-08-31-000018/prod-strip-report.json
+palomar__2026-08-24-000005,≤ 10k,25191,9879,41,1013,cs.LO,benchmark/artifacts/datasets/leanlean_20260914/repos/palomar__2026-08-24-000005/prod-strip-report.json
+palomar__2026-08-20-000004,≤ 10k,2223,2223,1,291,math.PR,benchmark/artifacts/datasets/leanlean_20260914/repos/palomar__2026-08-20-000004/prod-strip-report.json
+palomar__2026-08-27-000011,> 250k,1450787,1156814,109,127535,cs.FL,benchmark/artifacts/datasets/leanlean_20260914/repos/palomar__2026-08-27-000011/prod-strip-report.json
+palomar__2026-09-01-000003,10k–50k,24238,21560,10,1825,quant-ph,benchmark/artifacts/datasets/leanlean_20260914/repos/palomar__2026-09-01-000003/prod-strip-report.json
+palomar__2026-08-30-000001,50k–250k,68120,62358,4,7329,math.CV,benchmark/artifacts/datasets/leanlean_20260914/repos/palomar__2026-08-30-000001/prod-strip-report.json
+palomar__2026-08-21-000002,≤ 10k,3616,3616,6,315,math.CO,benchmark/artifacts/datasets/leanlean_20260914/repos/palomar__2026-08-21-000002/prod-strip-report.json
+palomar__2026-09-01-000006,10k–50k,52243,49534,84,3336,math.CO,benchmark/artifacts/datasets/leanlean_20260914/repos/palomar__2026-09-01-000006/prod-strip-report.json
+palomar__2026-08-28-000001,> 250k,315553,284395,3,28579,math.OC,benchmark/artifacts/datasets/leanlean_20260914/repos/palomar__2026-08-28-000001/prod-strip-report.json
+palomar__2026-09-05-000001,50k–250k,374608,218064,7,25448,math.CO,benchmark/artifacts/datasets/leanlean_20260914/repos/palomar__2026-09-05-000001/prod-strip-report.json
+palomar__2026-08-27-000020,≤ 10k,3440,3143,54,167,gr-qc,benchmark/artifacts/datasets/leanlean_20260914/repos/palomar__2026-08-27-000020/prod-strip-report.json
+palomar__2026-09-05-000003,> 250k,406284,392907,8,32211,cs.IT,benchmark/artifacts/datasets/leanlean_20260914/repos/palomar__2026-09-05-000003/prod-strip-report.json
+palomar__2026-08-30-000002,50k–250k,118179,107012,1,12057,math.PR,benchmark/artifacts/datasets/leanlean_20260914/repos/palomar__2026-08-30-000002/prod-strip-report.json
+palomar__2026-09-02-000008,10k–50k,14511,13575,9,951,math.CO,benchmark/artifacts/datasets/leanlean_20260914/repos/palomar__2026-09-02-000008/prod-strip-report.json
+palomar__2026-08-23-000003,> 250k,270574,254374,2,29214,math.CO,benchmark/artifacts/datasets/leanlean_20260914/repos/palomar__2026-08-23-000003/prod-strip-report.json
+palomar__2026-09-01-000010,≤ 10k,5053,4987,1,451,cs.LO,benchmark/artifacts/datasets/leanlean_20260914/repos/palomar__2026-09-01-000010/prod-strip-report.json
+palomar__2026-08-24-000002,50k–250k,60059,54247,24,2845,math.NT,benchmark/artifacts/datasets/leanlean_20260914/repos/palomar__2026-08-24-000002/prod-strip-report.json
+palomar__2026-08-24-000003,10k–50k,40904,29556,34,2517,math.LO,benchmark/artifacts/datasets/leanlean_20260914/repos/palomar__2026-08-24-000003/prod-strip-report.json
+palomar__2026-08-29-000011,> 250k,920353,806407,1,107824,math.GT,benchmark/artifacts/datasets/leanlean_20260914/repos/palomar__2026-08-29-000011/prod-strip-report.json
+palomar__2026-08-29-000014,10k–50k,53056,42299,2,4853,math.CO,benchmark/artifacts/datasets/leanlean_20260914/repos/palomar__2026-08-29-000014/prod-strip-report.json
+palomar__2026-09-02-000014,≤ 10k,11827,9561,23,866,math.NT,benchmark/artifacts/datasets/leanlean_20260914/repos/palomar__2026-09-02-000014/prod-strip-report.json
+palomar__2026-09-01-000004,50k–250k,62034,58818,2,6053,math.FA,benchmark/artifacts/datasets/leanlean_20260914/repos/palomar__2026-09-01-000004/prod-strip-report.json
+palomar__2026-08-17-000002,≤ 10k,5081,5055,1,445,math.CO,benchmark/artifacts/datasets/leanlean_20260914/repos/palomar__2026-08-17-000002/prod-strip-report.json
+palomar__2026-08-29-000017,50k–250k,233366,171682,12,17347,math.CO,benchmark/artifacts/datasets/leanlean_20260914/repos/palomar__2026-08-29-000017/prod-strip-report.json
+palomar__2026-09-03-000005,10k–50k,53493,38231,9,3641,math.GR,benchmark/artifacts/datasets/leanlean_20260914/repos/palomar__2026-09-03-000005/prod-strip-report.json
+palomar__2026-08-19-000003,> 250k,1876515,1695971,6,174378,math.CO,benchmark/artifacts/datasets/leanlean_20260914/repos/palomar__2026-08-19-000003/prod-strip-report.json
+palomar__2026-09-03-000007,≤ 10k,9327,7600,7,584,math.CO,benchmark/artifacts/datasets/leanlean_20260914/repos/palomar__2026-09-03-000007/prod-strip-report.json
+palomar__2026-08-23-000001,10k–50k,23234,22363,5,2034,math.MG,benchmark/artifacts/datasets/leanlean_20260914/repos/palomar__2026-08-23-000001/prod-strip-report.json
+palomar__2026-08-29-000006,> 250k,677879,608059,1,79722,cs.DS,benchmark/artifacts/datasets/leanlean_20260914/repos/palomar__2026-08-29-000006/prod-strip-report.json
+palomar__2026-08-31-000008,50k–250k,68788,63159,1,6665,math.FA,benchmark/artifacts/datasets/leanlean_20260914/repos/palomar__2026-08-31-000008/prod-strip-report.json
+palomar__2026-08-27-000015,≤ 10k,4584,4584,2,528,math.LO,benchmark/artifacts/datasets/leanlean_20260914/repos/palomar__2026-08-27-000015/prod-strip-report.json
+palomar__2026-08-22-000006,50k–250k,283033,196207,2,17515,math.OA,benchmark/artifacts/datasets/leanlean_20260914/repos/palomar__2026-08-22-000006/prod-strip-report.json
+palomar__2026-09-03-000004,10k–50k,14384,13274,23,779,math.CA,benchmark/artifacts/datasets/leanlean_20260914/repos/palomar__2026-09-03-000004/prod-strip-report.json
+palomar__2026-09-02-000001,> 250k,1333459,940033,1,119872,math.NT,benchmark/artifacts/datasets/leanlean_20260914/repos/palomar__2026-09-02-000001/prod-strip-report.json
+palomar__2026-08-29-000002,> 250k,850098,777458,3,91628,math.AG,benchmark/artifacts/datasets/leanlean_20260914/repos/palomar__2026-08-29-000002/prod-strip-report.json
+palomar__2026-08-20-000009,50k–250k,208467,139657,3,9572,math.NA,benchmark/artifacts/datasets/leanlean_20260914/repos/palomar__2026-08-20-000009/prod-strip-report.json
+palomar__2026-08-31-000014,≤ 10k,9797,9680,2,898,quant-ph,benchmark/artifacts/datasets/leanlean_20260914/repos/palomar__2026-08-31-000014/prod-strip-report.json
+palomar__2026-08-22-000003,10k–50k,232609,19613,2,2054,math.NT,benchmark/artifacts/datasets/leanlean_20260914/repos/palomar__2026-08-22-000003/prod-strip-report.json
+palomar__2026-08-28-000002,≤ 10k,14118,7978,3,689,math.AC,benchmark/artifacts/datasets/leanlean_20260914/repos/palomar__2026-08-28-000002/prod-strip-report.json
+palomar__2026-09-02-000003,10k–50k,50577,48960,3,3931,math.NT,benchmark/artifacts/datasets/leanlean_20260914/repos/palomar__2026-09-02-000003/prod-strip-report.json
+palomar__2026-09-01-000009,50k–250k,180025,89598,1,9908,math.GR,benchmark/artifacts/datasets/leanlean_20260914/repos/palomar__2026-09-01-000009/prod-strip-report.json
+palomar__2026-08-22-000010,> 250k,1366959,630665,9,60604,math.AG,benchmark/artifacts/datasets/leanlean_20260914/repos/palomar__2026-08-22-000010/prod-strip-report.json
+palomar__2026-08-31-000005,> 250k,515850,398630,1,44960,math.MG,benchmark/artifacts/datasets/leanlean_20260914/repos/palomar__2026-08-31-000005/prod-strip-report.json
+palomar__2026-09-01-000007,10k–50k,15891,13993,8,1623,cs.LO,benchmark/artifacts/datasets/leanlean_20260914/repos/palomar__2026-09-01-000007/prod-strip-report.json
+palomar__2026-09-02-000004,50k–250k,169402,148811,1,9833,math.DG,benchmark/artifacts/datasets/leanlean_20260914/repos/palomar__2026-09-02-000004/prod-strip-report.json
+palomar__2026-08-29-000015,≤ 10k,7760,7360,1,614,math.RA,benchmark/artifacts/datasets/leanlean_20260914/repos/palomar__2026-08-29-000015/prod-strip-report.json
+palomar__2026-08-26-000006,10k–50k,35365,34647,1,2348,cs.IT,benchmark/artifacts/datasets/leanlean_20260914/repos/palomar__2026-08-26-000006/prod-strip-report.json
+palomar__2026-09-03-000002,> 250k,680798,575008,1,58158,math.LO,benchmark/artifacts/datasets/leanlean_20260914/repos/palomar__2026-09-03-000002/prod-strip-report.json
+palomar__2026-09-02-000011,50k–250k,235144,207788,3,19555,math.CA,benchmark/artifacts/datasets/leanlean_20260914/repos/palomar__2026-09-02-000011/prod-strip-report.json
+palomar__2026-09-01-000008,≤ 10k,4129,4093,4,333,math.NT,benchmark/artifacts/datasets/leanlean_20260914/repos/palomar__2026-09-01-000008/prod-strip-report.json
+palomar__2026-09-02-000006,> 250k,556233,414598,3,49099,math.CO,benchmark/artifacts/datasets/leanlean_20260914/repos/palomar__2026-09-02-000006/prod-strip-report.json
+palomar__2026-08-20-000008,10k–50k,29216,28432,2,2047,math.NT,benchmark/artifacts/datasets/leanlean_20260914/repos/palomar__2026-08-20-000008/prod-strip-report.json
+palomar__2026-09-04-000005,50k–250k,68326,67980,1,5274,math.CO,benchmark/artifacts/datasets/leanlean_20260914/repos/palomar__2026-09-04-000005/prod-strip-report.json
+palomar__2026-09-01-000011,≤ 10k,11219,7980,1,763,cs.DM,benchmark/artifacts/datasets/leanlean_20260914/repos/palomar__2026-09-01-000011/prod-strip-report.json

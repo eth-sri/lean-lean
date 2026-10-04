@@ -1,0 +1,28 @@
+# 12-repository leanlean-mini subset, published as the base for the opus/sol
+# union reconciliation task.  The reconciliation branch seeding is layered on
+# top of this bundle by scripts/seed_reconciliation_branches.py.
+kind: leanlean_dataset_subset_publication
+schema_version: 1
+generator: self_contained_schema_v2_subset_v2
+dataset_id: leanlean_20260920_langlib_opus_sol_12_seeded
+dataset_version: v1
+source_dataset:
+  path: datasets/leanlean_20260914/dataset.yaml
+  sha256: 4fa320c43dc5874b7f77b93dd3caa01c9f44da669cb135d3ab0d35f9fafe04c6
+membership:
+  path: datasets/leanlean_20260920_langlib_opus_sol_12_seeded_membership/membership.yaml
+  sha256: 8b9b854040be77fc1ec4c944f4b9f5b0213c1c1910402deda7bc74d446747b44
+repositories:
+  - palomar__2026-08-19-000003
+  - palomar__2026-08-27-000011
+  - palomar__2026-08-23-000003
+  - palomar__2026-08-22-000006
+  - palomar__2026-08-21-000004
+  - palomar__2026-08-24-000002
+  - palomar__2026-08-22-000003
+  - palomar__2026-08-26-000006
+  - palomar__2026-08-17-000003
+  - palomar__2026-08-24-000005
+  - palomar__2026-08-17-000002
+  - palomar__2026-08-29-000003
+output: datasets/leanlean_20260920_langlib_opus_sol_12_seeded

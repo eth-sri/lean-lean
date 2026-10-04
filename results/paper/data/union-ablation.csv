@@ -1,0 +1,5 @@
+method,label,compression_pct,scored,expected
+opus-5,Claude Opus 5 (high reasoning),46.09685911278653,12,12
+gpt-5.6-sol,GPT-5.6 Sol (xhigh reasoning),35.018484358081935,12,12
+start-opus,Union (starting from Opus),47.20418404420449,12,12
+start-sol,Union (starting from Sol),46.92989860535379,12,12

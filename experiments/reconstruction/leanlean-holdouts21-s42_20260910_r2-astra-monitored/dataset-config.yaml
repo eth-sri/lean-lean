@@ -1,0 +1,46 @@
+kind: leanlean_evaluation_dataset
+schema_version: 1
+dataset: datasets/leanlean-holdouts21-s42_20260910_r1/dataset.yaml
+repositories: all
+rounds: 1
+agent:
+  system_prompt: native
+  prompt: |-
+    Refactor the proofs in this codebase.
+    Remove all dead code and do real simplification, i.e. use powerful tactics or factor out shared logic to simplify the code while preserving the main results.
+    Success is measured by three factors:
+
+    (1) The repo compiling without errors and relying only on standard axioms.
+    (2) The benchmark's protected main results compile and remain equivalent. Run the no-argument command `lean_verify` from the repository root to verify the signatures, exit code 0 means the main results are preserved according to the Lean Comparator.
+    (3) The scoring metric is the reduction in non-whitespace, non-comment "Lean tokens" across all .lean files, compared to the starting state. Compressing imports does not count towards the compression metric. Run python3 proof_length.py to measure it.
+
+    You have a wall-clock budget of {time_limit}. It started at {current_time} and expires at {deadline}.
+
+    You are working in a Docker container with enforced limits of 64GB RAM and 8 CPUs.
+
+    When you believe there is no more refactoring to be done, output <submit> and terminate.
+  allowed_skills: []
+  mcp_servers: []
+  enable_subagents: false
+  enable_lean_verify: true
+  enable_proof_length: true
+parallelism:
+  workers: 12
+  start_interval_seconds: 2
+container:
+  cpus: 8
+  build_jobs: 8
+  memory: 64g
+  max_total_memory: 768g
+  pids_limit: 4096
+  timeout: 4h
+  cgroup_parent: lean.slice
+  network_policy: model_proxy_only
+monitoring:
+  snapshots: true
+  every_n_edits: 1
+  reconciliation_interval_seconds: 30
+postprocessing:
+  replay: false
+  workers: 1
+  threads_per_repository: 8

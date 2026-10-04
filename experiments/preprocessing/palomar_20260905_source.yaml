@@ -1,0 +1,315 @@
+kind: palomar_source_preparation
+schema_version: 1
+run_id: palomar_20260905_source
+model: none
+reasoning_effort: none
+generator: palomar_registry_solution_challenge_recursive_src_deps_comparator_roots_no_docs_v10
+repo_variant: raw
+rounds: 1
+artifacts:
+  durable_source_trees:
+  - raw
+  durable_build_artifacts:
+  - raw/.lake
+  durable_images: []
+  internal_checkpoints: []
+  raw_transport_images: materialize_from_dataset_raw_cache
+  evaluation_warm_start: shared_environment_plus_raw_lake
+  shared_dependency_environment: dataset_local_archive
+source_rebuild:
+  cache: enabled
+  cache_namespace: 23c88cd0c01a99efbf95504810c622d97f4812770a9f38dcb109421d9d1921b9
+  pull: false
+  refetch_archives: false
+dependency_environment:
+  dataset: datasets/palomar_20260901_shared_cache.yaml
+  sha256: 474184107e88fa8ca283205e4016cf89808a75f664e658f5d63f5133326aa705
+registry:
+  url: https://data.palomar-registry.org/recent.json
+  snapshot_id: palomar_20260905
+  snapshot_date: '2026-09-05'
+  mapping: data/palomar/candidate_mapping_palomar_20260905.json
+  sha256: 23c88cd0c01a99efbf95504810c622d97f4812770a9f38dcb109421d9d1921b9
+  latest_published_at: '2026-09-05T09:12:09Z'
+  registry_snapshot_sha256: 2b453b592330f495aa8e447fae8e76d8b2799d051f64395b4c73774c5dab6988
+  archive_cache: /path/to/leanlean/runs/palomar/registry_sync/20260828_registry_solution_v3/archives
+  sync_manifest: experiments/preprocessing/palomar_registry_sync_palomar_20260905.yaml
+  sync_manifest_sha256: 9b67253f8ac5e8bc07567aede4d91e5707a3c93bc247ce5f433c805bf17e1534
+  sync_report: runs/palomar/registry_sync/palomar_20260905/report.json
+  sync_report_sha256: 23c016d0f68eb39f736fac4f2d2837f18c77a147633f1b315fd17bbdf9813808
+  toolchain_catalog: experiments/preprocessing/palomar_137_source_refresh_20260902_r5.yaml
+  toolchain_catalog_sha256: 8192a34095e6aafd7946a6abf07eecc4442134f190c90100da6a6cfaa59ca325
+toolchains:
+  leanprover/lean4:v4.30.0:
+    url: https://github.com/leanprover/lean4/releases/download/v4.30.0/lean-4.30.0-linux.tar.zst
+    sha256: 4dad74141c2c119ca1aa626656be83b8e14238afba97271fd7bf1eb3f081b319
+  leanprover/lean4:v4.30.0-rc1:
+    url: https://github.com/leanprover/lean4/releases/download/v4.30.0-rc1/lean-4.30.0-rc1-linux.tar.zst
+    sha256: 37c2913cf41b49f33ab2eebc449d12394081817315c9f915af1ff43f1642de42
+  leanprover/lean4:v4.31.0:
+    url: https://github.com/leanprover/lean4/releases/download/v4.31.0/lean-4.31.0-linux.tar.zst
+    sha256: 07a633cc8d9151cbc08825ea4cdda50d4b02a2c9cb852c0131b13046f49cad7f
+  leanprover/lean4:v4.31.0-rc2:
+    url: https://github.com/leanprover/lean4/releases/download/v4.31.0-rc2/lean-4.31.0-rc2-linux.tar.zst
+    sha256: acf05cbac59691c08194c4aaa0d619e3bd6dde7feebd7287884d12841d17847a
+  leanprover/lean4:v4.32.0:
+    url: https://github.com/leanprover/lean4/releases/download/v4.32.0/lean-4.32.0-linux.tar.zst
+    sha256: fca846f3588724a38ad19ee40292c67cb7438d7555903372e3308eef795ba516
+  leanprover/lean4:v4.33.0:
+    url: https://github.com/leanprover/lean4/releases/download/v4.33.0/lean-4.33.0-linux.tar.zst
+    sha256: 4b3fb03c29a1e0a253fb1d11f9bae3725f19a0dc6fc09b3ea16d2c9df3349e2c
+  leanprover/lean4:v4.33.0-rc1:
+    url: https://github.com/leanprover/lean4/releases/download/v4.33.0-rc1/lean-4.33.0-rc1-linux.tar.zst
+    sha256: 25e7b3e18ec75a4e2529fc23194be8e3cc3183df99b553f870d8a111c7488210
+  leanprover/lean4:v4.33.0-rc2:
+    url: https://github.com/leanprover/lean4/releases/download/v4.33.0-rc2/lean-4.33.0-rc2-linux.tar.zst
+    sha256: 48010c7d6264dc992574e9b0e09ece1f9c648e8f5106066b2cdb6834a6a60a6c
+  leanprover/lean4:v4.34.0-rc1:
+    url: https://github.com/leanprover/lean4/releases/download/v4.34.0-rc1/lean-4.34.0-rc1-linux.tar.zst
+    sha256: 41dc6a6ec143ece8ed4ba4c4c6978c91f21ad5cbe3c4e7728ad31b869961dc17
+  leanprover/lean4:v4.34.0-rc2:
+    url: https://github.com/leanprover/lean4/releases/download/v4.34.0-rc2/lean-4.34.0-rc2-linux.tar.zst
+    sha256: 3d011041203acacf300d343a39673f7d233743397993797c941346ae9e5df1a8
+dataset:
+  id: palomar_registry_solution_palomar_20260905
+  version: 182-source-v1
+repositories:
+- palomar__2026-09-05-000003
+- palomar__2026-09-05-000002
+- palomar__2026-09-05-000001
+- palomar__2026-09-04-000005
+- palomar__2026-09-04-000004
+- palomar__2026-09-04-000003
+- palomar__2026-09-04-000002
+- palomar__2026-09-04-000001
+- palomar__2026-09-03-000007
+- palomar__2026-09-03-000006
+- palomar__2026-09-03-000005
+- palomar__2026-09-03-000004
+- palomar__2026-08-20-000006
+- palomar__2026-08-21-000011
+- palomar__2026-08-21-000010
+- palomar__2026-08-21-000008
+- palomar__2026-08-21-000007
+- palomar__2026-08-21-000002
+- palomar__2026-09-03-000003
+- palomar__2026-09-03-000002
+- palomar__2026-08-29-000014
+- palomar__2026-09-03-000001
+- palomar__2026-09-02-000007
+- palomar__2026-09-02-000014
+- palomar__2026-09-02-000013
+- palomar__2026-09-02-000012
+- palomar__2026-09-02-000011
+- palomar__2026-09-02-000010
+- palomar__2026-09-02-000009
+- palomar__2026-09-02-000008
+- palomar__2026-09-02-000006
+- palomar__2026-09-02-000005
+- palomar__2026-09-02-000004
+- palomar__2026-09-02-000003
+- palomar__2026-09-02-000002
+- palomar__2026-08-27-000018
+- palomar__2026-08-26-000005
+- palomar__2026-09-02-000001
+- palomar__2026-09-01-000013
+- palomar__2026-09-01-000012
+- palomar__2026-09-01-000011
+- palomar__2026-09-01-000010
+- palomar__2026-09-01-000009
+- palomar__2026-08-31-000019
+- palomar__2026-09-01-000008
+- palomar__2026-09-01-000007
+- palomar__2026-09-01-000006
+- palomar__2026-09-01-000005
+- palomar__2026-09-01-000004
+- palomar__2026-08-26-000003
+- palomar__2026-09-01-000003
+- palomar__2026-09-01-000002
+- palomar__2026-09-01-000001
+- palomar__2026-08-31-000020
+- palomar__2026-08-31-000018
+- palomar__2026-08-31-000017
+- palomar__2026-08-31-000016
+- palomar__2026-08-31-000015
+- palomar__2026-08-31-000014
+- palomar__2026-08-31-000013
+- palomar__2026-08-31-000012
+- palomar__2026-08-31-000011
+- palomar__2026-08-31-000010
+- palomar__2026-08-31-000009
+- palomar__2026-08-31-000008
+- palomar__2026-08-31-000007
+- palomar__2026-08-31-000006
+- palomar__2026-08-31-000005
+- palomar__2026-08-31-000004
+- palomar__2026-08-31-000003
+- palomar__2026-08-29-000017
+- palomar__2026-08-31-000002
+- palomar__2026-08-31-000001
+- palomar__2026-08-30-000002
+- palomar__2026-08-30-000001
+- palomar__2026-08-29-000018
+- palomar__2026-08-29-000016
+- palomar__2026-08-29-000015
+- palomar__2026-08-29-000013
+- palomar__2026-08-29-000012
+- palomar__2026-08-29-000011
+- palomar__2026-08-29-000010
+- palomar__2026-08-29-000009
+- palomar__2026-08-29-000008
+- palomar__2026-08-29-000007
+- palomar__2026-08-29-000006
+- palomar__2026-08-29-000005
+- palomar__2026-08-29-000004
+- palomar__2026-08-29-000003
+- palomar__2026-08-29-000002
+- palomar__2026-08-29-000001
+- palomar__2026-08-28-000002
+- palomar__2026-08-28-000001
+- palomar__2026-08-27-000020
+- palomar__2026-08-27-000019
+- palomar__2026-08-27-000017
+- palomar__2026-08-27-000016
+- palomar__2026-08-27-000015
+- palomar__2026-08-27-000014
+- palomar__2026-08-27-000013
+- palomar__2026-08-27-000011
+- palomar__2026-08-27-000008
+- palomar__2026-08-27-000012
+- palomar__2026-08-26-000010
+- palomar__2026-08-27-000010
+- palomar__2026-08-27-000009
+- palomar__2026-08-27-000005
+- palomar__2026-08-27-000007
+- palomar__2026-08-27-000006
+- palomar__2026-08-27-000004
+- palomar__2026-08-27-000003
+- palomar__2026-08-27-000002
+- palomar__2026-08-27-000001
+- palomar__2026-08-26-000013
+- palomar__2026-08-26-000012
+- palomar__2026-08-26-000011
+- palomar__2026-08-26-000009
+- palomar__2026-08-26-000008
+- palomar__2026-08-26-000007
+- palomar__2026-08-26-000006
+- palomar__2026-08-26-000004
+- palomar__2026-08-26-000002
+- palomar__2026-08-25-000002
+- palomar__2026-08-26-000001
+- palomar__2026-08-25-000005
+- palomar__2026-08-25-000004
+- palomar__2026-08-25-000003
+- palomar__2026-08-25-000001
+- palomar__2026-08-24-000001
+- palomar__2026-08-24-000007
+- palomar__2026-08-24-000003
+- palomar__2026-08-24-000006
+- palomar__2026-08-24-000005
+- palomar__2026-08-24-000004
+- palomar__2026-08-24-000002
+- palomar__2026-08-23-000006
+- palomar__2026-08-23-000005
+- palomar__2026-08-23-000004
+- palomar__2026-08-23-000003
+- palomar__2026-08-23-000002
+- palomar__2026-08-23-000001
+- palomar__2026-08-22-000010
+- palomar__2026-08-22-000009
+- palomar__2026-08-22-000008
+- palomar__2026-08-22-000007
+- palomar__2026-08-22-000006
+- palomar__2026-08-22-000005
+- palomar__2026-08-22-000004
+- palomar__2026-08-22-000003
+- palomar__2026-08-22-000002
+- palomar__2026-08-22-000001
+- palomar__2026-08-21-000012
+- palomar__2026-08-21-000009
+- palomar__2026-08-21-000006
+- palomar__2026-08-21-000005
+- palomar__2026-08-21-000004
+- palomar__2026-08-21-000003
+- palomar__2026-08-21-000001
+- palomar__2026-08-20-000009
+- palomar__2026-08-20-000008
+- palomar__2026-08-20-000007
+- palomar__2026-08-20-000005
+- palomar__2026-08-20-000004
+- palomar__2026-08-20-000003
+- palomar__2026-08-19-000007
+- palomar__2026-08-19-000002
+- palomar__2026-08-20-000002
+- palomar__2026-08-13-000001
+- palomar__2026-08-20-000001
+- palomar__2026-08-19-000006
+- palomar__2026-08-19-000005
+- palomar__2026-08-19-000004
+- palomar__2026-08-19-000003
+- palomar__2026-08-19-000001
+- palomar__2026-08-18-000003
+- palomar__2026-08-18-000002
+- palomar__2026-08-18-000001
+- palomar__2026-08-17-000004
+- palomar__2026-08-17-000003
+- palomar__2026-08-17-000002
+- palomar__2026-08-17-000001
+- palomar__2026-08-08-000001
+image_tag_prefix: leanlean-palomar_20260905-source
+workers:
+  source_builds: 6
+resources:
+  cpus_per_build: 6
+  memory_per_build: 64g
+  aggregate_build_cpus: 36
+  aggregate_build_memory_gib: 384
+  pids_limit: 4096
+  network_policy: bootstrap_codeload_and_mathlib_cache_only
+  minimum_free_disk_gib: 250
+  maximum_new_storage_gib: 1000
+timeouts:
+  record_download_seconds: 90
+  archive_download_seconds: 900
+  dependency_download_seconds: 900
+  image_build_seconds: 14400
+evaluation:
+  raw_clean_build: required
+  source_archive_contract: exact_registered_files_hash_pinned
+  registered_solution: exact
+  registered_challenge: dependency_closure_traced_then_bundled_under_comparator_and_removed_from_source
+  registered_comparator: exact
+  post_isolation_build: warm_required
+outputs:
+  directory: runs/palomar/palomar_20260905_source
+  repository_database: data/preprocessing_sources/palomar_20260905_source.json
+  source_id: palomar_20260905_source
+  source_reference: sources/palomar_20260905_source.yaml
+  raw_repositories_directory: datasets/palomar_20260905/repos
+  comparator_directory: datasets/palomar_20260905/repos
+  environment_catalog: datasets/palomar_20260905/source-environments.yaml
+implementation:
+  dockerfile:
+    path: docker/palomar/Dockerfile
+    sha256: ed5d86c717200607f6a43881d3f4758c9b25bb3b8d5e4f2ff5d7f8c5eb4c5095
+  normalizer:
+    path: scripts/palomar_normalize.py
+    sha256: 93cd50ad472ac1546a1bc7c120e3dbb9d627b63795caad03563f120c53e45863
+  source_preparer:
+    path: scripts/prepare_palomar_dataset.py
+    sha256: 9e22edf6c2f342173dd3ae7e9d6262cac4788e2c92e86724fd12bd43077578a4
+  source_refresher:
+    path: scripts/refresh_palomar_preprocessing_source.py
+    sha256: f91c56193cbeb375052eee0ee00fb2d823fb21cc38e8dcbc1bf3bb69788f23a7
+  reference_refresher:
+    path: scripts/refresh_preprocessing_source.py
+    sha256: b23ee7b923d84570ef4283092c21892093bc4113edf8b5614f98efb6db5864d6
+  shared_environment_dockerfile:
+    path: docker/palomar/Dockerfile.shared-environment
+    sha256: f376868ab6b458996b10cdb772a29fa621ccc8c6cb4e5349182cc2fa26807850
+  source_materializer:
+    path: src/leanlean/preprocessing/source_materialization.py
+    sha256: e801e253f1addde22ebeefebc70367a30797d0c4b8f6491946b682ada2ef7330
+  environment_archives:
+    path: src/leanlean/environment_archives.py
+    sha256: f5d231cf9ffb0eb646534427ef31e6b24a4782bc922152cf0732a6613cb325b2

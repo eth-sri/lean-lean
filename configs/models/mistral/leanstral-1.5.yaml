@@ -1,0 +1,47 @@
+kind: leanlean_evaluation_model
+schema_version: 1
+model: leanstral-1.5
+harness: mistral_vibe_lean
+harness_version: "2.25.0"
+reasoning_effort: high
+parallelism:
+  workers: 6
+  start_interval_seconds: 2
+system_prompt:
+  mode: native
+  snapshot: experiments/payload_audit/prompts/mistral-leanstral-1.5.json
+  sha256: b06616b65371beeb4e84bd36e62692ff38d99f8e5fec7a36a9d5d2ed43469c5c
+generation_parameters:
+  policy: native_harness_defaults
+  observed_at: "2026-09-30"
+  request_sha256: 27878330f16234f6c4c028f6d580a5e306a4286c87748abbf3e474d1c2e3fa77
+  request:
+    temperature: 1.0
+    reasoning_effort: high
+    stream: true
+    tool_choice: auto
+  provider_forwarded:
+    status: captured_at_provider_http_boundary
+    capture: experiments/payload_audit/captures/mistral-leanstral-1.5-reasoning-20260930.json
+    temperature: 1.0
+    reasoning_effort: high
+    tool_choice: auto
+    earlier_thinking: replayed_as_mistral_thinking_chunks
+    compaction_model:
+      model: mistral-small-latest
+      temperature: 0.2
+      reasoning_effort: null
+pricing:
+  basis: benchmark_cost_accounting_snapshot
+  observed_at: "2026-09-30"
+  source: src/configs/model_constants.py
+  currency: USD
+  unit: per_million_tokens
+  reasoning_tokens_billed_as: output
+  rates:
+    input: 0.0
+    output: 0.0
+    cache_read: 0.0
+    cache_creation: 0.0
+access:
+  mode: api

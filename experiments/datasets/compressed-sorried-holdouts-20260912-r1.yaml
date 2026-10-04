@@ -1,0 +1,454 @@
+kind: leanlean_compressed_sorried_holdout_packaging
+schema_version: 1
+run_id: compressed-sorried-holdouts-20260912-r1
+model: none
+reasoning_effort: none
+generator: byte_identical_certified_source_archive_packaging
+repository_variant: stripped
+source_state: compressed_with_sorried_holdouts
+rounds: 1
+workers: 1
+container_resources:
+  enabled: false
+  cpus: 4
+  memory: 32g
+  pids_limit: 4096
+  network_policy: model_proxy_only
+timeout_seconds: 3600
+evaluation:
+  source_evidence: existing_clean_build_and_original_comparator
+  require_exact_archive_sha256: true
+  reject_original_target_proofs: true
+  final_reproof_verifier: original_full_comparator_without_sorryAx
+  project_cache: empty_rebuild_from_source
+  launch_reproof: false
+monitoring:
+  snapshots: true
+  every_n_edits: 1
+  native_traces: true
+  native_rollout_retention: true
+  model_rollouts: not_applicable
+  baseline: compressed.sources.tar.gz
+  terminal: sorried.sources.tar.gz
+  intermediate: no_source_edits_byte_identical_copy
+source_dataset:
+  path: datasets/leanlean-holdouts21-s42_20260910_r1/dataset.yaml
+  sha256: 1c09c1214374738d33bb73a1a738876b0648ad12943739a154fec1a10e632f9b
+source_database:
+  path: datasets/leanlean-holdouts21-s42_20260910_r1/repository-database.json
+  sha256: b4c010f5e9ef4ae31979f5236b4d3b15c22e43533441cd83813942aefca39b8e
+output: datasets/compressed-sorried-holdouts-20260912-r1
+tmux_session: package-compressed-sorried-holdouts-20260912-r1
+cases:
+- id: case01__holdout
+  repository: palomar__2026-09-03-000004
+  summary:
+    path: output/reconstruction/leanlean-declaration-context-stage2-signatures-direct-case01-20260912-r2/summary.json
+    sha256: 3c0ab3b1f8e314b216a6098c1fc169ae0c564efda0cb8c699300cb11b2e6bd79
+  archive:
+    archive_bytes: 14947
+    lean_file_count: 3
+    path: output/reconstruction/leanlean-declaration-context-stage2-signatures-direct-case01-20260912-r2/case01__holdout/augmented.sources.tar.gz
+    sha256: 86bf5a755748f1e42767889e3e9bd849cdeb5aed382a6c6010ce0cae20b7993e
+    source_archive_bytes: 71680
+    source_archive_sha256: 1532054b2a8a5fa2d069e8cfba2e9bfe986149528f03d9af06c51252e8e06c1b
+  baseline:
+    destination: Solution.lean
+    edit_index: 37
+    path: output/postprocessing/leanlean-refactoring-ablation/case01__holdout/capture_002/submitted.sources.tar.gz
+    selection_policy: submitted_final
+    sha256: f045c391c492fff84b64341c55e1b30f1354772683b79199b068e414b9664995
+  payload:
+    path: output/reconstruction/leanlean-declaration-context-stage2-signatures-direct-case01-20260912-r2/case01__holdout/append-payload.lean
+    sha256: b59e17dd4e0741682cefbbe70044c82445f4c7b601dcd5ada41167ddacac4969
+  holdouts:
+    path: datasets/leanlean-holdouts21-s42_20260910_r1/repos/case01__holdout/holdouts.json
+    sha256: ec9e8e687f88b5d43e9ff0b537aebaa8e3e0be1722f49bea605734929e0d341f
+  source_report:
+    path: datasets/leanlean-holdouts21-s42_20260910_r1/repos/case01__holdout/prod-strip-report.json
+    sha256: 25547c37cb03aedbd0da2d627a0db5d5d537db8a7de02644f34c40c69098da1f
+- id: case02__holdout
+  repository: palomar__2026-08-20-000006
+  summary:
+    path: output/reconstruction/leanlean-declaration-context-stage2-signatures-20260912-r1/summary.json
+    sha256: 011fd945acf622a1134027ed7bb18a9272c18a4ab88a3fafe8df4a65ee1eb0b3
+  archive:
+    archive_bytes: 17963
+    lean_file_count: 11
+    path: output/reconstruction/leanlean-declaration-context-stage2-signatures-20260912-r1/case02__holdout/augmented.sources.tar.gz
+    sha256: f27742af0a0e92d50da189efa060df0bd62044075dd9c4caaf0fa13ca93c72cc
+    source_archive_bytes: 71680
+    source_archive_sha256: 071862d1abd95f4131c82dded1dadf12570d9cb5147f2c96704f18d12ff11b7d
+  baseline:
+    destination: Solution.lean
+    edit_index: 42
+    path: output/postprocessing/leanlean-refactoring-ablation/case02__holdout/capture_001/submitted.sources.tar.gz
+    selection_policy: submitted_final
+    sha256: ceea7e62a6bdec315965e074b53166772609cdace8547ec7e29edc2838908c08
+  payload:
+    path: output/reconstruction/leanlean-declaration-context-stage2-signatures-20260912-r1/case02__holdout/append-payload.lean
+    sha256: e18bf16b7146151cacc59e651ae1ae1fcfa7c9c63acce73c09784ca8fcfb8732
+  holdouts:
+    path: datasets/leanlean-holdouts21-s42_20260910_r1/repos/case02__holdout/holdouts.json
+    sha256: 97760c3ad51433f0599cb526617b1169a891fb755d24789812e6938dbe6ea40e
+  source_report:
+    path: datasets/leanlean-holdouts21-s42_20260910_r1/repos/case02__holdout/prod-strip-report.json
+    sha256: 750998d16f32f4688635a8af378a898cdb5972db80814f242826aa2049e1d73e
+- id: case03__holdout
+  repository: palomar__2026-08-19-000002
+  summary:
+    path: output/reconstruction/leanlean-declaration-context-stage2-signatures-20260912-r1/summary.json
+    sha256: 011fd945acf622a1134027ed7bb18a9272c18a4ab88a3fafe8df4a65ee1eb0b3
+  archive:
+    archive_bytes: 288214
+    lean_file_count: 72
+    path: output/reconstruction/leanlean-declaration-context-stage2-signatures-20260912-r1/case03__holdout/augmented.sources.tar.gz
+    sha256: 27ce7adab6489ccd4a4ac6e0f4f240a1a05228ff40226483374b7614f42b7766
+    source_archive_bytes: 1269760
+    source_archive_sha256: e30429cc7f516046960077107a63049233821ae03b0ebc8612acc50099ace448
+  baseline:
+    destination: Solution.lean
+    edit_index: 125
+    path: output/postprocessing/leanlean-refactoring-ablation/case03__holdout/capture_001/submitted.sources.tar.gz
+    selection_policy: submitted_final
+    sha256: 1bdbf7731cdcae45b08bc26adf9543afdfa74bb6622f5c778fe63557f93b2e2f
+  payload:
+    path: output/reconstruction/leanlean-declaration-context-stage2-signatures-20260912-r1/case03__holdout/append-payload.lean
+    sha256: 77fba7dfce33a53c58330df71049fcaefbb668b8fd22311ae080e8767d2ed32a
+  holdouts:
+    path: datasets/leanlean-holdouts21-s42_20260910_r1/repos/case03__holdout/holdouts.json
+    sha256: f11f6a6e57d0e6a1557312459ecd60d2a40a22263d7a2f99c0443fdcb0569ca3
+  source_report:
+    path: datasets/leanlean-holdouts21-s42_20260910_r1/repos/case03__holdout/prod-strip-report.json
+    sha256: 9487c00c2eb6ada3eb5c7f5dd421e1a3a742de6d6b8da4a3887df4a2dc9d4cd8
+- id: case05__holdout
+  repository: palomar__2026-08-24-000002
+  summary:
+    path: output/reconstruction/leanlean-declaration-context-stage2-signatures-20260912-r1/summary.json
+    sha256: 011fd945acf622a1134027ed7bb18a9272c18a4ab88a3fafe8df4a65ee1eb0b3
+  archive:
+    archive_bytes: 35425
+    lean_file_count: 14
+    path: output/reconstruction/leanlean-declaration-context-stage2-signatures-20260912-r1/case05__holdout/augmented.sources.tar.gz
+    sha256: e7abb7773b26abe25c23ce34e5bd1d809eb293fc8b047ab7c14556ce0d153ee1
+    source_archive_bytes: 133120
+    source_archive_sha256: 5284451324d65bee3023217bd9b68f9a915bd741320fba33b622e0dc3fd92330
+  baseline:
+    destination: SolutionRecord.lean
+    edit_index: 75
+    path: output/postprocessing/leanlean-refactoring-ablation/case05__holdout/capture_001/submitted.sources.tar.gz
+    selection_policy: submitted_final
+    sha256: 405d1accc8e728ca26682a333748e03baac13ab32dfc85b0f9a86bf406a339f2
+  payload:
+    path: output/reconstruction/leanlean-declaration-context-stage2-signatures-20260912-r1/case05__holdout/append-payload.lean
+    sha256: 59e5bbd60edb49813cc51a1c525b546564e7c680bdb04bb90580d4493c8a06f3
+  holdouts:
+    path: datasets/leanlean-holdouts21-s42_20260910_r1/repos/case05__holdout/holdouts.json
+    sha256: c4512d6aebf03c7ee5d6f58d1576ec8231545e25d06c751d668633b0b94d6179
+  source_report:
+    path: datasets/leanlean-holdouts21-s42_20260910_r1/repos/case05__holdout/prod-strip-report.json
+    sha256: 6c455e5036199fa1ad570fd235770aabb9dbe86f8ae81cbea4ca42149c6f6b34
+- id: case06__holdout
+  repository: palomar__2026-09-05-000003
+  summary:
+    path: output/reconstruction/leanlean-declaration-context-stage2-signatures-offlinegit-20260912-r3/summary.json
+    sha256: 76d400bdafd7b52aa180e502d732cb7edb08604aa51aa550308acc7be52ff530
+  archive:
+    archive_bytes: 161996
+    lean_file_count: 17
+    path: output/reconstruction/leanlean-declaration-context-stage2-signatures-offlinegit-20260912-r3/case06__holdout/augmented.sources.tar.gz
+    sha256: d93c2f531be4fc2bca86b68d975525c42747e5132a0ea2ee2ce91acd60fb3076
+    source_archive_bytes: 860160
+    source_archive_sha256: 19720a60f5e59c0c93f23ba44f77ec475fb4f5f89d8065a33d5c96ea4a19e84f
+  baseline:
+    destination: Solution.lean
+    edit_index: 125
+    path: output/postprocessing/leanlean-refactoring-ablation/case06__holdout/capture_001/submitted.sources.tar.gz
+    selection_policy: submitted_final
+    sha256: 91eb1291983281fed6b8a385d190dfbdf26d356e9cf0edecbd65e76b63412bc0
+  payload:
+    path: output/reconstruction/leanlean-declaration-context-stage2-signatures-offlinegit-20260912-r3/case06__holdout/append-payload.lean
+    sha256: c00a03aa58bb7ba75ca2418e7a7e7329fdd76eab96a4c216135fc7c98f89b0e8
+  holdouts:
+    path: datasets/leanlean-holdouts21-s42_20260910_r1/repos/case06__holdout/holdouts.json
+    sha256: 3f320ef3e519d5c6e4624b283b11ee677571784f58720eaeeae57c738caa635b
+  source_report:
+    path: datasets/leanlean-holdouts21-s42_20260910_r1/repos/case06__holdout/prod-strip-report.json
+    sha256: 5124d5274a215c1c441dc4edb1652cbbfa7b9ba95121f91138e9347bb4d94eb1
+- id: case08__holdout
+  repository: palomar__2026-09-05-000001
+  summary:
+    path: output/reconstruction/leanlean-declaration-context-stage2-signatures-offlinegit-20260912-r3/summary.json
+    sha256: 76d400bdafd7b52aa180e502d732cb7edb08604aa51aa550308acc7be52ff530
+  archive:
+    archive_bytes: 258169
+    lean_file_count: 171
+    path: output/reconstruction/leanlean-declaration-context-stage2-signatures-offlinegit-20260912-r3/case08__holdout/augmented.sources.tar.gz
+    sha256: b8f45b04753eaa856dba9ca9fc3c9c004ac4b60986e7ef0912fbb40f0959872b
+    source_archive_bytes: 1320960
+    source_archive_sha256: 4c2e70a007cf568dd9fbed548ace1563dd7f9749dff570da8a7530fb94d07ec6
+  baseline:
+    destination: Palomar/Solutions/BNChains.lean
+    edit_index: 20
+    path: output/postprocessing/leanlean-refactoring-ablation/case08__holdout/capture_002/submitted.sources.tar.gz
+    selection_policy: submitted_final
+    sha256: 061640f5bdda7315a1ef784551f4b3aebee22b1ae21fa5ce2b224766b4b86917
+  payload:
+    path: output/reconstruction/leanlean-declaration-context-stage2-signatures-offlinegit-20260912-r3/case08__holdout/append-payload.lean
+    sha256: 41d2c55f11deaef419b673700a6accbe33f686322c977e8e48b7cde98ccf9a3f
+  holdouts:
+    path: datasets/leanlean-holdouts21-s42_20260910_r1/repos/case08__holdout/holdouts.json
+    sha256: 17a1e4c8afc127784e95c2ce26731c67d4b300649f8344dce5ebedd63aec0f38
+  source_report:
+    path: datasets/leanlean-holdouts21-s42_20260910_r1/repos/case08__holdout/prod-strip-report.json
+    sha256: de7dc00241d3463ff929a4bb3e23e63f922f37fa9041475206f33e9084321f87
+- id: case09__holdout
+  repository: palomar__2026-08-19-000007
+  summary:
+    path: output/reconstruction/leanlean-declaration-context-stage2-signatures-offlinegit-20260912-r3/summary.json
+    sha256: 76d400bdafd7b52aa180e502d732cb7edb08604aa51aa550308acc7be52ff530
+  archive:
+    archive_bytes: 9952
+    lean_file_count: 2
+    path: output/reconstruction/leanlean-declaration-context-stage2-signatures-offlinegit-20260912-r3/case09__holdout/augmented.sources.tar.gz
+    sha256: 537e728752b08341f30a6ed703db87834415a838cb406b2dba35152b24001118
+    source_archive_bytes: 51200
+    source_archive_sha256: 219147fad892200cb1065a4866194df9c7d29bc2bc73a3068deb1f8878930a2f
+  baseline:
+    destination: Solution.lean
+    edit_index: 20
+    path: output/postprocessing/leanlean-refactoring-ablation/case09__holdout/capture_001/submitted.sources.tar.gz
+    selection_policy: submitted_final
+    sha256: 3b74f90e2b1f5114d0b73fe4972e972c6ffd4e4a71064ccef73d1f3c6e29f454
+  payload:
+    path: output/reconstruction/leanlean-declaration-context-stage2-signatures-offlinegit-20260912-r3/case09__holdout/append-payload.lean
+    sha256: a48427f37f99b2b7286b1946afab7e3c6fd56fea019217e1bd9c0993a7818fd3
+  holdouts:
+    path: datasets/leanlean-holdouts21-s42_20260910_r1/repos/case09__holdout/holdouts.json
+    sha256: 60417e2b56fd1578cd3f9146eb3818673b54b47acc3498cd780c80d333dd0a38
+  source_report:
+    path: datasets/leanlean-holdouts21-s42_20260910_r1/repos/case09__holdout/prod-strip-report.json
+    sha256: 51e81d245e2f68e1f24b54a02c04b9db316ef79e22734efb01aec664fef3c0a7
+- id: case12__holdout
+  repository: palomar__2026-09-01-000001
+  summary:
+    path: output/reconstruction/leanlean-declaration-context-stage2-signatures-offlinegit-20260912-r3/summary.json
+    sha256: 76d400bdafd7b52aa180e502d732cb7edb08604aa51aa550308acc7be52ff530
+  archive:
+    archive_bytes: 15112
+    lean_file_count: 11
+    path: output/reconstruction/leanlean-declaration-context-stage2-signatures-offlinegit-20260912-r3/case12__holdout/augmented.sources.tar.gz
+    sha256: 9e1f60aac02c5da2144a42f99c5aecc6ab3680b99e8b4ce40af4f5887fa7f783
+    source_archive_bytes: 71680
+    source_archive_sha256: 78c3e3f6c38773033b5597b52515384ec0bc71b951b40658831bbcff7658ae1f
+  baseline:
+    destination: comparator/Solution.lean
+    edit_index: 24
+    path: output/postprocessing/leanlean-refactoring-ablation/case12__holdout/capture_001/submitted.sources.tar.gz
+    selection_policy: submitted_final
+    sha256: 4bf1c42ae4280507123372ece46f179684a5afdb1aa7733b6b2933b4003923ec
+  payload:
+    path: output/reconstruction/leanlean-declaration-context-stage2-signatures-offlinegit-20260912-r3/case12__holdout/append-payload.lean
+    sha256: 76687cbd23c81a56f685970f3d10b865afa7d5b0cd39694342687ed6e484a174
+  holdouts:
+    path: datasets/leanlean-holdouts21-s42_20260910_r1/repos/case12__holdout/holdouts.json
+    sha256: 5fdadf5870e21b87e8d541a4269083b5151eb8c5656c28654d90b7863aaa43ab
+  source_report:
+    path: datasets/leanlean-holdouts21-s42_20260910_r1/repos/case12__holdout/prod-strip-report.json
+    sha256: 5f781389de13348298e8dde4903c3ff4cf2275916e7936f0236f1660f1de64ae
+- id: case15__holdout
+  repository: palomar__2026-08-27-000011
+  summary:
+    path: output/reconstruction/leanlean-declaration-context-stage2-signatures-late-20260912-r4/summary.json
+    sha256: 379978358930c7201b10e3297d75951f43f54c1c554db378a6bad89ceb81e7f2
+  archive:
+    archive_bytes: 1151216
+    lean_file_count: 586
+    path: output/reconstruction/leanlean-declaration-context-stage2-signatures-late-20260912-r4/case15__holdout/augmented.sources.tar.gz
+    sha256: b358a2f5aabab7d11592805c995049dab238e6517a40803ae43eaf493f919fbd
+    source_archive_bytes: 7034880
+    source_archive_sha256: edc360d51732fd2522d92a72c3985c2666dc4ab503f4af753673fee1948ef974
+  baseline:
+    destination: Solution.lean
+    edit_index: 239
+    path: output/postprocessing/leanlean-refactoring-ablation/case15__holdout/capture_001/submitted.sources.tar.gz
+    selection_policy: submitted_final
+    sha256: 3c25813950d02f0cc09d365397c351054f53eb6e40b8aab4415ecaf6072e211d
+  payload:
+    path: output/reconstruction/leanlean-declaration-context-stage2-signatures-late-20260912-r4/case15__holdout/append-payload.lean
+    sha256: 6523a674483f22d0e91fdc4e42e6875cd41719522a0366cbfebb41554498bffa
+  holdouts:
+    path: datasets/leanlean-holdouts21-s42_20260910_r1/repos/case15__holdout/holdouts.json
+    sha256: bfd3573ad6e45c24cf7388be97eaa96100e2c46a5596429d217ae447984da3e9
+  source_report:
+    path: datasets/leanlean-holdouts21-s42_20260910_r1/repos/case15__holdout/prod-strip-report.json
+    sha256: caf9912b3bd24715457dad6a66ef0d294b318da1f50b715383d033b1a5908959
+- id: case16__holdout
+  repository: palomar__2026-09-03-000005
+  summary:
+    path: output/reconstruction/leanlean-declaration-context-stage2-signatures-offlinegit-20260912-r3/summary.json
+    sha256: 76d400bdafd7b52aa180e502d732cb7edb08604aa51aa550308acc7be52ff530
+  archive:
+    archive_bytes: 33170
+    lean_file_count: 14
+    path: output/reconstruction/leanlean-declaration-context-stage2-signatures-offlinegit-20260912-r3/case16__holdout/augmented.sources.tar.gz
+    sha256: 1db7253461929ad51b08e3861459250038a4c8be2078cd3e4b17667b54c8d1b2
+    source_archive_bytes: 143360
+    source_archive_sha256: ff8a37bc6f895dcd56c5b5edbbe294085333c9f11967a3f0681bebb4f664049d
+  baseline:
+    destination: Solution.lean
+    edit_index: 40
+    path: output/postprocessing/leanlean-refactoring-ablation/case16__holdout/capture_001/submitted.sources.tar.gz
+    selection_policy: submitted_final
+    sha256: f6fe2463df5c8e1a064fa6c1d6816ef1c6fc172ffcae20807ad5060194659c0a
+  payload:
+    path: output/reconstruction/leanlean-declaration-context-stage2-signatures-offlinegit-20260912-r3/case16__holdout/append-payload.lean
+    sha256: 849a3c27d9e662165913a9de1681825c345ea6ad6864c9755271bae0bed63535
+  holdouts:
+    path: datasets/leanlean-holdouts21-s42_20260910_r1/repos/case16__holdout/holdouts.json
+    sha256: 7a91f338a1925e3277bb4f85757885503dc3f3202000e6c02b718272cd6dde36
+  source_report:
+    path: datasets/leanlean-holdouts21-s42_20260910_r1/repos/case16__holdout/prod-strip-report.json
+    sha256: c6320b4e090135141d1c78e4ff32cf567965dfa6618b415cff6bd3b337f49aac
+- id: case17__holdout
+  repository: palomar__2026-09-01-000003
+  summary:
+    path: output/reconstruction/leanlean-declaration-context-stage2-signatures-offlinegit-20260912-r3/summary.json
+    sha256: 76d400bdafd7b52aa180e502d732cb7edb08604aa51aa550308acc7be52ff530
+  archive:
+    archive_bytes: 15388
+    lean_file_count: 7
+    path: output/reconstruction/leanlean-declaration-context-stage2-signatures-offlinegit-20260912-r3/case17__holdout/augmented.sources.tar.gz
+    sha256: f89c8609e7929b93285554330c613f8412e0820c5ad0b4fcde17335281efedfc
+    source_archive_bytes: 81920
+    source_archive_sha256: 44ef9079b44f4a0a95715b47bfc42d932c93387aaf7b463d5352c621bad36b02
+  baseline:
+    destination: Solution.lean
+    edit_index: 21
+    path: output/postprocessing/leanlean-refactoring-ablation/case17__holdout/capture_002/submitted.sources.tar.gz
+    selection_policy: submitted_final
+    sha256: e4d1e7077406fa62d6ed45a9ec54c9f2273fb55a42f74012b8b327636d186fd3
+  payload:
+    path: output/reconstruction/leanlean-declaration-context-stage2-signatures-offlinegit-20260912-r3/case17__holdout/append-payload.lean
+    sha256: ca453a54cff4363d5af56c661b67b21362196bf3c1aacdc9eceef24cb5d15acc
+  holdouts:
+    path: datasets/leanlean-holdouts21-s42_20260910_r1/repos/case17__holdout/holdouts.json
+    sha256: b77ae261fbd92233897c7db72df89284a2a4374751f8628295d618748db78b6e
+  source_report:
+    path: datasets/leanlean-holdouts21-s42_20260910_r1/repos/case17__holdout/prod-strip-report.json
+    sha256: 197ab62bae3371ea0031220c33427cfb7079c812d8ee3bba20f914628db4b596
+- id: case18__holdout
+  repository: palomar__2026-08-24-000007
+  summary:
+    path: output/reconstruction/leanlean-declaration-context-stage2-signatures-offlinegit-20260912-r3/summary.json
+    sha256: 76d400bdafd7b52aa180e502d732cb7edb08604aa51aa550308acc7be52ff530
+  archive:
+    archive_bytes: 59226
+    lean_file_count: 21
+    path: output/reconstruction/leanlean-declaration-context-stage2-signatures-offlinegit-20260912-r3/case18__holdout/augmented.sources.tar.gz
+    sha256: 266ce34285b23df7c5f66f45f872bb6a0cec37cda98f8d3363dc4e439f13b41d
+    source_archive_bytes: 276480
+    source_archive_sha256: 9adff27921ec3f3a7e5dc41a3ac51b41067dde6bee5a7277b3724ba17117e43c
+  baseline:
+    destination: Solution.lean
+    edit_index: 103
+    path: output/postprocessing/leanlean-refactoring-ablation/case18__holdout/capture_001/submitted.sources.tar.gz
+    selection_policy: submitted_final
+    sha256: dce7760b2d634a0f0139ca758a0ec95c15d2df8f607c9b37a3d596c0b82d1fe8
+  payload:
+    path: output/reconstruction/leanlean-declaration-context-stage2-signatures-offlinegit-20260912-r3/case18__holdout/append-payload.lean
+    sha256: 38cb911e7a103ffc006c2e5fd5c486042491e3c7e23466a79c0477e17dad5741
+  holdouts:
+    path: datasets/leanlean-holdouts21-s42_20260910_r1/repos/case18__holdout/holdouts.json
+    sha256: 41200c62d0b0a2e23aba31746acebbe3bbbf0e69c7765db984713ac170e489ec
+  source_report:
+    path: datasets/leanlean-holdouts21-s42_20260910_r1/repos/case18__holdout/prod-strip-report.json
+    sha256: 1de8ce91fb522a400a2a5349f66b1756050eef951e111e55f0d3893a52ed1825
+- id: case21__holdout
+  repository: palomar__2026-09-02-000012
+  summary:
+    path: output/reconstruction/leanlean-declaration-context-stage2-signatures-case21-full-diff-20260912-r6/summary.json
+    sha256: d56d20fedf0386c8a4d62caf4f3a137ed8c72acff1b7eff75b947f19666e34b7
+  archive:
+    archive_bytes: 909093
+    lean_file_count: 429
+    path: output/reconstruction/leanlean-declaration-context-stage2-signatures-case21-full-diff-20260912-r6/case21__holdout/augmented.sources.tar.gz
+    sha256: df384a51b231273574af2f4acdb4c5368b9767192942eaaa60053dd3238fee89
+    source_archive_bytes: 5089280
+    source_archive_sha256: f702181a633a169ebe926e7679d8f4098a95d30611d5e92adbda7af940270e53
+  baseline:
+    destination: HeilbronnSolution.lean
+    edit_index: 68
+    path: output/postprocessing/leanlean-refactoring-ablation/case21__holdout/capture_001/checkpoint_00068.sources.tar.gz
+    selection_policy: latest_green_checkpoint
+    sha256: dc3a8f347f76c8f7533605c2e289ecded2e1885566f36cdda18ef50766a49d84
+  payload:
+    path: output/reconstruction/leanlean-declaration-context-stage2-signatures-case21-full-diff-20260912-r6/case21__holdout/append-payload.lean
+    sha256: 0459a95c025a514a06c00ed39bba02b24f5b03b8b3034cc58d4500a041a93944
+  holdouts:
+    path: datasets/leanlean-holdouts21-s42_20260910_r1/repos/case21__holdout/holdouts.json
+    sha256: 64eee03138a0b60579dfee8a4297304ea977e4a8423907b276c92dee8afd40f4
+  source_report:
+    path: datasets/leanlean-holdouts21-s42_20260910_r1/repos/case21__holdout/prod-strip-report.json
+    sha256: e412972849082b87dc504d67ae255aef131e867c3292fe5db87ed49016655159
+- id: case22__holdout
+  repository: palomar__2026-09-02-000014
+  summary:
+    path: output/reconstruction/leanlean-declaration-context-stage2-signatures-offlinegit-20260912-r3/summary.json
+    sha256: 76d400bdafd7b52aa180e502d732cb7edb08604aa51aa550308acc7be52ff530
+  archive:
+    archive_bytes: 13209
+    lean_file_count: 9
+    path: output/reconstruction/leanlean-declaration-context-stage2-signatures-offlinegit-20260912-r3/case22__holdout/augmented.sources.tar.gz
+    sha256: 6fe209aae3526b3370849e779add8e7ebbd6ddf45be0317c601924794f402214
+    source_archive_bytes: 71680
+    source_archive_sha256: f843d1c7b45fb00ef367410fdcc0b34b30fd32f9515d266b922471f0fc82fab5
+  baseline:
+    destination: Solution.lean
+    edit_index: 45
+    path: output/postprocessing/leanlean-refactoring-ablation/case22__holdout/capture_001/submitted.sources.tar.gz
+    selection_policy: submitted_final
+    sha256: 3520bf4ee2da7e147225d4a656d94b1a0965bbb11e40356e9de0c257f2f61cf3
+  payload:
+    path: output/reconstruction/leanlean-declaration-context-stage2-signatures-offlinegit-20260912-r3/case22__holdout/append-payload.lean
+    sha256: 7049e0b99da8e36df7b9941e3c58ff2fa422268d0b1aa6d282bfd594601505e6
+  holdouts:
+    path: datasets/leanlean-holdouts21-s42_20260910_r1/repos/case22__holdout/holdouts.json
+    sha256: c39fa414ee26bc7cd6bb15721ad5daa4a564fbc3bbd4e9ad9f52b4b1d084700b
+  source_report:
+    path: datasets/leanlean-holdouts21-s42_20260910_r1/repos/case22__holdout/prod-strip-report.json
+    sha256: ed4377afa018f6dd6f963f9776ac92fd27985382d139ba4dc863ec56b38873d2
+- id: case25__holdout
+  repository: palomar__2026-09-01-000006
+  summary:
+    path: output/reconstruction/leanlean-declaration-context-stage2-signatures-offlinegit-20260912-r3/summary.json
+    sha256: 76d400bdafd7b52aa180e502d732cb7edb08604aa51aa550308acc7be52ff530
+  archive:
+    archive_bytes: 46077
+    lean_file_count: 17
+    path: output/reconstruction/leanlean-declaration-context-stage2-signatures-offlinegit-20260912-r3/case25__holdout/augmented.sources.tar.gz
+    sha256: 45f621a75c69e936805d334e6cc9c2a5abce501b2efbcbd68667c8ce1db0e874
+    source_archive_bytes: 194560
+    source_archive_sha256: 736b890f794d0918a15599dd2014fee7c00f97141eb4b764de9ff691e4cb040b
+  baseline:
+    destination: Solution.lean
+    edit_index: 65
+    path: output/postprocessing/leanlean-refactoring-ablation/case25__holdout/capture_001/submitted.sources.tar.gz
+    selection_policy: submitted_final
+    sha256: bfe9bbb0111898b3b4e518516764558726dc6c4f0bd5a33bd9eb44473ad7e574
+  payload:
+    path: output/reconstruction/leanlean-declaration-context-stage2-signatures-offlinegit-20260912-r3/case25__holdout/append-payload.lean
+    sha256: df5dbf58d6aebe7b37caf2ba4cbd3ffc2308698252375232f57864e23fd52194
+  holdouts:
+    path: datasets/leanlean-holdouts21-s42_20260910_r1/repos/case25__holdout/holdouts.json
+    sha256: 2f163fbe94a7342ebbdde18efc50c7967b96c1c07d3fd0fb003712021e15a42d
+  source_report:
+    path: datasets/leanlean-holdouts21-s42_20260910_r1/repos/case25__holdout/prod-strip-report.json
+    sha256: 054ffd1efe2938cc237d55c36151437c4f333c336f7e552724def14dbc9f5a8f
+excluded:
+  case07__holdout: source transport failed to elaborate
+  case10__holdout: statement support source missing
+  case11__holdout: incompatible compressed OctV interface
+  case13__holdout: Stage 2 stripped build failed; retry still pending
+  case14__holdout: original Comparator rejected bandQuartic
+  case19__holdout: excluded proof-irrelevance case

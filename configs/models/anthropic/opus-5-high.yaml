@@ -1,0 +1,49 @@
+kind: leanlean_evaluation_model
+schema_version: 1
+model: opus-5-high
+harness: claude_code_sub
+harness_version: 2.1.269
+reasoning_effort: high
+system_prompt:
+  mode: native
+  snapshot: experiments/payload_audit/prompts/anthropic-opus-5-high.json
+  sha256: 9400bd8990a649d84c6f9082890680c2c046c85cc6ade0895f021684167725d0
+generation_parameters:
+  policy: native_harness_defaults
+  observed_at: '2026-09-13'
+  request_sha256: 1c03c5916fb62e2f24bf6ca75ff14c22a6c94db2242d78efa40f0a28447989c2
+  request:
+    max_tokens: 64000
+    stream: true
+    thinking:
+      type: adaptive
+    output_config:
+      effort: high
+    context_management:
+      edits:
+      - keep: all
+        type: clear_thinking_20251015
+    known_dynamic_inputs:
+    - current_date
+    - working_directory
+    - session_identifiers
+pricing:
+  basis: benchmark_cost_accounting_snapshot
+  observed_at: '2026-09-04'
+  source: src/configs/model_constants.py
+  currency: USD
+  unit: per_million_tokens
+  reasoning_tokens_billed_as: output
+  rates:
+    input: 5.0
+    output: 25.0
+    cache_read: 0.5
+    cache_creation: 10.0
+access:
+  mode: subscription
+  limits:
+    five_hour: true
+    weekly: true
+parallelism:
+  workers: 3
+  start_interval_seconds: 2

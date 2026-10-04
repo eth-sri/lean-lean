@@ -1,0 +1,10 @@
+% Table body for the benchmark overview figure.
+\begin{tabular}{llrrrrrrr}
+\toprule
+& & & \multicolumn{2}{c}{Protected Thms.} & \multicolumn{2}{c}{LOC} & \multicolumn{2}{c}{Lean tokens} \\
+\cmidrule(lr){4-5}\cmidrule(lr){6-7}\cmidrule(lr){8-9}
+Scale & Size & $n$ & Med. & Max. & Med. & Max. & Med. & Max. \\
+\midrule
+@@ROWS@@
+\bottomrule
+\end{tabular}

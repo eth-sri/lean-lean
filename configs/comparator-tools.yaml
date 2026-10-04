@@ -1,0 +1,111 @@
+# Pinned Palomar Comparator tool bundle.
+#
+# Every repository's verification contract (its Palomar registry record) names
+# the Comparator, lean4export, Landrun and nanoda commits the registry verified
+# it with. This file lists exactly the commits the 64 LeanLean 2026-09-14
+# repositories (and the four-repository demo, a subset) use, how each is built,
+# and where it lands in the bundle that `leanlean.palomar_comparator` loads
+# (its TOOL_BUNDLE, .cache/palomar-comparator/bundle):
+#
+#   <bundle>/bin/landrun
+#   <bundle>/bin/nanoda_bin
+#   <bundle>/comparator/<commit>/comparator
+#   <bundle>/lean4export/<commit>/lean4export
+#
+# `scripts/build_comparator_bundle.py` reads this file, fetches each commit from
+# its public upstream, builds it in Docker, installs it at that path and records
+# the result in <bundle>/tools-manifest.json.
+#
+# The recipes follow the registry's own verifier workflow
+# (PalomarRegistry/PalomarSubmission, .github/workflows/submission.yml at
+# c605f23466450a52999fcfb3c6d68ed8febc56bf): `CGO_ENABLED=0` Go 1.24.0 for
+# Landrun (with -trimpath and an empty build ID), `cargo build --release --locked` for nanoda, `lake build comparator`
+# under the Comparator checkout's own lean-toolchain, and `lake build
+# lean4export` under the repository's Lean toolchain.
+#
+# sha256 is the binary every pin was verified with. These builds are
+# bit-for-bit reproducible, so the builder checks each result against it.
+schema: leanlean_comparator_tools_v1
+
+images:
+  go: golang:1.24.0@sha256:3f7444391c51a11a039bf0359ee81cc64e663c17d787ad0e637a4de1a3f62a71
+  rust: rust:1.85.1@sha256:e51d0265072d2d9d5d320f6a44dde6b9ef13653b035098febd68cce8fa7c0bc4
+  # Lean toolchains ship their own clang and glibc sysroot; the image only
+  # supplies git and curl for elan and Lake.
+  lean: buildpack-deps:bookworm-scm@sha256:b42f74a50a22540b839042134919504ff7c51e7cf8d751b79d0f94c56566cb92
+
+elan:
+  version: v4.2.3
+  url: https://github.com/leanprover/elan/releases/download/v4.2.3/elan-x86_64-unknown-linux-gnu.tar.gz
+  sha256: df0b2b3a439961ffcbb3985214365ffe40f49bc871df04dff268c7d8e21ca8b2
+
+tools:
+  landrun:
+    repository: https://github.com/zouuup/landrun.git
+    builder: go
+    commits:
+      811cfff51ceaf3d9843708aa6d22e9b84ccac8b4:
+        toolchain: go1.24.0
+        sha256: 416d9b8a71c66b075fea79a1e29ebc65af761b91bfb8deeb40ac800444bbd604
+        used_by: all
+
+  nanoda:
+    # The registry workflow builds the robsimmons mirror; the same commit is
+    # also on ammkrn/nanoda_lib, the repository Comparator's README names.
+    repository: https://github.com/robsimmons/nanoda_lib.git
+    builder: rust
+    commits:
+      68d5ca9db226849b41a6fff59d796ff19d0a8840:
+        toolchain: rust 1.85.1
+        sha256: f4cddf6adeec56869fdf77e9ae2e877ad69aaccf96a81261824d5a6cd6724c21
+        used_by: all
+
+  comparator:
+    repository: https://github.com/leanprover/comparator.git
+    builder: lean
+    commits:
+      # toolchain: the checkout's lean-toolchain. Lake also fetches the
+      # lean4export library pinned in the checkout's lake-manifest.json.
+      575674928e239f5bc452aab72d1dd7b0f1326494:
+        toolchain: leanprover/lean4:v4.34.0-rc1
+        sha256: f25185592ce22b0d12c5801553c7caa5a5f7731a30a14226de2be68b27382430
+        used_by: [palomar__2026-08-20-000008, palomar__2026-08-20-000009, palomar__2026-08-21-000002, palomar__2026-08-21-000004, palomar__2026-08-21-000010, palomar__2026-08-22-000003, palomar__2026-08-22-000006, palomar__2026-08-22-000010, palomar__2026-08-23-000001, palomar__2026-08-23-000003, palomar__2026-08-24-000002, palomar__2026-08-24-000003, palomar__2026-08-24-000005, palomar__2026-08-24-000006, palomar__2026-08-26-000006, palomar__2026-08-27-000011, palomar__2026-08-27-000015, palomar__2026-08-27-000020, palomar__2026-08-28-000001, palomar__2026-08-28-000002, palomar__2026-08-29-000001, palomar__2026-08-29-000002, palomar__2026-08-29-000003, palomar__2026-08-29-000006, palomar__2026-08-29-000010, palomar__2026-08-29-000011, palomar__2026-08-29-000014, palomar__2026-08-29-000015, palomar__2026-08-29-000017, palomar__2026-08-30-000001, palomar__2026-08-30-000002, palomar__2026-08-31-000005, palomar__2026-08-31-000008, palomar__2026-08-31-000014, palomar__2026-08-31-000018, palomar__2026-09-01-000003, palomar__2026-09-01-000004, palomar__2026-09-01-000006, palomar__2026-09-01-000007, palomar__2026-09-01-000008, palomar__2026-09-01-000009, palomar__2026-09-01-000010, palomar__2026-09-01-000011, palomar__2026-09-02-000001, palomar__2026-09-02-000003, palomar__2026-09-02-000004, palomar__2026-09-02-000006, palomar__2026-09-02-000008, palomar__2026-09-02-000011, palomar__2026-09-02-000012, palomar__2026-09-02-000014, palomar__2026-09-03-000002, palomar__2026-09-03-000004, palomar__2026-09-03-000005, palomar__2026-09-03-000007, palomar__2026-09-04-000005, palomar__2026-09-05-000001, palomar__2026-09-05-000003]
+      68a064109f01c08f47c8edc9f51d6a2bbffaa188:
+        toolchain: leanprover/lean4:v4.33.0-rc1
+        sha256: 67abee0e24f995100f36860f29bf05fe1a85cbfa1a9a31c05fe434af51c4d7a5
+        used_by: [palomar__2026-08-13-000001, palomar__2026-08-17-000002, palomar__2026-08-17-000003, palomar__2026-08-19-000002, palomar__2026-08-19-000003, palomar__2026-08-20-000004]
+
+  lean4export:
+    repository: https://github.com/leanprover/lean4export.git
+    builder: lean
+    commits:
+      # toolchain: the Lean toolchain of the repositories that use it, which is
+      # also the checkout's own lean-toolchain.
+      a3e35a584f59b390667db7269cd37fca8575e4bf:
+        toolchain: leanprover/lean4:v4.30.0
+        sha256: 8e763913b03762488571a93ced6ec1a4e04f7d8eebbe40bd1215ba41a6bd4449
+        used_by: [palomar__2026-08-21-000002, palomar__2026-08-21-000010, palomar__2026-08-22-000003, palomar__2026-08-24-000005, palomar__2026-08-29-000006, palomar__2026-09-02-000008]
+      8554815c2dc6b7abe99ec1f08849c9759ba77947:
+        toolchain: leanprover/lean4:v4.31.0
+        sha256: 9f7b3dbba23cdbc2d978205a24baf05af83e360cf6f49ad7483ecbd7c4f0525b
+        used_by: [palomar__2026-08-17-000003, palomar__2026-08-19-000003, palomar__2026-08-20-000004, palomar__2026-08-30-000002, palomar__2026-08-31-000014, palomar__2026-09-01-000003, palomar__2026-09-01-000008, palomar__2026-09-02-000003, palomar__2026-09-02-000004, palomar__2026-09-02-000006, palomar__2026-09-02-000014, palomar__2026-09-03-000002, palomar__2026-09-03-000004]
+      4e7915201d3f9f04470d9eae002fa695f7cdc589:
+        toolchain: leanprover/lean4:v4.32.0
+        sha256: e57369980b0b81228580ce08066fb9bd738e717e002673a143f4956d217266b0
+        used_by: [palomar__2026-08-20-000009, palomar__2026-08-23-000003, palomar__2026-08-24-000006, palomar__2026-08-26-000006, palomar__2026-08-27-000020, palomar__2026-08-29-000010, palomar__2026-08-29-000011, palomar__2026-08-29-000014, palomar__2026-08-29-000017, palomar__2026-08-30-000001, palomar__2026-08-31-000008, palomar__2026-09-01-000009, palomar__2026-09-02-000001, palomar__2026-09-02-000011]
+      9fb131bb100eb32ccf6836f14e4f8328d13b6792:
+        toolchain: leanprover/lean4:v4.33.0-rc2
+        sha256: 8d10cd2596176885cc4f8e9fa771ff271e2d57a28c5676542e01dd8e1d4300d6
+        used_by: [palomar__2026-08-21-000004, palomar__2026-08-24-000002]
+      15f6055e299ad5b89345e533cc2192f4cc00f659:
+        toolchain: leanprover/lean4:v4.33.0
+        sha256: b96fdfe07615af1a4cb699a9c18688ab05a0b05fc7533af32a600c508b689280
+        used_by: [palomar__2026-08-22-000006, palomar__2026-08-22-000010, palomar__2026-08-23-000001, palomar__2026-08-24-000003, palomar__2026-08-27-000011, palomar__2026-08-27-000015, palomar__2026-08-28-000001, palomar__2026-08-28-000002, palomar__2026-08-29-000001, palomar__2026-08-29-000003, palomar__2026-08-29-000015, palomar__2026-08-31-000005, palomar__2026-08-31-000018, palomar__2026-09-01-000004, palomar__2026-09-01-000006, palomar__2026-09-01-000007, palomar__2026-09-01-000010, palomar__2026-09-02-000012, palomar__2026-09-03-000005, palomar__2026-09-04-000005, palomar__2026-09-05-000001, palomar__2026-09-05-000003]
+      b18d673bd29b476466a51a3be1012df2ed322b10:
+        toolchain: leanprover/lean4:v4.34.0-rc1
+        sha256: 288afa067c224c15d0e6f6a7b7754dbbe19583f21e335207bc3dcbea483ae647
+        used_by: [palomar__2026-08-13-000001, palomar__2026-08-17-000002, palomar__2026-08-19-000002, palomar__2026-08-20-000008, palomar__2026-08-29-000002, palomar__2026-09-03-000007]
+      cacf989bd75f608700820f6afc595f32e7a99a4d:
+        toolchain: leanprover/lean4:v4.34.0-rc2
+        sha256: 4fa9e14cada304109e85da5048bcd411cf781a03539b3e50953e5c537074bd9e
+        used_by: [palomar__2026-09-01-000011]

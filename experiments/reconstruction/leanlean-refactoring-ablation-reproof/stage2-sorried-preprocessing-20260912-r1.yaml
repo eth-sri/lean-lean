@@ -1,0 +1,146 @@
+kind: leanlean_sorried_holdout_preprocessing_batch
+schema_version: 1
+run_id: holdout19-stage2-sorried-preprocessing-20260912-r1
+objective: replace each valid held-out theorem proof with sorry, recollect typed dependency evidence, and run the exact v25 main-benchmark preprocessing
+model: none
+reasoning_effort: none
+generator: deterministic_dependency_graph_preprocessing_v25
+source_database: datasets/leanlean_20260905/repository-database.json
+catalog_database: datasets/palomar_20260905_v3/repository-database.json
+supplemental_source_database: datasets/leanlean-holdouts21-s42_20260910_r1/repository-database.json
+stage1_dataset: datasets/leanlean_20260905
+stage3_dataset: datasets/leanlean-holdouts21-s42_20260910_r1
+repository_variant: raw
+rounds: 1
+expected_case_count: 19
+workers:
+  repositories: 10
+  file_workers_per_repository: 4
+container_resources:
+  cpus_per_repository: 4
+  memory_per_repository: 32g
+  aggregate_memory_ceiling: 320g
+  pids_limit: 4096
+  nofile_limit: 1048576
+  lean_thread_stack_kib: 32768
+  cgroup_parent: lean.slice
+  network_policy: none
+  model_network_policy: model_proxy_only
+timeouts:
+  repository_seconds: 43200
+  query_seconds: 21600
+evaluation:
+  paid_reproof: false
+  clean_build_raw: true
+  clean_build_sorried_before_graph: true
+  clean_build_stage2: true
+  exact_target_statement: true
+  exact_preprocessing_algorithm: preprocessing_v25
+  compare_against_stage1: true
+  compare_against_stage3: true
+monitoring:
+  snapshots: true
+  every_n_edits: 1
+  native_traces: true
+  baseline_source_snapshot: raw
+  intermediate_source_snapshots: [sorried_before_graph]
+  terminal_source_snapshot: stage2_sorried_stripped
+outputs:
+  directory: datasets/holdout19-stage2-sorried-preprocessing-20260912-r1
+excluded_cases: [case10__holdout, case19__holdout]
+cases:
+  - id: case01__holdout
+    repository: palomar__2026-09-03-000004
+    name: radial-harmonic-classification
+    declarations: [EhrenfestArgument.radial_ode_iff]
+    source_image: leanlean-palomar__2026-09-03-000004-raw-materialized:holdouts20-symmetric-challenge-20260911-r1
+  - id: case02__holdout
+    repository: palomar__2026-08-20-000006
+    name: Even-Integral
+    declarations: [SZ.quadPisot_mem_S_iff, SZ.quadPisot_notMem_S_of_two_lt]
+    source_image: leanlean-palomar__2026-08-20-000006-raw-materialized:holdouts20-symmetric-challenge-20260911-r1
+  - id: case03__holdout
+    repository: palomar__2026-08-19-000002
+    name: erdos501
+    declarations: [erdos501_hechler_of_CH]
+    source_image: leanlean-palomar__2026-08-19-000002-raw-materialized:holdout19-stage2-main-source-20260912-r1
+  - id: case05__holdout
+    repository: palomar__2026-08-24-000002
+    name: Confinement-Certificates
+    declarations: [Z32.ZSet_three_two_frontier]
+    source_image: leanlean-palomar__2026-08-24-000002-raw-materialized:holdout19-stage2-main-source-20260912-r1
+  - id: case06__holdout
+    repository: palomar__2026-09-05-000003
+    name: n4code_lean
+    declarations: [N4Code.palomar_thm5]
+    source_image: leanlean-palomar__2026-09-05-000003-raw-materialized:holdouts20-symmetric-challenge-20260911-r1
+  - id: case07__holdout
+    repository: palomar__2026-08-21-000002
+    name: palomar-formalizations-barnette
+    declarations: [BarnettePalomar.deletion_connectivity_certificate]
+    source_image: leanlean-palomar__2026-08-21-000002-raw-materialized:holdouts20-symmetric-challenge-20260911-r1
+  - id: case08__holdout
+    repository: palomar__2026-09-05-000001
+    name: brill-noether-graphs
+    declarations: [BNChains.exists_graph_of_genus_and_gonality]
+    source_image: leanlean-palomar__2026-09-05-000001-raw-materialized:holdouts20-symmetric-challenge-20260911-r1
+  - id: case09__holdout
+    repository: palomar__2026-08-19-000007
+    name: pdt-lean
+    declarations: [TsirelsonTightness.chsh_norm_le, TsirelsonTightness.chsh_opNorm_isGreatest]
+    source_image: leanlean-palomar__2026-08-19-000007-raw-materialized:holdouts20-symmetric-challenge-attr-recovery-20260911-r2
+  - id: case11__holdout
+    repository: palomar__2026-09-03-000007
+    name: lean-theorems-1
+    declarations: [TuckersLemma.octahedron_tuckers_lemma]
+    source_image: leanlean-palomar__2026-09-03-000007-raw-materialized:holdouts20-symmetric-challenge-20260911-r1
+  - id: case12__holdout
+    repository: palomar__2026-09-01-000001
+    name: modular-schur
+    declarations: [Headline.sigmaInfty_le]
+    source_image: leanlean-palomar__2026-09-01-000001-raw-materialized:holdouts20-symmetric-challenge-20260911-r1
+  - id: case13__holdout
+    repository: palomar__2026-08-19-000003
+    name: Regts-Sevenster
+    declarations: [Certified.regts_sevenster_quant, Certified.regts_sevenster_quant_characterisation]
+    source_image: leanlean-palomar__2026-08-19-000003-raw-materialized:holdouts20-symmetric-challenge-20260911-r1
+  - id: case14__holdout
+    repository: palomar__2026-09-02-000008
+    name: palomar-formalizations-signed-circulant
+    declarations: [PalomarSignedCirculant.algebraic_band_edge_certificate]
+    source_image: leanlean-palomar__2026-09-02-000008-raw-materialized:holdout19-stage2-main-source-20260912-r1
+  - id: case15__holdout
+    repository: palomar__2026-08-27-000011
+    name: langlib
+    declarations: [ChomskyHierarchy.RG_strict_subclass_DCF_of_card]
+    source_image: leanlean-palomar__2026-08-27-000011-raw-materialized:holdout19-stage2-main-source-20260912-r1
+  - id: case16__holdout
+    repository: palomar__2026-09-03-000005
+    name: sharp-intermediate-subgroup-bounds
+    declarations: [SharpIntermediateSubgroupBounds.Palomar.manuscript_elementaryAbelian_interval_div_finiteUQ_tendsto_one]
+    source_image: leanlean-palomar__2026-09-03-000005-raw-materialized:holdouts20-symmetric-challenge-20260911-r1
+  - id: case17__holdout
+    repository: palomar__2026-09-01-000003
+    name: werner-window
+    declarations: [EntangledBorn.werner_separable_third]
+    source_image: leanlean-palomar__2026-09-01-000003-raw-materialized:holdouts20-symmetric-challenge-20260911-r1
+  - id: case18__holdout
+    repository: palomar__2026-08-24-000007
+    name: palomar-qseries-row-factorization
+    declarations: [PalomarQseriesRowFactorization.completedTheta_not_harmonic]
+    source_image: leanlean-palomar__2026-08-24-000007-raw-materialized:holdouts20-symmetric-challenge-20260911-r1
+  - id: case21__holdout
+    repository: palomar__2026-09-02-000012
+    name: heilbronn-site
+    declarations: [HeilbronnChallenge.heilbronn_convex_six_unique]
+    source_image: leanlean-palomar__2026-09-02-000012-raw-materialized:holdouts20-symmetric-challenge-20260911-r1
+  - id: case22__holdout
+    repository: palomar__2026-09-02-000014
+    name: golden-family-trace-forms
+    declarations: [TraceForms.discr_compositum, TraceForms.sigNeg_compositum, TraceForms.sigNeg_tmul]
+    source_image: leanlean-palomar__2026-09-02-000014-raw-materialized:holdouts20-symmetric-challenge-20260911-r1
+  - id: case25__holdout
+    repository: palomar__2026-09-01-000006
+    name: Hadamard-B-Formal
+    declarations: [HadamardBFormal.theoremD_degenerate_collapse]
+    source_image: leanlean-palomar__2026-09-01-000006-raw-materialized:holdout19-stage2-main-source-20260912-r1

@@ -1,0 +1,128 @@
+# The 64 LeanLean benchmark repositories, fetched from the Palomar registry and preprocessed
+# with the pinned lean-strip; evaluate the result with `eval.sh leanlean_20260914`.
+kind: leanlean_preprocessing
+schema_version: 3
+run_id: leanlean_20260914
+output: datasets/leanlean_20260914
+dataset:
+  id: leanlean_20260914
+  version: lean-strip-v1
+registry:
+  url: https://data.palomar-registry.org/recent.json
+  mapping: data/palomar/candidate_mapping_palomar_20260905.json
+  sha256: 23c88cd0c01a99efbf95504810c622d97f4812770a9f38dcb109421d9d1921b9
+toolchains:
+  leanprover/lean4:v4.30.0:
+    url: https://github.com/leanprover/lean4/releases/download/v4.30.0/lean-4.30.0-linux.tar.zst
+    sha256: 4dad74141c2c119ca1aa626656be83b8e14238afba97271fd7bf1eb3f081b319
+  leanprover/lean4:v4.31.0:
+    url: https://github.com/leanprover/lean4/releases/download/v4.31.0/lean-4.31.0-linux.tar.zst
+    sha256: 07a633cc8d9151cbc08825ea4cdda50d4b02a2c9cb852c0131b13046f49cad7f
+  leanprover/lean4:v4.32.0:
+    url: https://github.com/leanprover/lean4/releases/download/v4.32.0/lean-4.32.0-linux.tar.zst
+    sha256: fca846f3588724a38ad19ee40292c67cb7438d7555903372e3308eef795ba516
+  leanprover/lean4:v4.33.0:
+    url: https://github.com/leanprover/lean4/releases/download/v4.33.0/lean-4.33.0-linux.tar.zst
+    sha256: 4b3fb03c29a1e0a253fb1d11f9bae3725f19a0dc6fc09b3ea16d2c9df3349e2c
+  leanprover/lean4:v4.33.0-rc2:
+    url: https://github.com/leanprover/lean4/releases/download/v4.33.0-rc2/lean-4.33.0-rc2-linux.tar.zst
+    sha256: 48010c7d6264dc992574e9b0e09ece1f9c648e8f5106066b2cdb6834a6a60a6c
+  leanprover/lean4:v4.34.0-rc1:
+    url: https://github.com/leanprover/lean4/releases/download/v4.34.0-rc1/lean-4.34.0-rc1-linux.tar.zst
+    sha256: 41dc6a6ec143ece8ed4ba4c4c6978c91f21ad5cbe3c4e7728ad31b869961dc17
+  leanprover/lean4:v4.34.0-rc2:
+    url: https://github.com/leanprover/lean4/releases/download/v4.34.0-rc2/lean-4.34.0-rc2-linux.tar.zst
+    sha256: 3d011041203acacf300d343a39673f7d233743397993797c941346ae9e5df1a8
+repositories:
+- palomar__2026-08-24-000006
+- palomar__2026-08-29-000003
+- palomar__2026-08-29-000001
+- palomar__2026-08-21-000004
+- palomar__2026-08-13-000001
+- palomar__2026-08-17-000003
+- palomar__2026-08-19-000002
+- palomar__2026-08-21-000010
+- palomar__2026-08-29-000010
+- palomar__2026-09-02-000012
+- palomar__2026-08-31-000018
+- palomar__2026-08-24-000005
+- palomar__2026-08-20-000004
+- palomar__2026-08-27-000011
+- palomar__2026-09-01-000003
+- palomar__2026-08-30-000001
+- palomar__2026-08-21-000002
+- palomar__2026-09-01-000006
+- palomar__2026-08-28-000001
+- palomar__2026-09-05-000001
+- palomar__2026-08-27-000020
+- palomar__2026-09-05-000003
+- palomar__2026-08-30-000002
+- palomar__2026-09-02-000008
+- palomar__2026-08-23-000003
+- palomar__2026-09-01-000010
+- palomar__2026-08-24-000002
+- palomar__2026-08-24-000003
+- palomar__2026-08-29-000011
+- palomar__2026-08-29-000014
+- palomar__2026-09-02-000014
+- palomar__2026-09-01-000004
+- palomar__2026-08-17-000002
+- palomar__2026-08-29-000017
+- palomar__2026-09-03-000005
+- palomar__2026-08-19-000003
+- palomar__2026-09-03-000007
+- palomar__2026-08-23-000001
+- palomar__2026-08-29-000006
+- palomar__2026-08-31-000008
+- palomar__2026-08-27-000015
+- palomar__2026-08-22-000006
+- palomar__2026-09-03-000004
+- palomar__2026-09-02-000001
+- palomar__2026-08-29-000002
+- palomar__2026-08-20-000009
+- palomar__2026-08-31-000014
+- palomar__2026-08-22-000003
+- palomar__2026-08-28-000002
+- palomar__2026-09-02-000003
+- palomar__2026-09-01-000009
+- palomar__2026-08-22-000010
+- palomar__2026-08-31-000005
+- palomar__2026-09-01-000007
+- palomar__2026-09-02-000004
+- palomar__2026-08-29-000015
+- palomar__2026-08-26-000006
+- palomar__2026-09-03-000002
+- palomar__2026-09-02-000011
+- palomar__2026-09-01-000008
+- palomar__2026-09-02-000006
+- palomar__2026-08-20-000008
+- palomar__2026-09-04-000005
+- palomar__2026-09-01-000011
+lean_strip:
+  version: 1.0.0
+  commit: cbca97147bc4763dd2a5b27a923d3a122d3af39e
+  jobs: 8
+  timeout_seconds: 21600
+workers: 6
+container:
+  cpus: 8
+  memory: 64g
+  pids_limit: 4096
+  nofile_limit: 1048576
+timeouts:
+  record_download_seconds: 90
+  archive_download_seconds: 180
+  source_image_seconds: 14400
+  strip_seconds: 43200
+  comparator_seconds: 21600
+keep_source_images: false
+# Publication repair: re-synchronize Lake roots with every locally imported module,
+# so these repositories build from clean (as in the published benchmark).
+lakefile_root_repairs:
+- palomar__2026-08-22-000010
+- palomar__2026-08-29-000002
+# Published trees that predate the comment-aware asset cleanup: their non-Lean
+# files follow the earlier resolver, which also counts paths in comments.
+asset_rule_before_cleanup:
+- palomar__2026-08-22-000010
+- palomar__2026-08-24-000006

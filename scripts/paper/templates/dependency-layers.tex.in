@@ -1,0 +1,15 @@
+\begin{table}[ht]
+\centering
+\small
+\caption{Coverage of the dependency-evidence sources across all repositories. Unique edges are only found by the indicated layer and coverage is measured relative to the union of all sources.}
+\vspace{-2mm}
+\label{tab:dependency-layers}
+\begin{tabular}{lrrr}
+\toprule
+Evidence layer & Edges & Coverage & Unique edges \\
+\midrule
+@@ROWS@@
+\bottomrule
+\end{tabular}
+
+\end{table}

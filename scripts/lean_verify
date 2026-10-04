@@ -1,0 +1,102 @@
+#!/usr/bin/env bash
+set -uo pipefail
+
+if [ "$#" -ne 0 ]; then
+  echo "usage: lean_verify" >&2
+  exit 2
+fi
+
+usage_log=/testbed/.git/leanlean-agent-tool-usage.jsonl
+runtime_config=/tmp/leanlean-palomar-comparator.json
+registered_config=/tmp/leanlean-palomar-comparator-registered.json
+runtime_defaults=/tmp/leanlean-palomar-comparator-defaults.json
+build_jobs_file=/tmp/leanlean-palomar-build-jobs
+challenge_file=/tmp/leanlean-palomar-challenge.lean
+challenge_path_file=/tmp/leanlean-palomar-challenge-path
+
+record_usage=1
+if [ "${LEANLEAN_BENCHMARK_INTERNAL:-0}" = 1 ]; then
+  record_usage=0
+fi
+started_ns=0
+invocation_id=
+if [ "$record_usage" = 1 ]; then
+  started_ns=$(date +%s%N)
+  invocation_id="${started_ns}-$$-${RANDOM}"
+  printf '{"schema_version":1,"tool":"lean_verify","event":"started","invocation_id":"%s","time_ns":%s}\n' \
+    "$invocation_id" "$started_ns" >> "$usage_log"
+fi
+
+finish() {
+  status=$?
+  if [ "$record_usage" = 1 ]; then
+    finished_ns=$(date +%s%N)
+    printf '{"schema_version":1,"tool":"lean_verify","event":"finished","invocation_id":"%s","time_ns":%s,"duration_ms":%s,"exit_code":%s}\n' \
+      "$invocation_id" "$finished_ns" "$(( (finished_ns - started_ns) / 1000000 ))" "$status" >> "$usage_log"
+  fi
+  trap - EXIT
+  exit "$status"
+}
+trap finish EXIT
+
+if [ ! -s "$runtime_config" ] || [ ! -s "$registered_config" ] \
+  || [ ! -s "$runtime_defaults" ]; then
+  echo "error: the registered Palomar Comparator configuration is missing" >&2
+  exit 2
+fi
+if [ ! -s "$challenge_file" ] || [ ! -s "$challenge_path_file" ]; then
+  echo "error: the registered Palomar Comparator fixture is missing" >&2
+  exit 2
+fi
+
+IFS= read -r challenge_path < "$challenge_path_file"
+for registered_path in "$challenge_path"; do
+  case "$registered_path" in
+    ''|/*|.|..|../*|*/../*|*/..|./*|*/./*|*/.)
+      echo "error: invalid registered Palomar path" >&2
+      exit 2
+      ;;
+  esac
+done
+if ! cmp -s -- /testbed/comparator.json "$registered_config"; then
+  echo "error: comparator.json differs from the registered Comparator configuration" >&2
+  exit 2
+fi
+if ! python3 -c '
+import json, sys
+registered = json.load(open(sys.argv[1]))
+defaults = json.load(open(sys.argv[2]))
+runtime = json.load(open(sys.argv[3]))
+if set(defaults) & set(registered):
+    sys.exit(1)
+if runtime != {**registered, **defaults}:
+    sys.exit(1)
+' "$registered_config" "$runtime_defaults" "$runtime_config"; then
+  echo "error: the Comparator runtime configuration is not the registered configuration" >&2
+  exit 2
+fi
+challenge_path="/testbed/$challenge_path"
+if ! cmp -s -- "$challenge_path" "$challenge_file"; then
+  echo "error: registered Challenge.lean is missing or has been modified" >&2
+  exit 2
+fi
+
+build_jobs=1
+if [ -s "$build_jobs_file" ]; then
+  IFS= read -r build_jobs < "$build_jobs_file"
+fi
+case "$build_jobs" in
+  ''|*[!0-9]*|0)
+    echo "error: invalid configured Lean build parallelism" >&2
+    exit 2
+    ;;
+esac
+
+cd /testbed || exit 2
+LEAN_NUM_THREADS="$build_jobs" \
+RUST_MIN_STACK="${RUST_MIN_STACK:-67108864}" \
+PALOMAR_LANDRUN_BIN=/usr/local/bin/palomar-landrun \
+COMPARATOR_LANDRUN=/usr/local/bin/palomar-landrun-wrapper \
+COMPARATOR_LEAN4EXPORT=/usr/local/bin/palomar-lean4export \
+COMPARATOR_NANODA=/usr/local/bin/palomar-nanoda \
+lake env /usr/local/bin/palomar-comparator "$runtime_config"
