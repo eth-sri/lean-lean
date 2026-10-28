@@ -447,96 +447,6 @@ def backfill_instance(
     }
 
 
-def _interpolate(points: list[dict[str, Any]], fraction: float, field: str) -> float:
-    if not points:
-        return 0.0
-    final_cost = _safe_float(points[-1].get("cost_usd"))
-    if final_cost <= 0:
-        index = min(len(points) - 1, round(fraction * (len(points) - 1)))
-        return _safe_float(points[index].get(field))
-    target = fraction * final_cost
-    previous = points[0]
-    for point in points[1:]:
-        current_cost = _safe_float(point.get("cost_usd"))
-        previous_cost = _safe_float(previous.get("cost_usd"))
-        if current_cost >= target:
-            width = current_cost - previous_cost
-            local = 0.0 if width <= 0 else (target - previous_cost) / width
-            return _safe_float(previous.get(field)) + local * (
-                _safe_float(point.get(field)) - _safe_float(previous.get(field))
-            )
-        previous = point
-    return _safe_float(points[-1].get(field))
-
-
-def aggregate_instances(
-    instances: list[dict[str, Any]], *, steps: int = 100
-) -> list[dict[str, Any]]:
-    """Aggregate independent repo curves at equal per-repo spend fractions."""
-
-    if not instances:
-        return []
-    if any(any(point.get("cost_usd") is None for point in instance.get("points", [])) for instance in instances):
-        return []
-    total_cost = sum(_safe_float(instance.get("final_cost_usd")) for instance in instances)
-    total_wall = max(
-        (_safe_float(instance.get("wall_time_seconds")) for instance in instances),
-        default=0.0,
-    )
-    total_edits = sum(int(instance.get("edit_count") or 0) for instance in instances)
-    baseline_words = sum(_safe_float(instance.get("baseline_words")) for instance in instances)
-    baseline_tokens = sum(
-        _safe_float(instance.get("baseline_lean_tokens")) for instance in instances
-    )
-    aggregate: list[dict[str, Any]] = []
-    for step in range(steps + 1):
-        fraction = step / steps if steps else 1.0
-        words = 0.0
-        tokens = 0.0
-        repo_word_pct: list[float] = []
-        for instance in instances:
-            points = instance.get("points") or []
-            instance_words = _interpolate(points, fraction, "words_saved")
-            instance_tokens = _interpolate(points, fraction, "lean_tokens_saved")
-            words += instance_words
-            tokens += instance_tokens
-            base = _safe_float(instance.get("baseline_words"))
-            if base:
-                repo_word_pct.append(100 * instance_words / base)
-        repo_word_pct.sort()
-
-        def quantile(q: float) -> float:
-            if not repo_word_pct:
-                return 0.0
-            position = q * (len(repo_word_pct) - 1)
-            lower = math.floor(position)
-            upper = math.ceil(position)
-            if lower == upper:
-                return repo_word_pct[lower]
-            weight = position - lower
-            return repo_word_pct[lower] * (1 - weight) + repo_word_pct[upper] * weight
-
-        aggregate.append(
-            {
-                "progress_fraction": fraction,
-                "cumulative_cost_usd": round(total_cost * fraction, 6),
-                "parallel_elapsed_seconds": round(total_wall * fraction, 3),
-                "edit_index": round(total_edits * fraction, 2),
-                "words_saved": round(words, 3),
-                "lean_tokens_saved": round(tokens, 3),
-                "word_compression_pct": round(100 * words / baseline_words, 6)
-                if baseline_words
-                else 0.0,
-                "lean_token_compression_pct": round(100 * tokens / baseline_tokens, 6)
-                if baseline_tokens
-                else 0.0,
-                "repo_word_pct_q25": round(quantile(0.25), 6),
-                "repo_word_pct_median": round(quantile(0.5), 6),
-                "repo_word_pct_q75": round(quantile(0.75), 6),
-            }
-        )
-    return aggregate
-
 
 @dataclass
 class LivePlaybackRecorder:
@@ -1307,6 +1217,13 @@ class LivePlaybackRecorder:
             previous_edit_cost = cost
 
         result = self._playback_result(cost_basis=cost_basis, final_cost_usd=final_cost)
+        if not authoritative_responses:
+            # Captured partial usage is evidence of spend, not a final total.
+            result.update(final_cost_usd=None, authoritative_final_cost_usd=None,
+                          final_cost_complete=False, cost_basis="missing final usage")
+            self._authoritative_final_cost_usd = None
+            if self.points:
+                self.points[-1].update(cost_usd=None, cost_boundary_exact=False)
         result["terminal_unattributed_source_change"] = terminal_change
         self._result = result
         self._persist_manifest(result)
@@ -2008,38 +1925,3 @@ class ExternalPlaybackRecorder(LivePlaybackRecorder):
         finally:
             if replay_env is not None:
                 replay_env.cleanup()
-
-
-def summarize_playback(instances: list[dict[str, Any]], *, steps: int = 100) -> dict[str, Any]:
-    qualities = sorted(set(str(instance.get("quality")) for instance in instances))
-    aggregate = aggregate_instances(instances, steps=steps)
-    valid_instances = [
-        instance
-        for instance in instances
-        if instance.get("build_passed") and instance.get("signatures_preserved")
-    ]
-    aggregate_valid = aggregate_instances(valid_instances, steps=steps)
-    return {
-        "format": PLAYBACK_FORMAT,
-        "quality": qualities[0] if len(qualities) == 1 else "mixed",
-        "repo_count": len(instances),
-        "valid_repo_count": len(valid_instances),
-        "total_cost_usd": round(
-            sum(_safe_float(instance.get("final_cost_usd")) for instance in instances), 6
-        ),
-        "total_edits": sum(int(instance.get("edit_count") or 0) for instance in instances),
-        "baseline_words": round(
-            sum(_safe_float(instance.get("baseline_words")) for instance in instances), 3
-        ),
-        "baseline_lean_tokens": round(
-            sum(
-                _safe_float(instance.get("baseline_lean_tokens"))
-                for instance in instances
-            ),
-            3,
-        ),
-        "instances": {instance["instance_id"]: instance for instance in instances},
-        "aggregate": aggregate,
-        "aggregate_valid": aggregate_valid,
-        "aggregate_policy": "equal per-repository spend fraction (parallel portfolio)",
-    }

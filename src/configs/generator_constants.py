@@ -3,7 +3,7 @@ from configs.agent_augmentation import make_variant
 CLAUDE_CODE_CLI_VERSION = "2.1.269"
 CODEX_CLI_VERSION = "0.154.0"
 GEMINI_CLI_VERSION = "0.58.0"
-ANTIGRAVITY_CLI_VERSION = "1.1.26"
+from leanlean.antigravity_config import ANTIGRAVITY_VERSION as ANTIGRAVITY_CLI_VERSION
 MUSE_CODE_CLI_VERSION = "1.0.3-R2198.1"
 MISTRAL_VIBE_CLI_VERSION = "2.25.0"
 
@@ -154,7 +154,7 @@ CLAUDE_CODE_SUB_GENERATOR_CONFIG = {
         "--mcp-config '{{\"mcpServers\":{{}}}}' "
         "--tools Bash,Edit,Read,Write "
         "--output-format stream-json --verbose "
-        "--model {model} --effort {reasoning_effort} -p {prompt}"
+        "--model '{model}' --effort {reasoning_effort} -p {prompt}"
     ),
     "install_commands": [],
     "post_install_commands": [],
@@ -220,6 +220,7 @@ ANTIGRAVITY_CLI_GENERATOR_CONFIG = {
     "requires_model_proxy": True,
     "host_tool_bundle": "antigravity_standalone",
     "host_tool_version": ANTIGRAVITY_CLI_VERSION,
+    "enable_subagents": False,
 }
 
 

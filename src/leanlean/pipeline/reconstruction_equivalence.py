@@ -49,18 +49,6 @@ def repository_fingerprint(root: Path, dataset_path: Path, instance_id: str) -> 
                    "comparator": [hashlib.sha256(value).hexdigest() for value in evidence]})
 
 
-def equivalence_record(root: Path, source: Path, target: Path, instance_ids: list[str]) -> dict:
-    repositories = {}
-    for instance_id in instance_ids:
-        original = repository_fingerprint(root, source, instance_id)
-        if original != repository_fingerprint(root, target, instance_id):
-            raise ValueError(f"{instance_id}: saved compression inputs differ")
-        repositories[instance_id] = original
-    return {"kind": "leanlean_repository_equivalence", "schema_version": 1,
-            "source_dataset": str(source.relative_to(root)), "source_dataset_sha256": file_sha256(source),
-            "target_dataset": str(target.relative_to(root)), "target_dataset_sha256": file_sha256(target),
-            "repositories": repositories}
-
 
 def validate_equivalence(root: Path, pin: dict, source: Path, target: Path, instance_id: str) -> None:
     receipt_path = (root / pin["path"]).resolve()

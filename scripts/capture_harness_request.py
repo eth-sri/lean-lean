@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Capture a model config's native harness request on loopback and snapshot it.
 
-The pinned Codex or Claude Code binary is pointed at a local server that
+The pinned Codex, Claude Code, or Antigravity binary is pointed at a local server that
 records its request and rejects it, so no model is called and nothing leaves
 the machine. The capture and the native-instruction snapshot are written under
 experiments/payload_audit/; the printed hashes go into the model config
@@ -21,6 +21,8 @@ import http.server
 import json
 import os
 import socketserver
+import shlex
+import signal
 import subprocess
 import sys
 import tempfile
@@ -36,6 +38,7 @@ for path in (ROOT, ROOT / "src", ROOT / "scripts"):
         sys.path.insert(0, str(path))
 
 from leanlean.generators.cli_agent import (  # noqa: E402
+    resolve_antigravity_standalone_tool,
     resolve_claude_standalone_tool,
     resolve_codex_standalone_tools,
 )
@@ -174,7 +177,78 @@ def capture_claude(version: str, model: str, effort: str, config: dict[str, Any]
     return mains[-1], len(records)
 
 
-CAPTURERS = {"codex_sub": ("codex", capture_codex), "claude_code_sub": ("claude-code", capture_claude)}
+def capture_antigravity(version: str, model: str, effort: str,
+                        config: dict[str, Any]) -> tuple[dict[str, Any], int]:
+    from configs.generator_constants import ANTIGRAVITY_CLI_GENERATOR_CONFIG
+    from leanlean.antigravity_config import (
+        ANTIGRAVITY_REQUEST_TOOLS, antigravity_launch_command, antigravity_profile_files,
+    )
+    binary = resolve_antigravity_standalone_tool(version)
+
+    def run(base_url: str) -> None:
+        with tempfile.TemporaryDirectory() as home, tempfile.TemporaryDirectory() as cwd:
+            for name, content in antigravity_profile_files(version).items():
+                path = Path(home) / name
+                path.parent.mkdir(parents=True, exist_ok=True)
+                path.write_text(content)
+            # Seed workspace customizations: the profile must neither expose
+            # this skill nor start its MCP process or hook.
+            custom = Path(cwd) / ".agents"
+            skill = custom / "skills" / "forbidden"
+            skill.mkdir(parents=True)
+            (Path(cwd) / ".git").mkdir()
+            (skill / "SKILL.md").write_text(
+                "---\nname: forbidden\ndescription: LEANLEAN_FORBIDDEN_SKILL\n---\n"
+                "LEANLEAN_FORBIDDEN_SKILL\n")
+            marker = Path(home) / "extension-started"
+            (custom / "mcp_config.json").write_text(json.dumps({"mcpServers": {
+                "forbidden": {"command": "touch", "args": [str(marker)]}}}))
+            (custom / "hooks.json").write_text(json.dumps({"hooks": {"SessionStart": [
+                {"hooks": [{"type": "command", "command": f"touch {shlex.quote(str(marker))}"}]}]}}))
+            template = antigravity_launch_command(
+                ANTIGRAVITY_CLI_GENERATOR_CONFIG["launch_command"], version)
+            command = template.replace("/tmp/leanlean-antigravity-home", home).replace(
+                "/usr/local/bin/agy", str(binary)).replace("--print-timeout 12h", "--print-timeout 15s")
+            command = command.format(base_url=base_url, api_key="capture-only", model=model,
+                                     reasoning_effort=effort, prompt=shlex.quote(PROMPT))
+            env = {k: v for k, v in _clean_environment().items()
+                   if not k.startswith(("AGY_", "ANTIGRAVITY_", "GEMINI_", "GOOGLE_"))}
+            process = subprocess.Popen(["sh", "-c", command], cwd=cwd, env=env,
+                                       stdin=subprocess.DEVNULL, stdout=subprocess.PIPE,
+                                       stderr=subprocess.PIPE, text=True, start_new_session=True)
+            try:
+                stdout, stderr = process.communicate(timeout=25)
+                result = subprocess.CompletedProcess(process.args, process.returncode, stdout, stderr)
+            finally:
+                # The CLI may leave helper children briefly writing its profile.
+                # Terminate this capture's process group before removing HOME.
+                try:
+                    os.killpg(process.pid, signal.SIGKILL)
+                except ProcessLookupError:
+                    pass
+                process.wait()
+            if marker.exists():
+                raise RuntimeError("Antigravity started a forbidden workspace extension")
+            if "capture complete" not in result.stdout.lower():
+                raise RuntimeError(f"Antigravity capture failed: {result.stdout[-3000:]} {result.stderr[-1000:]}")
+
+    records = _loopback(run)
+    mains = [r for r in records if isinstance(r["body"], dict) and r["body"].get("tools")]
+    if not mains:
+        raise RuntimeError(f"Antigravity sent no tool-bearing request: {[r['path'] for r in records]}")
+    request = mains[0]["body"]
+    names = {f["name"] for t in request["tools"] for f in t.get("functionDeclarations", [])}
+    if names != ANTIGRAVITY_REQUEST_TOOLS:
+        raise RuntimeError(f"Antigravity tool allowlist mismatch: {sorted(names)}")
+    if "LEANLEAN_FORBIDDEN_SKILL" in json.dumps(records) or "<skills>" in json.dumps(request):
+        raise RuntimeError("Antigravity discovered forbidden skills")
+    expected_route = f"/models/{model}-{effort}:streamGenerateContent"
+    if any(expected_route not in r["path"] for r in records):
+        raise RuntimeError(f"Antigravity routed a request to a different model: {[r['path'] for r in records]}")
+    return request, len(records)
+
+
+CAPTURERS = {"antigravity_cli": ("antigravity", capture_antigravity), "codex_sub": ("codex", capture_codex), "claude_code_sub": ("claude-code", capture_claude)}
 
 
 def main() -> int:
@@ -207,7 +281,7 @@ def main() -> int:
 
     # The snapshot splits the request as the proxy traces do: the turn list,
     # and everything else as envelope extras.
-    turns_key = "input" if "input" in request else "messages"
+    turns_key = "input" if "input" in request else "contents" if "contents" in request else "messages"
     envelope = {"extras": {k: v for k, v in request.items() if k != turns_key}, "sha256": request_sha}
     fragments = _native_instruction_fragments(envelope, request[turns_key])
     if not fragments:

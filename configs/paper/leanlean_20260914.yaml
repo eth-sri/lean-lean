@@ -14,20 +14,20 @@ models:
     color: '#D97757'        # introduction and histograms
     scale_color: '#DB8A70'  # by-scale figures
     budget: opus            # five-minute replay curve
-    runs: [output/evaluation/leanlean_20260914/anthropic/opus-5-high]
+    runs: [results/leanlean_20260914/anthropic/opus-5-high]
     cost: native_claude     # Claude Code's own list-price total of the session
   gpt-5.6-sol:
     label: Sol 5.6
     color: '#10A37F'
     scale_color: '#3DAD8F'
     budget: sol
-    runs: [output/evaluation/leanlean_20260914/openai/gpt-5.6-sol-xhigh]
+    runs: [results/leanlean_20260914/openai/gpt-5.6-sol-xhigh]
   gemini-3.8-flash:
     label: Gemini 3.8 Flash
     color: '#F4B400'
     scale_color: '#F3BD3A'
     budget: gemini
-    runs: [output/evaluation/leanlean_20260914/google/gemini-3.8-flash-high]
+    runs: [results/leanlean_20260914/google/gemini-3.8-flash-high]
   muse-spark-1.3:
     label: Muse Spark 1.3
     color: '#0866FF'
@@ -35,8 +35,8 @@ models:
     budget: muse
     # 14 repositories on the standard API tier, 50 on the Contributor tier.
     runs:
-      - output/evaluation/leanlean_20260914/meta/muse-spark-1.3-max-native-w4
-      - output/evaluation/leanlean_20260914/meta/muse-spark-1.3-contributor-max-native-w4
+      - results/leanlean_20260914/meta/muse-spark-1.3-max-native-w4
+      - results/leanlean_20260914/meta/muse-spark-1.3-contributor-max-native-w4
     # Every response is repriced at standard-tier rates, also for the Contributor runs.
     usage_pricing:
       input_per_million_usd: 1.25
@@ -50,12 +50,12 @@ models:
     color: '#000000'
     scale_color: '#222222'
     budget: luna
-    runs: [output/evaluation/leanlean_20260914/openai/gpt-5.6-luna-xhigh]
+    runs: [results/leanlean_20260914/openai/gpt-5.6-luna-xhigh]
   leanstral-1.5:
     label: Leanstral 1.5
     color: '#f97316'
     leaderboard_only: true  # leaderboard, introduction and heartbeats only
-    runs: [output/evaluation/leanlean_20260914/mistral/leanstral-1.5]
+    runs: [results/leanlean_20260914/mistral/leanstral-1.5]
     usage_pricing:
       input_per_million_usd: 0.15
       output_per_million_usd: 0.6
@@ -82,9 +82,9 @@ union:
   controls: [opus-5, gpt-5.6-sol]
   arms:
     start-opus:
-      runs: [output/evaluation/leanlean_20260920-langlib-opus-sol-reconciliation-luna-12-seeded-r2/openai/gpt-5.6-luna-xhigh]
+      runs: [results/leanlean_20260920-langlib-opus-sol-reconciliation-luna-12-seeded-r2/openai/gpt-5.6-luna-xhigh]
     start-sol:
-      runs: [output/evaluation/leanlean_20260921-langlib-sol-opus-reconciliation-luna-12-seeded-r1/openai/gpt-5.6-luna-xhigh]
+      runs: [results/leanlean_20260921-langlib-sol-opus-reconciliation-luna-12-seeded-r1/openai/gpt-5.6-luna-xhigh]
   labels:
     opus-5: Claude Opus 5 (high reasoning)
     gpt-5.6-sol: GPT-5.6 Sol (xhigh reasoning)
@@ -97,11 +97,11 @@ benchmark_extra:
   models:
     fable-5.1-mini-v3:
       label: Fable 5.1
-      runs: [output/evaluation/leanlean_20260914_mini/anthropic/fable-5.1-high]
+      runs: [results/leanlean_20260914_mini/anthropic/fable-5.1-high]
     opus-5: {label: Opus 5}
     gpt-6-astra-xhigh:
       label: 6 Astra
-      runs: [output/evaluation/leanlean_20260914_mini/openai/gpt-6-astra-xhigh]
+      runs: [results/leanlean_20260914_mini/openai/gpt-6-astra-xhigh]
     gpt-5.6-sol: {label: Sol 5.6}
 
 # classify_compression.py outputs (classification-repositories.csv,

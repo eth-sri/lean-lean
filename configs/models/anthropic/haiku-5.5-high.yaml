@@ -1,0 +1,61 @@
+kind: leanlean_evaluation_model
+schema_version: 1
+model: haiku-5.5
+harness: claude_code_sub
+harness_version: 2.1.294
+reasoning_effort: high
+native_tools:
+- Bash
+- Edit
+- Read
+- Write
+- Monitor
+- TaskCreate
+- TaskGet
+- TaskList
+- TaskStop
+- TaskUpdate
+- ToolSearch
+system_prompt:
+  mode: native
+  snapshot: experiments/payload_audit/prompts/anthropic-haiku-5.5-high.json
+  sha256: 8a49b08a62169a76ba1ff6ca3f705d15adc6dc5bb6703440af45be8eec0dfbe5
+generation_parameters:
+  policy: native_harness_defaults
+  observed_at: '2026-10-08'
+  request_sha256: 493b642d64a0839df54a70774645f47554d55c3cf7be8517df8f4e99a9aea6c0
+  request:
+    max_tokens: 128000
+    stream: true
+    thinking:
+      type: adaptive
+    output_config:
+      effort: high
+    context_management:
+      edits:
+      - keep: all
+        type: clear_thinking_20251015
+    known_dynamic_inputs:
+    - current_date
+    - working_directory
+    - session_identifiers
+pricing:
+  basis: benchmark_cost_accounting_snapshot
+  observed_at: '2026-10-01'
+  source: src/configs/model_constants.py
+  currency: USD
+  unit: per_million_tokens
+  reasoning_tokens_billed_as: output
+  rates:
+    input: 0.1
+    output: 0.5
+    cache_read: 0.01
+    cache_creation: 0.2
+access:
+  mode: subscription
+  limits:
+    five_hour: true
+    weekly: true
+parallelism:
+  workers: 6
+  start_interval_seconds: 2

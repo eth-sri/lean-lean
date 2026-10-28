@@ -236,9 +236,7 @@ def _completed_named_run(resolved: ResolvedEvaluation) -> bool:
 
     if validate_named_run_identity(resolved, repo_root=REPO_ROOT) != "complete":
         return False
-    console.print(
-        f"[cyan]run exists and is complete[/cyan]: {resolved.run_artifact_path}"
-    )
+    console.print(f"[green]already done[/green]: {resolved.output_dir}")
     return True
 
 
@@ -373,18 +371,23 @@ def _execute_locked(prepared: PreparedEvaluation) -> int:
             attempt=attempt,
         )
         try:
-            subprocess.run(
-                ["bash", "scripts/build_model_relay_image.sh"],
-                cwd=REPO_ROOT,
-                check=True,
-            )
+            # Pin the exact build result; concurrent benchmark worktrees may
+            # replace the shared :latest tag while this batch is still running.
+            with tempfile.TemporaryDirectory(prefix="leanlean-relay-pin-") as relay_dir:
+                relay_iid = Path(relay_dir) / "image-id"
+                build_env = dict(os.environ, LEANLEAN_RELAY_IID_FILE=str(relay_iid))
+                subprocess.run(
+                    ["bash", "scripts/build_model_relay_image.sh"],
+                    cwd=REPO_ROOT, check=True, env=build_env,
+                )
+                relay_image = relay_iid.read_text().strip()
+            if not relay_image.startswith("sha256:") or len(relay_image) != 71:
+                raise RuntimeError("relay build did not return an immutable image ID")
+            (prepared.engine_manifest_path.parent / "model-relay-image.txt").write_text(relay_image + "\n")
             result = subprocess.run(
-                [
-                    sys.executable,
-                    "scripts/run_codex_sub_yaml.py",
-                    str(prepared.engine_manifest_path),
-                ],
+                [sys.executable, "scripts/run_codex_sub_yaml.py", str(prepared.engine_manifest_path)],
                 cwd=REPO_ROOT,
+                env=dict(os.environ, LEANLEAN_MODEL_RELAY_IMAGE=relay_image),
             )
         except Exception as error:
             update_run_status(

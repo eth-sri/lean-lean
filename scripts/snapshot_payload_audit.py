@@ -94,13 +94,16 @@ def _payload_bloat_audit(
         reconstructed[input_field] = request
     tools = extras.get("tools")
     tools = tools if isinstance(tools, list) else []
+    declarations = [function for tool in tools
+                    for function in (tool.get("functionDeclarations", [tool])
+                                     if isinstance(tool, dict) else [tool])]
     fragments = _native_instruction_fragments(envelope, request)
     return {
         "request_bytes": len(_canonical_json_bytes(reconstructed)),
         "native_instruction_bytes": len(_canonical_json_bytes(fragments)),
         "tool_schema_bytes": len(_canonical_json_bytes(tools)),
-        "tool_count": len(tools),
-        "tool_names": [_tool_name(tool) for tool in tools],
+        "tool_count": len(declarations),
+        "tool_names": [_tool_name(tool) for tool in declarations],
     }
 
 

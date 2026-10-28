@@ -70,24 +70,6 @@ class RepositoryDatabase:
         }
 
 
-def require_curated_protected_sources(
-    repositories: tuple[RepositorySpec, ...],
-) -> None:
-    """Reject scout-selected contracts in a curated production run."""
-
-    rejected = []
-    for repository in repositories:
-        kind = repository.protected_provenance.get("kind")
-        if kind not in CURATED_PROTECTED_PROVENANCE_KINDS:
-            rejected.append(
-                f"{repository.instance_id} ({kind or 'missing'})"
-            )
-    if rejected:
-        raise ValueError(
-            "curated signature selection rejects protected provenance: "
-            + ", ".join(rejected)
-        )
-
 
 def file_sha256(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()

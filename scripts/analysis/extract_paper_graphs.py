@@ -123,6 +123,53 @@ def submitted_endpoint_passed(item: Mapping[str, Any]) -> bool:
     ))
 
 
+GRAPH_PIPELINE_REVISION = "paper-source-roots-v2"
+
+
+def graph_from_workspace(env, repo, image, image_id, entry, timeout, *, originals,
+                         incremental=False, kernel_log=None):
+    """Shared endpoint/replay extraction; incremental trees exclude deleted sources."""
+    modules = _discover_modules(env)
+    if incremental:
+        paths = strip.resolve_module_paths(modules, list(originals))
+        modules = [module for module in modules if module in paths]
+    if entry not in modules:
+        raise RuntimeError(f'entry module {entry} has no current source/build mapping')
+    declarations, dependencies, _ = olean.read_olean_declarations(
+        env, modules=modules, import_roots=[entry], timeout=timeout, strict=True)
+    empty_entry = False
+    if not declarations:
+        # During replay a model can temporarily empty its entry file. That is a
+        # real buildable state, even though it has no reachable declarations.
+        # Keep rejecting unexplained empty extraction from nonempty sources.
+        from leanlean.metrics.tokens import remove_lean_comments
+        entry_path = strip.resolve_module_paths([entry], list(originals)).get(entry)
+        empty_entry = bool(incremental and entry_path is not None and
+                           not remove_lean_comments(originals[entry_path]).strip())
+        if not empty_entry:
+            raise RuntimeError(f'{repo}: empty declaration graph')
+    if kernel_log is not None:
+        write_json(kernel_log, dict(modules=modules, declarations=declarations,
+            dependencies={name: sorted(targets) for name, targets in dependencies.items()}))
+    paths = strip.resolve_module_paths({d['module'] for d in declarations}, list(originals))
+    missing = {d['module'] for d in declarations} - set(paths)
+    if missing:
+        raise RuntimeError(f'{repo}: no source for modules {sorted(missing)}')
+    evidence, layers = static_layers(env, declarations, dependencies, originals, paths,
+                                    set(modules) | {d['module'] for d in declarations})
+    graph = build_graph_artifact(repository=repo, source_image=image, source_image_id=image_id,
+        declarations=declarations, kernel_edges=set(layers['kernel']),
+        ilean_edges=set(layers['ilean']), source_text_edges=set(layers['source_text']),
+        reports={}, originals=originals, module_paths=paths)
+    graph.update(static_dependency_evidence=evidence, entry_module=entry,
+        extraction_method=dict(path=str(EXTRACTOR.relative_to(ROOT)), sha256=EXTRACTOR_SHA256,
+                               pipeline_revision=GRAPH_PIPELINE_REVISION),
+        extracted_modules=modules)
+    if empty_entry:
+        graph['empty_entry_module'] = True
+    return graph
+
+
 def resolve_jobs(manifest: Mapping[str, Any]) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
     """One baseline job per repository without a graph, one per verified submission."""
     dataset = ROOT / manifest["dataset"]
@@ -233,7 +280,6 @@ def extract(job: Mapping[str, Any], manifest: Mapping[str, Any]) -> dict[str, An
                 if restored.returncode:
                     raise RuntimeError(f"{repo}: could not restore the retained build: {restored.stderr[-2000:]!r}")
         originals = snapshot_sources(env, list_project_lean_files(env))
-        modules = _discover_modules(env)
         with (logs / "native-output.log").open("w", buffering=1) as native:
             stream = env.execute_stream
 
@@ -243,25 +289,9 @@ def extract(job: Mapping[str, Any], manifest: Mapping[str, Any]) -> dict[str, An
                     on_output(line)
                 return stream(command, timeout=timeout, on_output=tee, capture_output=capture_output)
             env.execute_stream = capture
-            declarations, dependencies, _ = olean.read_olean_declarations(
-                env, modules=modules, import_roots=[job["entry_module"]],
-                timeout=int(timeouts["graph_seconds"]), strict=True)
-        if not declarations:
-            raise RuntimeError(f"{repo}: empty declaration graph")
-        write_json(logs / "kernel-extraction.json", dict(modules=modules, declarations=declarations, dependencies={
-            name: sorted(targets) for name, targets in dependencies.items()}))
-        paths = strip.resolve_module_paths({d["module"] for d in declarations}, list(originals))
-        missing = {d["module"] for d in declarations} - set(paths)
-        if missing:
-            raise RuntimeError(f"{repo}: no source for modules {sorted(missing)}")
-        evidence, layers = static_layers(env, declarations, dependencies, originals, paths,
-                                         set(modules) | {d["module"] for d in declarations})
-        graph = build_graph_artifact(
-            repository=repo, source_image=image, source_image_id=image_id, declarations=declarations,
-            kernel_edges=set(layers["kernel"]), ilean_edges=set(layers["ilean"]),
-            source_text_edges=set(layers["source_text"]), reports={}, originals=originals, module_paths=paths)
-        graph.update(static_dependency_evidence=evidence, entry_module=job["entry_module"],
-                     extraction_method=dict(path=str(EXTRACTOR.relative_to(ROOT)), sha256=EXTRACTOR_SHA256))
+            graph = graph_from_workspace(env, repo, image, image_id, job["entry_module"],
+                int(timeouts["graph_seconds"]), originals=originals,
+                kernel_log=logs / "kernel-extraction.json")
         write_graph_artifact(destination / f"{phase}.json", graph)
         _write_source_archive(destination / phase / "original-sources.tar.gz",
                               {path.removeprefix("/testbed/"): text.encode("utf-8", errors="surrogateescape")

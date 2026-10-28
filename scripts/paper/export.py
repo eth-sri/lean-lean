@@ -2,8 +2,8 @@
 """Export the paper's CSVs from your own evaluation and postprocessing outputs.
 
 The config (configs/paper/leanlean_20260914.yaml) names the dataset and, for each
-model, the run directories ``output/evaluation/<dataset>/<provider>/<model>``
-that eval.sh wrote and postprocessing.py verified, measured and replayed. It
+model, the run directories ``results/<dataset>/<provider>/<model>``
+that eval.sh wrote and postprocess.sh verified, measured and replayed. It
 also names the outputs of classify_compression.py. Nothing is run: this only
 reads files and recomputes the paper's aggregates.
 
@@ -366,7 +366,7 @@ def heartbeat_tables(config: dict, details: list[dict]) -> dict:
             else:
                 # Later directories take precedence (gap-fill or corrected measurements).
                 for directory in spec.get("heartbeats", spec["runs"]):
-                    for name in ("heartbeats.json", "optimized.json"):
+                    for name in ("derived/heartbeats.json", "heartbeats.json", "optimized.json"):
                         v = read_json(Path(directory) / rid / name)
                         if (v.get("status") == "complete" and v.get("method") == method
                                 and v.get("lean_tokens") == d["post_tokens"] and finite(v.get(field)) and v[field] >= 0):
@@ -505,13 +505,13 @@ def action_tables(config: dict, details: list[dict]) -> dict:
 # --- Budget curves from the five-minute replay -------------------------------------------
 
 def replay_points(config: dict, details: list[dict]) -> list[dict]:
-    """Every replayed checkpoint build of each selected submission (postprocessing.py --replay)."""
+    """Every replayed checkpoint build of each selected submission (postprocess.sh --replay)."""
     points = []
     for key, spec in config["models"].items():
         short = spec.get("budget")
         if not short:
             continue
-        # The checkpoint index given to postprocessing.py --replay (select_checkpoint_windows.py).
+        # The checkpoint index given to postprocess.sh --replay (select_checkpoint_windows.py).
         index = yaml.safe_load(Path(spec["checkpoints"]).read_text())["repositories"] if spec.get("checkpoints") else None
         for d in (d for d in details if d["model"] == key):
             selected = None if index is None else set(index.get(d["repository"], ()))

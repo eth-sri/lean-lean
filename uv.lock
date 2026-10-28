@@ -2624,10 +2624,6 @@ dependencies = [
 ]
 
 [package.optional-dependencies]
-dashboard = [
-    { name = "ijson" },
-    { name = "psutil" },
-]
 serve = [
     { name = "vllm" },
 ]
@@ -2636,7 +2632,6 @@ serve = [
 requires-dist = [
     { name = "fire" },
     { name = "google-genai", specifier = ">=2.8.0" },
-    { name = "ijson", marker = "extra == 'dashboard'", specifier = ">=3.2" },
     { name = "jinja2", specifier = ">=3.1" },
     { name = "jsonlines" },
     { name = "lean-strip", git = "https://github.com/eth-sri/lean-strip?rev=cbca97147bc4763dd2a5b27a923d3a122d3af39e" },
@@ -2646,7 +2641,6 @@ requires-dist = [
     { name = "networkx", specifier = ">=3.4" },
     { name = "openai", specifier = ">=1.0.0" },
     { name = "pandas", specifier = ">=2.3.3" },
-    { name = "psutil", marker = "extra == 'dashboard'", specifier = ">=5.9" },
     { name = "pytest", specifier = ">=9.0.2" },
     { name = "pyyaml", specifier = ">=6.0.3" },
     { name = "requests", specifier = ">=2.32.5" },
@@ -2656,7 +2650,7 @@ requires-dist = [
     { name = "tqdm", specifier = ">=4.67.1" },
     { name = "vllm", marker = "extra == 'serve'", specifier = ">=0.11.0" },
 ]
-provides-extras = ["dashboard", "serve"]
+provides-extras = ["serve"]
 
 [[package]]
 name = "litellm"

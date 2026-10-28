@@ -72,8 +72,10 @@ IMPLEMENTATION_FILES = (
     "src/leanlean/model/litellm_wrapper/accounting.py",
     "src/leanlean/model/litellm_wrapper/stream_usage.py",
     "src/leanlean/model/litellm_wrapper/raw_provider_stream.py",
+    "src/leanlean/model/litellm_wrapper/argon_request_retry.py",
     "src/leanlean/model/litellm_wrapper/checkpoint_costs.py",
     "src/leanlean/model/litellm_wrapper/litellm_server.py",
+    "src/leanlean/model/litellm_wrapper/chatgpt_passthrough.py",
     "src/leanlean/model/litellm_wrapper/request_rewrite.py",
     "src/leanlean/model/litellm_wrapper/mistral_reasoning.py",
     "src/leanlean/model/litellm_wrapper/litellm_logger.py",
@@ -89,9 +91,7 @@ IMPLEMENTATION_FILES = (
     "src/leanlean/preprocessing/cache_isolation.py",
     "eval.py",
     "eval.sh",
-    "resume_eval.sh",
     "scripts/eval.py",
-    "scripts/resume_eval.py",
     "scripts/run_codex_sub_yaml.py",
     "scripts/reconstruct.py",
     "scripts/run_theorem_reconstruction_experiment.py",
@@ -133,11 +133,13 @@ IMPLEMENTATION_FILES = (
     "src/leanlean/run_action_summary.py",
     "src/leanlean/generators/cli_agent.py",
     "src/leanlean/host_side_checkpointing.py",
+    "src/leanlean/codex_usage.py",
     "src/leanlean/playback.py",
     "src/leanlean/standardized_trace.py",
     "src/leanlean/mistral_vibe_trace.py",
     "src/leanlean/deepseek_harness_trace.py",
     "src/leanlean/antigravity_trace.py",
+    "src/leanlean/antigravity_config.py",
     "src/leanlean/kimi_code_trace.py",
     "src/leanlean/subscription_queue.py",
 )
@@ -437,6 +439,17 @@ def _named_config_path(
     return path, key
 
 
+RESULTS_DIRECTORY = "results"
+
+
+def pair_directory(root: Path, logical_path: Path) -> Path:
+    """results/<dataset>/<provider>/<model>/, the one home of a dataset/model pair."""
+
+    if logical_path.is_absolute() or ".." in logical_path.parts:
+        raise ValueError(f"unsafe dataset/model path: {logical_path}")
+    return root / RESULTS_DIRECTORY / logical_path
+
+
 def _derived_run_id(dataset_key: str, model_key: str) -> str:
     raw = f"{dataset_key}__{model_key}".replace("/", "__")
     safe = re.sub(r"[^A-Za-z0-9_.-]", "-", raw).strip("-.")
@@ -480,12 +493,10 @@ def _select_repositories(
     return [by_id[name] for name in requested]
 
 
-# Pinned harness versions a model config may select instead of the generator's
-# default host_tool_version (the runner installs the config's version). Opus 5.5
-# needs Claude Code 2.1.280; GPT-6.1 Sol runs on Codex 0.160.0, the first pinned
-# release whose bundled catalog has gpt-6.1-sol.
+# Model configs may select these pinned versions instead of the harness default.
 HARNESS_VERSION_OVERRIDES = {
-    "claude_code_sub": frozenset({"2.1.280"}),
+    "antigravity_cli": frozenset({"1.1.26"}),
+    "claude_code_sub": frozenset({"2.1.280", "2.1.294"}),
     "codex_sub": frozenset({"0.160.0"}),
 }
 
@@ -612,6 +623,7 @@ def _validate_model_harness(model: str, harness: str) -> None:
         "sonnet-5",
         "opus-5",
         "opus-5.5",
+        "haiku-5.5",
         "opus-5-low",
         "opus-5-medium",
         "opus-5-high",
@@ -624,10 +636,10 @@ def _validate_model_harness(model: str, harness: str) -> None:
         raise ValueError(
             "harness mistral_vibe_lean requires model leanstral-1.5"
         )
-    if harness == "antigravity_cli" and model != "gemini-3.8-flash":
-        raise ValueError(
-            "harness antigravity_cli requires model gemini-3.8-flash"
-        )
+    if harness == "antigravity_cli":
+        from leanlean.antigravity_config import ANTIGRAVITY_MODELS
+        if model not in ANTIGRAVITY_MODELS:
+            raise ValueError(f"harness antigravity_cli requires one of {sorted(ANTIGRAVITY_MODELS)}")
 
 
 def _resolve_named_pricing(
@@ -906,6 +918,7 @@ def resolve_config(
         "prompt_ablation",
         "image_materialization",
         "codex_model_catalog",
+        "context_window",
     }
     _exact_keys(
         config,
@@ -915,6 +928,7 @@ def resolve_config(
             "prompt_ablation",
             "image_materialization",
             "codex_model_catalog",
+            "context_window",
             "subscription",
             "task_metadata_enabled",
             "shuffle",
@@ -939,6 +953,11 @@ def resolve_config(
         raise ValueError("reasoning_effort is unsupported")
     if harness not in SUPPORTED_HARNESSES:
         raise ValueError("harness is unsupported")
+    context_window = config.get("context_window")
+    if context_window is not None and (
+        harness != "claude_code_sub" or type(context_window) is not int or context_window != 1_000_000
+    ):
+        raise ValueError("context_window supports only 1000000 with claude_code_sub")
     harness_version = config.get("harness_version")
     codex_model_catalog = (
         _codex_model_catalog(config["codex_model_catalog"], root=root, harness=harness)
@@ -1033,6 +1052,15 @@ def resolve_config(
             raise ValueError("task_metadata_enabled must be true or false")
         enable_lean_verify = task_metadata_enabled
         enable_proof_length = task_metadata_enabled
+
+    if harness == "antigravity_cli":
+        from leanlean.antigravity_config import ANTIGRAVITY_VERSION, validate_antigravity_contract
+        validate_antigravity_contract(
+            model=model, version=harness_version or ANTIGRAVITY_VERSION,
+            enable_subagents=(agent or {}).get("enable_subagents", False),
+            allowed_skills=(agent or {}).get("allowed_skills", []),
+            mcp_servers=(agent or {}).get("mcp_servers", []),
+        )
 
     dataset_path = _repo_path(
         root, _text(config, "dataset", "config"), "dataset"
@@ -1591,6 +1619,8 @@ def resolve_config(
             "native_rollout_timeout_seconds": 180,
         },
     }
+    if context_window is not None:
+        engine_manifest["context_window"] = context_window
     if resource_visibility != "host":
         engine_manifest["container_resource_visibility"] = resource_visibility
     if kill_grace is not None:
@@ -1636,6 +1666,7 @@ def resolve_config(
         "model": model,
         "reasoning_effort": effort,
         "harness": harness,
+        **({"context_window": context_window} if context_window is not None else {}),
         **(
             {"harness_version": harness_version, **({"generation_parameters": dict(generation_parameters)} if generation_parameters is not None else {})}
             if harness_version is not None else {}
@@ -1893,10 +1924,11 @@ def resolve_named_config(
             "access",
             "parallelism",
             "codex_model_catalog",
+            "context_window",
             "native_tools",
         },
         "model config",
-        optional={"codex_model_catalog", "native_tools"},
+        optional={"codex_model_catalog", "native_tools", "context_window"},
     )
     if (
         model_config.get("kind") != MODEL_CONFIG_KIND
@@ -1981,6 +2013,8 @@ def resolve_named_config(
             "parallelism": parallelism,
         }
     )
+    if "context_window" in model_config:
+        composed["context_window"] = model_config["context_window"]
     if "codex_model_catalog" in model_config:
         composed["codex_model_catalog"] = _codex_model_catalog(
             model_config["codex_model_catalog"], root=root, harness=harness
@@ -2030,10 +2064,12 @@ def resolve_named_config(
     # repository selection; source_configs still pin the authored ceiling.
     snapshot["resolved"]["parallelism"] = dict(resolved.manifest["parallelism"])
 
+    # Everything for one dataset/model pair lives in results/<dataset>/<provider>/<model>/:
+    # the agent output per repository, the run state in run/, postprocessing in postprocess/.
     logical_path = Path(dataset_key) / Path(model_key)
-    run_dir = root / "runs/evaluation" / logical_path
-    manifest_path = root / "experiments/evaluation" / logical_path / "manifest.yaml"
-    output_dir = root / "output/evaluation" / logical_path
+    output_dir = pair_directory(root, logical_path)
+    run_dir = output_dir / "run"
+    manifest_path = run_dir / "manifest.yaml"
     engine_manifest_path = run_dir / "engine.yaml"
     run_artifact_path = run_dir / "run.yaml"
     engine_manifest = dict(resolved.engine_manifest)
@@ -2167,7 +2203,7 @@ def write_run_definition(resolved: ResolvedEvaluation) -> None:
     if (
         not resolved.run_artifact_path.exists()
         and resolved.output_dir.exists()
-        and any(resolved.output_dir.iterdir())
+        and any(p != resolved.run_dir for p in resolved.output_dir.iterdir())
     ):
         raise RuntimeError(
             f"run ID {run_id!r} already has output without a pinned run artifact"

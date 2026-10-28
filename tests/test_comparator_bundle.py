@@ -22,7 +22,10 @@ def test_pins_cover_every_benchmark_repository_once():
     assert {pin.tool for pin in pins} == set(module.LAYOUT)
     for tool in ("comparator", "lean4export"):
         users = [repo for pin in pins if pin.tool == tool for repo in pin.used_by]
-        assert len(users) == len(set(users)) == 64, tool
+        assert len(users) == len(set(users)), tool
+        # Optional local datasets also pin tools; the benchmark remains 64 repos.
+        benchmark_users = [repo for repo in users if repo.startswith("palomar__")]
+        assert len(benchmark_users) == 64, tool
     for pin in pins:
         if pin.builder == "lean":
             assert pin.toolchain.startswith("leanprover/lean4:v4.")
