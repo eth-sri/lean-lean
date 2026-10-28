@@ -2,6 +2,7 @@
 
 #include <arpa/inet.h>
 #include <errno.h>
+#include <fcntl.h>
 #include <poll.h>
 #include <signal.h>
 #include <stdint.h>
@@ -10,6 +11,8 @@
 #include <string.h>
 #include <sys/socket.h>
 #include <sys/types.h>
+#include <sys/time.h>
+#include <time.h>
 #include <sys/wait.h>
 #include <unistd.h>
 
@@ -23,7 +26,15 @@ static int parse_port(const char *text) {
     return (int)value;
 }
 
-static int connect_target(const char *host, int port) {
+static int64_t monotonic_ms(void) {
+    struct timespec now;
+    if (clock_gettime(CLOCK_MONOTONIC, &now) != 0) {
+        _exit(2);
+    }
+    return (int64_t)now.tv_sec * 1000 + now.tv_nsec / 1000000;
+}
+
+static int connect_target(const char *host, int port, int idle_ms) {
     struct sockaddr_in address;
     memset(&address, 0, sizeof(address));
     address.sin_family = AF_INET;
@@ -35,7 +46,31 @@ static int connect_target(const char *host, int port) {
     if (candidate < 0) {
         return -1;
     }
+    int flags = fcntl(candidate, F_GETFL, 0);
+    if (idle_ms > 0 && (flags < 0 || fcntl(candidate, F_SETFL, flags | O_NONBLOCK) < 0)) {
+        close(candidate);
+        return -1;
+    }
     if (connect(candidate, (struct sockaddr *)&address, sizeof(address)) != 0) {
+        if (idle_ms == 0 || errno != EINPROGRESS) {
+            close(candidate);
+            return -1;
+        }
+        struct pollfd target = {.fd = candidate, .events = POLLOUT};
+        int64_t deadline = monotonic_ms() + idle_ms;
+        int ready;
+        do {
+            int64_t remaining = deadline - monotonic_ms();
+            ready = poll(&target, 1, remaining > 0 ? (int)remaining : 0);
+        } while (ready < 0 && errno == EINTR);
+        int error = 0;
+        socklen_t length = sizeof(error);
+        if (ready <= 0 || getsockopt(candidate, SOL_SOCKET, SO_ERROR, &error, &length) != 0 || error) {
+            close(candidate);
+            return -1;
+        }
+    }
+    if (idle_ms > 0 && fcntl(candidate, F_SETFL, flags) < 0) {
         close(candidate);
         return -1;
     }
@@ -57,22 +92,42 @@ static int send_all(int destination, const char *buffer, size_t length) {
     return 0;
 }
 
-static void relay_connection(int client, const char *host, int port) {
-    int upstream = connect_target(host, port);
+static void relay_connection(int client, const char *host, int port, int idle_ms) {
+    int upstream = connect_target(host, port, idle_ms);
     if (upstream < 0) {
         close(client);
         _exit(2);
     }
 
+    if (idle_ms > 0) {
+        struct timeval timeout = {.tv_sec = idle_ms / 1000, .tv_usec = 0};
+        if (setsockopt(client, SOL_SOCKET, SO_SNDTIMEO, &timeout, sizeof(timeout)) != 0 ||
+            setsockopt(upstream, SOL_SOCKET, SO_SNDTIMEO, &timeout, sizeof(timeout)) != 0) {
+            close(client);
+            close(upstream);
+            _exit(2);
+        }
+    }
+    const int sockets[2] = {client, upstream};
     struct pollfd streams[2] = {
         {.fd = client, .events = POLLIN},
         {.fd = upstream, .events = POLLIN},
     };
     char buffer[65536];
     int open_streams = 2;
+    int64_t last_activity = monotonic_ms();
 
     while (open_streams > 0) {
-        int ready = poll(streams, 2, -1);
+        int remaining = -1;
+        if (idle_ms > 0) {
+            int64_t delta = idle_ms - (monotonic_ms() - last_activity);
+            remaining = delta > 0 ? (int)delta : 0;
+        }
+        int ready = poll(streams, 2, remaining);
+        if (ready == 0) {
+            fprintf(stderr, "relay: closing connection after %d seconds without application bytes\n", idle_ms / 1000);
+            break;
+        }
         if (ready < 0 && errno == EINTR) {
             continue;
         }
@@ -85,34 +140,33 @@ static void relay_connection(int client, const char *host, int port) {
                 continue;
             }
             int source = streams[index].fd;
-            int destination = streams[1 - index].fd;
+            int destination = sockets[1 - index];
             ssize_t count = recv(source, buffer, sizeof(buffer), 0);
             if (count > 0 && destination >= 0) {
                 if (send_all(destination, buffer, (size_t)count) == 0) {
+                    last_activity = monotonic_ms();
                     continue;
                 }
+                goto finished;
             }
             if (destination >= 0) {
                 shutdown(destination, SHUT_WR);
             }
-            close(source);
+            // EOF closes only this read direction; the peer may still reply.
             streams[index].fd = -1;
             open_streams--;
         }
     }
 
-    if (streams[0].fd >= 0) {
-        close(streams[0].fd);
-    }
-    if (streams[1].fd >= 0) {
-        close(streams[1].fd);
-    }
+finished:
+    close(client);
+    close(upstream);
     _exit(0);
 }
 
 int main(int argc, char **argv) {
-    if (argc != 4) {
-        fprintf(stderr, "usage: relay TARGET_HOST TARGET_PORT LISTEN_PORT\n");
+    if (argc != 4 && argc != 5) {
+        fprintf(stderr, "usage: relay TARGET_HOST TARGET_PORT LISTEN_PORT [IDLE_TIMEOUT_SECONDS]\n");
         return 64;
     }
     int target_port = parse_port(argv[2]);
@@ -120,6 +174,18 @@ int main(int argc, char **argv) {
     if (target_port < 0 || listen_port < 0) {
         fprintf(stderr, "ports must be integers in 1..65535\n");
         return 64;
+    }
+
+    int idle_ms = 0;
+    if (argc == 5) {
+        char *end = NULL;
+        errno = 0;
+        long seconds = strtol(argv[4], &end, 10);
+        if (errno != 0 || end == argv[4] || *end != '\0' || seconds < 1 || seconds > 86400) {
+            fprintf(stderr, "idle timeout must be an integer in 1..86400 seconds\n");
+            return 64;
+        }
+        idle_ms = (int)seconds * 1000;
     }
 
     signal(SIGPIPE, SIG_IGN);
@@ -166,7 +232,7 @@ int main(int argc, char **argv) {
         }
         if (child == 0) {
             close(listener);
-            relay_connection(client, argv[1], target_port);
+            relay_connection(client, argv[1], target_port, idle_ms);
         }
         close(client);
     }

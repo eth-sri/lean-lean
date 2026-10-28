@@ -28,12 +28,14 @@ CACHE = Path("output/analysis/compression_categories/program_sites")
 
 
 def measure(model: str, repo: str, repo_dir: Path, record: Mapping[str, Any], *,
-            timeout: int = 2400, refresh: bool = False, cache: Path = CACHE) -> dict[str, Any]:
+            timeout: int = 2400, refresh: bool = False, cache: Path = CACHE,
+            lean_project: Path | None = None) -> dict[str, Any]:
     path = cache / model / f"{repo}.json"
     if path.is_file() and not refresh:
         return json.loads(path.read_text(encoding="utf-8"))
+    options = {'lean_project': lean_project} if lean_project is not None else {}
     result = lean_pass.analyse_repository(model, repo, repo_dir, record,
-                                          list(lean_pass.PREFERRED_TOOLCHAINS), timeout)
+                                          list(lean_pass.PREFERRED_TOOLCHAINS), timeout, **options)
     out: dict[str, Any] = {"programs": [], "sites": [], "uncovered": [], "toolchain": "", "error": ""}
     if result is not None:
         files = {}

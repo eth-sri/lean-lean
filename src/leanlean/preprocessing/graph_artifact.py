@@ -20,11 +20,6 @@ EDGE_KINDS = ("source_text", "kernel", "ilean")
 EDGE_KIND_BITS = {"source_text": 1, "kernel": 2, "ilean": 4}
 
 
-def edge_kinds_from_mask(mask: int) -> list[str]:
-    """Expand a stored edge mask back into its layer names."""
-
-    return [kind for kind in EDGE_KINDS if mask & EDGE_KIND_BITS[kind]]
-
 
 def graph_sha256(payload: Mapping[str, Any]) -> str:
     """Hash the complete graph envelope, excluding only its hash field."""
@@ -36,24 +31,6 @@ def graph_sha256(payload: Mapping[str, Any]) -> str:
     ).encode()
     return hashlib.sha256(canonical).hexdigest()
 
-
-def graph_structure(payload: Mapping[str, Any]) -> dict[str, Any]:
-    """Return graph data that is independent of run metadata and policy."""
-
-    return {
-        "nodes": payload.get("nodes"),
-        "edges": payload.get("edges"),
-        "counts": payload.get("counts"),
-    }
-
-
-def graph_structure_sha256(payload: Mapping[str, Any]) -> str:
-    """Hash nodes, typed edges, and counts using canonical JSON."""
-
-    canonical = json.dumps(
-        graph_structure(payload), sort_keys=True, separators=(",", ":")
-    ).encode()
-    return hashlib.sha256(canonical).hexdigest()
 
 
 def _mapping(value: Any) -> Mapping[str, Any]:
@@ -345,13 +322,3 @@ def write_graph_artifact(path: Path, payload: Mapping[str, Any]) -> None:
     temporary = path.with_suffix(path.suffix + ".tmp")
     temporary.write_text(json.dumps(complete, separators=(",", ":")) + "\n")
     temporary.replace(path)
-
-
-def load_graph_artifact(path: Path) -> dict[str, Any]:
-    try:
-        value = json.loads(path.read_text())
-    except (OSError, ValueError):
-        return {}
-    if not isinstance(value, dict) or value.get("schema") not in GRAPH_SCHEMAS:
-        return {}
-    return value

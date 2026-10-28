@@ -1,10 +1,6 @@
-"""lean-strip's workspace interface over a running Docker container.
+"""Read container sources and .ilean files through lean-strip's workspace interface.
 
-lean-strip reads `.ilean` files and project sources through a small workspace
-interface; `DockerWorkspace` provides it for a running `DockerEnvironment`, whose
-`/testbed` and `/tmp` paths lean-strip already uses. The paper's dependency
-graphs (scripts/analysis/extract_paper_graphs.py) read `.ilean` files and
-project sources through it.
+DockerWorkspace adapts a running DockerEnvironment for dependency extraction.
 """
 
 from __future__ import annotations
@@ -15,12 +11,18 @@ import shlex
 import subprocess
 import tarfile
 import tempfile
+import threading
 from typing import Any, Iterable, Iterator
 
 from lean_strip._pipeline.preprocessing.ilean import module_to_ilean_relpath
 
+
 __all__ = ["DockerWorkspace", "list_project_lean_files", "snapshot_sources"]
 
+
+
+# Upper bound for streaming a repository's .ilean files out of its container.
+ILEAN_ARCHIVE_TIMEOUT_SECONDS = 3600
 
 class DockerWorkspace:
     """lean-strip's workspace interface over a running `DockerEnvironment`."""
@@ -54,22 +56,38 @@ class DockerWorkspace:
             stderr=subprocess.PIPE,
         )
         assert producer.stdout is not None
-        with tarfile.open(fileobj=producer.stdout, mode="r|") as archive:
-            for member in archive:
-                if not member.isfile() or not member.name.endswith(".ilean"):
-                    continue
-                extracted = archive.extractfile(member)
-                if extracted is None:
-                    continue
-                try:
-                    document = json.loads(extracted.read())
-                except (UnicodeDecodeError, json.JSONDecodeError) as error:
-                    raise ValueError(f"{member.name}: invalid .ilean JSON") from error
-                if not isinstance(document, dict):
-                    raise ValueError(f"{member.name}: .ilean root is not an object")
-                yield member.name, document
-        stderr = producer.stderr.read().decode("utf-8", "replace") if producer.stderr else ""
-        if producer.wait() != 0:
+        # Bound docker clients that hang without closing their archive pipes.
+        timed_out = threading.Event()
+
+        def stop() -> None:
+            timed_out.set()
+            producer.kill()
+
+        watchdog = threading.Timer(ILEAN_ARCHIVE_TIMEOUT_SECONDS, stop)
+        watchdog.daemon = True
+        watchdog.start()
+        try:
+            with tarfile.open(fileobj=producer.stdout, mode="r|") as archive:
+                for member in archive:
+                    if not member.isfile() or not member.name.endswith(".ilean"):
+                        continue
+                    extracted = archive.extractfile(member)
+                    if extracted is None:
+                        continue
+                    try:
+                        document = json.loads(extracted.read())
+                    except (UnicodeDecodeError, json.JSONDecodeError) as error:
+                        raise ValueError(f"{member.name}: invalid .ilean JSON") from error
+                    if not isinstance(document, dict):
+                        raise ValueError(f"{member.name}: .ilean root is not an object")
+                    yield member.name, document
+            stderr = producer.stderr.read().decode("utf-8", "replace") if producer.stderr else ""
+            returncode = producer.wait()
+        finally:
+            watchdog.cancel()
+        if timed_out.is_set():
+            raise RuntimeError(f"collecting the .ilean archive exceeded {ILEAN_ARCHIVE_TIMEOUT_SECONDS} s")
+        if returncode != 0:
             raise RuntimeError(f"failed to collect .ilean archive: {stderr[-2000:]}")
 
 

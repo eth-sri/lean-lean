@@ -1522,7 +1522,7 @@ def process_instance(
                 # refactor-round gen_metrics so the viewer reads round 0 identically.
                 gen_metrics = {
                     "round": 0,
-                    "llm_cost": round0_llm_cost,
+                    "llm_cost": round0_llm_cost if round0_responses else None,
                     "cost_accounting": cost_accounting_from_responses(round0_responses),
                     "wall_time_seconds": round0_wall_time,
                     "exit_status": exit_status,
@@ -1623,7 +1623,7 @@ def process_instance(
                 # Save per-round generation metrics (cost, wall time).
                 gen_metrics = {
                     "round": refactor_round + 1,
-                    "llm_cost": round_llm_cost,
+                    "llm_cost": round_llm_cost if round_responses else None,
                     "cost_accounting": cost_accounting_from_responses(round_responses),
                     "wall_time_seconds": round_wall_time,
                     "exit_status": exit_status_r,

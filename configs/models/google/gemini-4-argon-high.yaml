@@ -1,0 +1,41 @@
+kind: leanlean_evaluation_model
+schema_version: 1
+model: gemini-4-argon
+harness: antigravity_cli
+harness_version: 1.4.0
+reasoning_effort: high
+parallelism:
+  workers: 6
+  start_interval_seconds: 2
+system_prompt:
+  mode: native
+  snapshot: experiments/payload_audit/prompts/google-gemini-4-argon-high.json
+  sha256: 173773e61016c990fccc577526b050f97cb5d50b55c2f5d3dc6ae9d21e1d86b2
+generation_parameters:
+  policy: native_harness_defaults
+  observed_at: '2026-10-16'
+  request_sha256: 92a6c61bdce859548175a0005b1e50c3adfa446ebce9d9ebd3ce94ece90f122d
+  request:
+    maxOutputTokens: 65536
+    thinkingConfig:
+      includeThoughts: true
+      thinkingLevel: HIGH
+    stream: true
+    known_dynamic_inputs:
+    - current_local_time
+    - conversation_id
+    - workspace_paths
+pricing:
+  basis: benchmark_cost_accounting_snapshot
+  observed_at: '2026-10-16'
+  source: src/configs/model_constants.py
+  currency: USD
+  unit: per_million_tokens
+  reasoning_tokens_billed_as: output
+  rates:
+    input: 2.0
+    output: 10.0
+    cache_read: 0.1
+    cache_creation: 0.0
+access:
+  mode: api

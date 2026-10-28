@@ -1,22 +1,28 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-version="1.1.26"
+version="${1:-1.4.0}"
 case "$(uname -m)" in
   x86_64|amd64)
     platform="linux-x64"
     asset="agy_cli_linux_x64.tar.gz"
-    sha256="c47c0726266b3513660b7094bceceecbd03d8ae907786aa269c507ceb7e4ee54"
     ;;
   aarch64|arm64)
     platform="linux-arm64"
     asset="agy_cli_linux_arm64.tar.gz"
-    sha256="f595d2f1ae23001afffab9cb9012d054f0e8a02a1e848537f73239ae8d3fbd6d"
     ;;
   *)
     echo "Unsupported architecture: $(uname -m)" >&2
     exit 2
     ;;
+esac
+
+case "${version}-${platform}" in
+  1.4.0-linux-x64) sha256="fd96967583c1eed94733c039638fa59b71ddbd823c75ebc8dd0e677463565aad" ;;
+  1.4.0-linux-arm64) sha256="cf953adcc69f87d00d71f97c3f35dc723a8669a350accf9a199df781f0523f56" ;;
+  1.1.26-linux-x64) sha256="c47c0726266b3513660b7094bceceecbd03d8ae907786aa269c507ceb7e4ee54" ;;
+  1.1.26-linux-arm64) sha256="f595d2f1ae23001afffab9cb9012d054f0e8a02a1e848537f73239ae8d3fbd6d" ;;
+  *) echo "Unsupported pinned Antigravity version: ${version}" >&2; exit 2 ;;
 esac
 
 data_root="${XDG_DATA_HOME:-${HOME}/.local/share}"

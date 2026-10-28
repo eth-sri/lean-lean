@@ -34,7 +34,6 @@ from leanlean.palomar_comparator import (
     install_palomar_tools,
     load_palomar_evidence,
 )
-from leanlean.report_summary import write_run_report_summary
 from leanlean.repo_variants import (
     repo_image_overrides_from_env,
     repo_image_tag,
@@ -43,7 +42,6 @@ from leanlean.repo_variants import (
 
 from leanlean.timeout_policy import LEAN_VERIFY_TIMEOUT_SECONDS
 
-from leanlean.preprocessing.olean import DeclRange
 
 logger = logging.getLogger("leanlean.leanlean")
 
@@ -482,22 +480,6 @@ unsafe def main (args : List String) : IO UInt32 := do
   return 0
 """.strip()
 
-
-def _install_word_count_script(env: "Environment") -> None:
-    """Install the legacy counter only when Python is already available.
-
-    Source metrics are measured from an exported archive on the host. This
-    helper remains for old playback captures, but must never mutate a benchmark
-    container or attempt network access.
-    """
-    python_check = env.execute("command -v python3 >/dev/null 2>&1")
-    if python_check.get("returncode", 1) != 0:
-        raise RuntimeError(
-            "legacy in-container word counting requires preinstalled python3; "
-            "runtime package installation is disabled"
-        )
-    cmd = f"cat > {_WORD_COUNT_PATH} << 'WORDCOUNT_EOF'\n{_WORD_COUNT_SCRIPT}\nWORDCOUNT_EOF"
-    env.execute(cmd)
 
 
 def _metric_source_paths(include_prefix: str) -> list[str]:
@@ -1794,79 +1776,6 @@ unsafe def main (paths : List String) : IO UInt32 := do
 _DUMP_ANONYMOUS_EXAMPLES_PATH = "/tmp/_dump_anonymous_examples.lean"
 
 
-def _collect_anonymous_example_ranges(
-    env: "Environment", paths: list[str]
-) -> dict[str, list[DeclRange]]:
-    """Return exact outer-command ranges for anonymous ``example`` commands.
-
-    Callers pass source-level candidate files. The official Lean frontend
-    supplies the complete command range, including doc-comment and
-    command-modifier wrappers; no textual boundary heuristic is involved.
-
-    Each source is elaborated in a fresh Lean process. Large repositories can
-    have many heavyweight example-bearing modules, and retaining every loaded
-    environment in one process produces unbounded peak memory even though the
-    files are independent. Per-file processes preserve the exact frontend
-    result while releasing imported environments between sources.
-    """
-
-    requested = sorted(set(paths))
-    if not requested:
-        return {}
-    script = _DUMP_ANONYMOUS_EXAMPLES_LEAN
-    env.execute(
-        f"cat > {_DUMP_ANONYMOUS_EXAMPLES_PATH} << 'LEANEXAMPLES_EOF'\n"
-        f"{script}\nLEANEXAMPLES_EOF"
-    )
-    ranges: dict[str, list[DeclRange]] = {}
-    requested_set = set(requested)
-    record_index = 0
-    for requested_path in requested:
-        result = env.execute(
-            "cd /testbed && lake env lean --run "
-            f"{_DUMP_ANONYMOUS_EXAMPLES_PATH} "
-            f"{shlex.quote(requested_path)}",
-            timeout=3600,
-        )
-        returncode = result.get("returncode", 1)
-        output = result.get("output", "")
-        if returncode != 0:
-            detail = output[-4000:].strip() or "<no process output>"
-            raise RuntimeError(
-                "Lean anonymous-example range extraction failed for "
-                f"{requested_path} (exit {returncode}): {detail}"
-            )
-
-        for line in output.splitlines():
-            parts = line.split("\t")
-            if not parts or parts[0] != "EXAMPLE" or len(parts) != 6:
-                continue
-            _, path, sl, sc, el, ec = parts
-            if path not in requested_set or path != requested_path:
-                raise RuntimeError(
-                    "anonymous-example extractor returned unexpected path "
-                    f"{path!r} while processing {requested_path!r}"
-                )
-            try:
-                row: DeclRange = {
-                    "name": f"__anonymous_example__.{record_index}",
-                    "module": "",
-                    "start_line": int(sl),
-                    "start_col": int(sc),
-                    "end_line": int(el),
-                    "end_col": int(ec),
-                    "kind": "example",
-                    "meta": False,
-                    "keep": False,
-                }
-            except ValueError as error:
-                raise RuntimeError(
-                    f"invalid anonymous-example range record: {line!r}"
-                ) from error
-            ranges.setdefault(path, []).append(row)
-            record_index += 1
-    return ranges
-
 
 def _load_scout_signatures(instance_id: str) -> set[str] | None:
     """Load Opus-scouted protected names from data/<instance_id>/signatures.json.
@@ -2452,20 +2361,6 @@ class LeanLeanInstance(Instance):
         )
         return base_id
 
-    def _has_cache_image(self) -> bool:
-        """Check if a committed build-cache image exists locally."""
-        result = subprocess.run(
-            ["docker", "image", "inspect", self._cache_image_tag],
-            capture_output=True,
-        )
-        return result.returncode == 0
-
-    def _remove_cache_image(self) -> None:
-        """Remove the committed build-cache image."""
-        subprocess.run(
-            ["docker", "rmi", self._cache_image_tag],
-            capture_output=True,
-        )
 
     @staticmethod
     def _image_exists(tag: str) -> bool:
@@ -2628,32 +2523,6 @@ class LeanLeanInstance(Instance):
             run_args.append(f"--cgroup-parent={self.container_cgroup_parent}")
         env_config["run_args"] = run_args
 
-    def setup_with_cache(self, env_config: dict[str, Any]) -> Environment:
-        """Start a container from the build-cache image.
-
-        The cache image was committed by the generate step after the agent ran
-        and `lake build` succeeded.  It contains the full .lake/ build artifacts.
-        We reset the source tree to the clean baseline so the patch can be
-        re-applied independently, but .lake/ (untracked) survives the reset,
-        making the subsequent `lake build` near-instant.
-        """
-        env_config["image"] = self._cache_image_tag
-        env_config["cwd"] = "/testbed"
-        env_config["timeout"] = 1800
-        env_config["container_timeout"] = self.container_timeout
-        self._apply_cpu_limit(env_config)
-        env = get_environment(env_config, default_type="docker")
-        # Reset source to the init commit so the submitted patch (which was
-        # diffed against that same commit) applies cleanly.  .lake/ is
-        # untracked and survives the checkout for fast incremental builds.
-        init = "$(cat /.init_commit 2>/dev/null || git rev-list --max-parents=0 HEAD | tail -1)"
-        env.execute(
-            f"cd /testbed && "
-            f"git reset {init} -- . && "
-            f"git checkout -- . && "
-            f"git clean -fd --exclude='.lake/'"
-        )
-        return env
 
     def _compile_result_path(self, base_dir: Path) -> Path:
         return base_dir / self.instance_id / "compile_result.json"
@@ -3608,69 +3477,6 @@ class LeanLeanBenchmark(Benchmark):
                 for instance_id, rounds in pending.items()
             }
             self._process_futures(future_to_id, desc="Compiling")
-
-    def analyze(
-        self,
-        round_specs: "list[tuple[int, dict, Path]]",
-        run_id: int,
-        workers: int = 8,
-    ) -> dict[str, bool]:
-        """Phase 2 dispatcher: derive report.json from compile_result.json for
-        every (instance, round). No docker, no `lake build` — re-runnable.
-        """
-        jobs: list[tuple[str, Path]] = []
-        for _round_num, preds, round_base in round_specs:
-            for instance_id in preds:
-                if instance_id not in self.instance_map:
-                    continue
-                if not self.instance_map[instance_id]._compile_result_path(round_base).exists():
-                    logger.warning(
-                        "No compile_result.json for %s at %s — run compile first; skipping",
-                        instance_id, round_base,
-                    )
-                    continue
-                jobs.append((instance_id, round_base))
-        logger.info("Analyzing %d (instance, round) results", len(jobs))
-
-        with concurrent.futures.ThreadPoolExecutor(max_workers=workers) as executor:
-            future_to_id = {
-                executor.submit(
-                    self.instance_map[instance_id].analyze_round,
-                    round_base,
-                    run_id,
-                ): instance_id
-                for instance_id, round_base in jobs
-            }
-            self._process_futures(future_to_id, desc="Analyzing")
-
-        results: dict[str, bool] = {}
-        for instance_id, round_base in jobs:
-            report_file = round_base / instance_id / "report.json"
-            try:
-                with open(report_file, "r") as f:
-                    report_data = json.load(f)
-                    results[instance_id] = report_data[instance_id]["resolved"]
-            except Exception as e:
-                logger.error(f"Error reading report for instance {instance_id}: {e}")
-                results[instance_id] = False
-
-        run_dirs = {
-            round_base.parent
-            if re.fullmatch(r"round_\d+", round_base.name)
-            else round_base
-            for _round_num, _preds, round_base in round_specs
-        }
-        for run_dir in sorted(run_dirs):
-            try:
-                summary_path = write_run_report_summary(run_dir)
-                logger.info("Wrote compact run report summary to %s", summary_path)
-            except Exception as e:
-                logger.error(
-                    "Failed to write compact report summary for %s: %s",
-                    run_dir,
-                    e,
-                )
-        return results
 
 
 def filter_instances(

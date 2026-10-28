@@ -5,7 +5,6 @@ from markdown_it import MarkdownIt
 from pathlib import Path
 import shlex
 from typing import Any
-import re
 import textwrap
 
 from configs.model_constants import get_model_prices
@@ -99,36 +98,6 @@ class ToolComponent:
     completion_tokens: int | None = None
     total_cost: float | None = None
 
-    def _extract_exit_code(self, generator: str) -> int | None:
-        text = self.tool_output
-        error_code = 0
-
-        if generator == "claude_code":
-            m = re.search(r'(?i)\bexit\s*code\s*[:=]?\s*(\d+)\b', text)
-            error_code = int(m.group(1)) if m else 0
-
-        elif generator == "qwen_code":
-            m = re.search(r'(?im)^\s*exit\s*code\s*[:=]?\s*(\d+)\s*$', text)
-            error_code = int(m.group(1)) if m else 0
-
-        elif generator == "codex":
-            error_code = self.exit_code if self.exit_code is not None else 0
-
-        return error_code 
-
-    def extract_exit_code(self) -> int | None:
-        error_code = 0
-
-        if self.tool_name == "Bash":
-            error_code = self._extract_exit_code("claude_code")
-
-        elif self.tool_name == "run_shell_command":
-            error_code = self._extract_exit_code("qwen_code")
-
-        elif self.tool_name == "shell":
-            error_code = self._extract_exit_code("codex")
-
-        return error_code 
 
     def is_error(self) -> bool:
         if self.tool_name in {"Bash", "run_shell_command", "shell"}:
@@ -244,16 +213,6 @@ class TokenUsage:
 
         return (input_cost + output_cost + cache_cost + cache_creation_cost) / 1_000_000 # Prices are per million tokens
 
-    def to_dict(self) -> dict[str, int]:
-        return {
-            "prompt_tokens": self.prompt_tokens,
-            "cached_prompt_tokens": self.cached_prompt_tokens,
-            "completion_tokens": self.completion_tokens,
-            "reasoning_tokens": self.reasoning_tokens,
-            "total_tokens": self.total_tokens,
-            "cache_creation_tokens": self.cache_creation_tokens,
-        }
-
 
 @dataclass(frozen=True)
 class UsageInfo:
@@ -326,33 +285,6 @@ class Trace:
             self._usage_by_tool_call_id,
         )
         self._steps = self.steps
-
-    def get_first_read_file(self, file_names: list[str]) -> dict[str, Any] | None:
-        """Compute the number of tokens/steps/cost until the first read of any of the given files."""
-
-        file_name_set = set(file_names)
-        cost = 0.0
-        prompt_tokens = 0
-        completion_tokens = 0
-
-        for idx, step in enumerate(self.steps):
-
-            prompt_tokens += step.prompt_tokens or 0
-            completion_tokens += step.completion_tokens or 0
-            cost += step.total_cost or 0.0
-
-            if isinstance(step, ToolComponent):
-                tool_call_text = step.tool_call or ""
-                for file_name in file_name_set:
-                    if file_name in tool_call_text:
-                        return {
-                            "number_steps": idx,
-                            "cost": cost,
-                            "prompt_tokens": prompt_tokens,
-                            "completion_tokens": completion_tokens,
-                        }
-
-        return None
 
 
     @classmethod
@@ -2173,25 +2105,3 @@ class Trace:
             )
             total_cost += model_cost
         return total_cost
-
-    def get_tool_usage(self, advanced: bool = False) -> dict[str, int]:
-        tool_usage: dict[str, int] = {}
-        for tool_component in self.tool_components:
-            tool_name = (
-                tool_component.get_advanced_name() if advanced else tool_component.tool_name
-            )
-            if not tool_name:
-                tool_name = "unknown_tool"
-            tool_usage[tool_name] = tool_usage.get(tool_name, 0) + 1
-        return tool_usage
-        
-    def get_all_tool_names(self) -> set[str]:
-        tool_usage = self.get_tool_usage()
-        return set(tool_usage.keys())
-
-    def get_error_tool_components(self) -> list[ToolComponent]:
-        error_components = []
-        for component in self.tool_components:
-            if component.is_error():
-                error_components.append(component)
-        return error_components

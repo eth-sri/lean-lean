@@ -33,8 +33,12 @@ from .accounting import record_identity, record_scope, scoped_url
 _LITELLM_PROXY_START = """
 from leanlean.subscription_auth import install_explicit_chatgpt_auth
 install_explicit_chatgpt_auth()
+from leanlean.model.litellm_wrapper.chatgpt_passthrough import install_native_chatgpt_passthrough
+install_native_chatgpt_passthrough()
 from litellm.proxy.proxy_cli import ProxyInitializationHelpers, run_server
 from litellm.proxy.proxy_server import app
+from leanlean.model.litellm_wrapper.argon_request_retry import ArgonRequestRetryMiddleware
+app.add_middleware(ArgonRequestRetryMiddleware)
 from leanlean.model.litellm_wrapper.accounting import AccountingScopeMiddleware
 app.add_middleware(AccountingScopeMiddleware)
 from leanlean.model.litellm_wrapper.stream_usage import install_stream_usage_capture
@@ -228,24 +232,6 @@ class LitellmServer(Model):
 
         atexit.register(self.stop)
 
-    def update_port(self, new_port: int) -> None:
-        """Update the port used by the server (must be called before serve())."""
-        old_registry_key = self._proxy_registry_key
-        self._port = new_port
-        self._proxy_url = f"http://{self._bind_host}:{self._port}/v1"
-        self._proxy_registry_key = (self._bind_host, self._port)
-        with _PROXY_API_KEYS_LOCK:
-            if (
-                self._owns_proxy_key
-                and _PROXY_API_KEYS.get(old_registry_key) == self._api_key
-            ):
-                _PROXY_API_KEYS.pop(old_registry_key, None)
-            existing_key = _PROXY_API_KEYS.get(self._proxy_registry_key)
-            self._owns_proxy_key = existing_key is None
-            if existing_key is None:
-                _PROXY_API_KEYS[self._proxy_registry_key] = self._api_key
-            else:
-                self._api_key = existing_key
 
     def get_api_key(self) -> str:
         return self._api_key
@@ -268,10 +254,13 @@ class LitellmServer(Model):
     def get_provider_stream_path(self) -> Path:
         return Path(LOG_PATH) / f"proxy_{self._port}.provider-stream.jsonl"
 
+    def get_request_retries_path(self) -> Path:
+        return Path(LOG_PATH) / f"proxy_{self._port}.request-retries.jsonl"
+
     def _initialize_trace_files(self) -> None:
         """Start one proxy lifetime with fresh forensic and accounting logs."""
 
-        for path in (self.get_traces_path(), self.get_cost_traces_path()):
+        for path in (self.get_traces_path(), self.get_cost_traces_path(), self.get_request_retries_path()):
             try:
                 path.unlink()
             except FileNotFoundError:
@@ -284,10 +273,7 @@ class LitellmServer(Model):
             self.config.subscription_transport
             or self.config.preserve_shared_traces
         ):
-            # Subscription workers share one proxy. A worker must not truncate
-            # the run-global forensic or accounting journal while its peers are
-            # still active. The owning proxy initializes fresh files in serve()
-            # and intentionally preserves them when it stops.
+            # Workers share these journals; only serve() starts a fresh log.
             self.logger.debug(
                 "Preserving shared subscription traces for proxy port %s",
                 self._port,
@@ -311,6 +297,7 @@ class LitellmServer(Model):
             "forensic": self.get_traces_path(),
             "accounting": self.get_cost_traces_path(),
             "provider-stream": self.get_provider_stream_path(),
+            "request-retries": self.get_request_retries_path(),
         }
         archived: dict[str, Path] = {}
         for label, source in sources.items():
@@ -437,8 +424,15 @@ class LitellmServer(Model):
                 compaction_entry["model_info"] = compaction_info
             model_list.append(compaction_entry)
 
-        # Gemini CLI uses this alias internally for loop detection.
-        if upstream_model.startswith("gemini/"):
+        # Antigravity's GenAI catalog adds effort to Argon's route. The
+        # provider API accepts the base ID; preserve native thinkingConfig.
+        if upstream_model == "gemini/gemini-4-argon":
+            model_list.extend(_model_entry(f"gemini-4-argon-{effort}")
+                              for effort in ("low", "medium", "high"))
+
+        # Gemini CLI uses this alias internally for loop detection. Argon's
+        # explicit gateway catalog keeps auxiliary requests on Argon as well.
+        if upstream_model.startswith("gemini/") and upstream_model != "gemini/gemini-4-argon":
             flash_aliases = [
                 "gemini/gemini-3-flash-preview",
                 "gemini-3-flash-preview",
@@ -486,6 +480,10 @@ class LitellmServer(Model):
         if self.config.subscription_transport == "chatgpt":
             # Keep upstream 401 errors instead of a synthetic cooldown 429.
             config["router_settings"] = {"disable_cooldowns": True}
+        if upstream_model == "gemini/gemini-4-argon":
+            # ArgonRequestRetryMiddleware owns retries. Router's default two
+            # retries otherwise multiply six outer attempts into 18 calls.
+            config.setdefault("router_settings", {})["num_retries"] = 0
         return config
 
     def _prepare_chatgpt_auth(self, child_env: dict[str, str]) -> None:
@@ -525,6 +523,10 @@ class LitellmServer(Model):
             child_env.pop("DEBUG", None)
         child_env["LITELLM_MASTER_KEY"] = self._api_key
         child_env["LEANLEAN_LITELLM_TRACE_ID"] = str(self._port)
+        # A native request can fail mid-stream; do not restart the agent run.
+        child_env["LEANLEAN_ARGON_REQUEST_RETRIES"] = (
+            "5" if self.config.model_name.split("/")[-1] == "gemini-4-argon" else "0"
+        )
         if self.config.reasoning_effort_map:
             child_env["LEANLEAN_REASONING_EFFORT_MAP"] = json.dumps(self.config.reasoning_effort_map)
         self._validate_upstream_environment(child_env)

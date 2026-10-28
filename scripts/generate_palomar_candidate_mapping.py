@@ -223,12 +223,6 @@ def _archive_bytes(archive: Path, repository_path: str) -> bytes:
     return matches[0]
 
 
-def _archive_json(archive: Path, repository_path: str) -> dict[str, Any]:
-    payload = json.loads(_archive_bytes(archive, repository_path).decode("utf-8"))
-    if not isinstance(payload, dict):
-        raise ValueError(f"{archive}:{repository_path}: expected JSON object")
-    return payload
-
 
 def _pinned_source_hash(
     record: dict[str, Any],

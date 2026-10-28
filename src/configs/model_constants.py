@@ -38,12 +38,8 @@ GEMINI_FLASH_LITE_PRICING_DATE = "2026-09-17"
 GEMINI_FLASH_LITE_PRICING_SOURCE = "https://ai.google.dev/gemini-api/docs/pricing"
 
 
-# input, output, cache (read), cache_creation
-# NOTE: Claude models use the 1-HOUR cache-creation rate (2x base input), not
-# the 5-minute rate (1.25x). Claude Code (both the subscription path and the
-# proxy/API path) creates 1h ephemeral cache exclusively, so this is the rate
-# that actually gets billed. Using the 5m rate undercounts cache-creation cost
-# by ~40% (e.g. opus 6.25 -> 10.0) and the overall run cost by ~30%.
+# Rates: input, output, cache read, cache creation.
+# Claude Code uses 1-hour cache writes (2x input), including on subscription runs.
 MODEL_PRICES = {
     "muse-spark-1.3": (1.25, 4.25, 0.15, 0.0),
     "muse-spark-1.3-contributor": (0.10, 0.20, 0.002, 0.0),
@@ -67,6 +63,10 @@ MODEL_PRICES = {
     "gemini-3.5-flash-lite": (0.30, 2.50, 0.03, 0.0),
     # Introductory standard rates through 2026-12-31.
     "gemini-3.8-flash": (0.75, 3.75, 0.075, 0.0),
+    # Standard introductory rates through 2026-11-30, observed 2026-10-16:
+    # https://ai.google.dev/gemini-api/docs/pricing#gemini-4-argon
+    # Implicit caching only; explicit cache creation is unsupported.
+    "gemini-4-argon": (2.0, 10.0, 0.10, 0.0),
     "glm-5": (1.0, 3.2, 0.2, 0.0),
     "glm-5.3": (1.4, 4.4, 0.26, 0.0),
     # Stable list rates; do not bake Z.ai's temporary launch discount into
@@ -86,6 +86,9 @@ MODEL_PRICES = {
     "claude-opus-4-8": (5.0, 25.0, 0.5, 10.0),
     "claude-opus-5": (5.0, 25.0, 0.5, 10.0),
     "claude-opus-5-5": (4.0, 20.0, 0.20, 8.0),
+    # Claude Code 2.1.294 pricing tier haiku_55 (1 h cache writes). Prompts above
+    # 100k tokens are billed at 5x these rates, which this flat tuple does not model.
+    "claude-haiku-5-5": (0.1, 0.5, 0.01, 0.2),
     "claude-fable-5": (10.0, 50.0, 1.0, 12.5),
     "claude-fable-5-1": (10.0, 50.0, 0.25, 20.0),
     "gpt-5-codex": (1.25, 10.0, 0.125, 0.0),
@@ -116,6 +119,8 @@ MODEL_PRICES = {
 
 
 _MODEL_PRICE_ALIASES = {
+    **{f"gemini-4-argon-{effort}": "gemini-4-argon"
+       for effort in ("low", "medium", "high")},
     "gpt-5.1-codex": "gpt-5-codex",
     "gpt-5.2-codex-mini": "gpt-5.1-codex-mini",
     "gpt-5.6": "gpt-5.6-sol",
@@ -127,7 +132,8 @@ def get_model_prices(model_name: str | None) -> tuple[float, float, float, float
     if not model_name:
         return None
 
-    normalized = str(model_name).split("/")[-1]
+    # Claude Code records its context-window selector in modelUsage.
+    normalized = str(model_name).split("/")[-1].removesuffix("[1m]")
     prices = MODEL_PRICES.get(normalized)
     if prices is not None:
         return prices
@@ -230,6 +236,11 @@ MODEL_OPUS_5 = {
 MODEL_OPUS_5_5 = {
     **MODEL_OPUS_5,
     "model_name": "anthropic/claude-opus-5-5",
+    "model_kwargs": {**MODEL_OPUS_5["model_kwargs"]},
+}
+MODEL_HAIKU_5_5 = {
+    **MODEL_OPUS_5,
+    "model_name": "anthropic/claude-haiku-5-5",
     "model_kwargs": {**MODEL_OPUS_5["model_kwargs"]},
 }
 MODEL_OPUS_5_LOW = deepcopy(MODEL_OPUS_5)
@@ -619,6 +630,15 @@ MODEL_GEMINI_3_8_FLASH = {
     },
 }
 
+MODEL_GEMINI_4_ARGON = {
+    "model_name": "gemini/gemini-4-argon",
+    "model_kwargs": {
+        "drop_params": True,
+        "reasoning_effort": "high",
+        "api_key": "os.environ/GEMINI_API_KEY",
+    },
+}
+
 ###############
 # Z-AI MODELS #
 ###############
@@ -729,6 +749,7 @@ ALL_MODEL_CONFIGS = {
     "qwen3.6-35b": MODEL_QWEN3_6_35B,
     "gemini-3-pro": MODEL_GEMINI_3_PRO,
     "gemini-3.8-flash": MODEL_GEMINI_3_8_FLASH,
+    "gemini-4-argon": MODEL_GEMINI_4_ARGON,
     "opus-4-5": MODEL_OPUS,
     "sonnet-4-5": MODEL_SONNET,
     "opus-4-6": MODEL_OPUS_4_6,
@@ -738,6 +759,7 @@ ALL_MODEL_CONFIGS = {
     "opus-4-8-high": MODEL_OPUS_4_8_HIGH,
     "opus-5": MODEL_OPUS_5,
     "opus-5.5": MODEL_OPUS_5_5,
+    "haiku-5.5": MODEL_HAIKU_5_5,
     "opus-5-low": MODEL_OPUS_5_LOW,
     "opus-5-medium": MODEL_OPUS_5_MEDIUM,
     "opus-5-high": MODEL_OPUS_5_HIGH,
