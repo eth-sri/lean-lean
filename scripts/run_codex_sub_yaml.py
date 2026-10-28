@@ -100,6 +100,7 @@ ALLOWED = (
         "playback",
         "harness_version",
         "codex_model_catalog",
+        "context_window",
         "generation_parameters",
         "pricing",
         "trajectory",
@@ -693,11 +694,18 @@ def load_manifest(path: Path) -> dict:
             "codex_app_server_sub, claude_code_sub, claude_code_glm, "
             "muse_code_native, muse_code_core, mistral_vibe_lean, or antigravity_cli"
         )
-    if spec["generator"] == "antigravity_cli" and spec["model"] != (
-        "gemini-3.8-flash"
+    context_window = spec.get("context_window")
+    if context_window is not None and (
+        spec["generator"] != "claude_code_sub" or type(context_window) is not int or context_window != 1_000_000
     ):
-        raise ValueError(
-            f"{path}: generator=antigravity_cli requires gemini-3.8-flash"
+        raise ValueError("context_window supports only 1000000 with claude_code_sub")
+    if spec["generator"] == "antigravity_cli":
+        from leanlean.antigravity_config import ANTIGRAVITY_VERSION, validate_antigravity_contract
+        agent = spec.get("agent") or {}
+        validate_antigravity_contract(
+            model=spec["model"], version=spec.get("harness_version") or ANTIGRAVITY_VERSION,
+            enable_subagents=agent.get("enable_subagents", False),
+            allowed_skills=agent.get("allowed_skills", []), mcp_servers=agent.get("mcp_servers", []),
         )
     if spec["model"].startswith("muse-spark-"):
         from leanlean.generators.muse_code import validate_reasoning_effort
@@ -1011,9 +1019,9 @@ def _run_directory(spec: dict) -> Path:
     if configured is not None:
         path = Path(str(configured))
         path = path.resolve() if path.is_absolute() else (REPO_ROOT / path).resolve()
-        output_root = (REPO_ROOT / "output").resolve()
-        if not path.is_relative_to(output_root):
-            raise ValueError("output_directory must stay under output/")
+        roots = [(REPO_ROOT / name).resolve() for name in ("results", "output")]
+        if not any(path.is_relative_to(root) for root in roots):
+            raise ValueError("output_directory must stay under results/ or output/")
         return path
     return (
         REPO_ROOT
@@ -1236,6 +1244,9 @@ def run_experiment(spec: dict) -> int:
 
     model_config = _model_config_for_spec(spec)
     generator_config = runner.ALL_GENERATOR_CONFIGS[spec["generator"]]
+    original_context_window = generator_config.get("context_window")
+    if spec.get("context_window") is not None:
+        generator_config["context_window"] = spec["context_window"]
     original_host_tool_version = generator_config.get("host_tool_version")
     if spec.get("harness_version"):
         generator_config["host_tool_version"] = spec["harness_version"]
@@ -1305,6 +1316,10 @@ def run_experiment(spec: dict) -> int:
             trajectory=spec["trajectory"],
         )
     finally:
+        if original_context_window is None:
+            generator_config.pop("context_window", None)
+        else:
+            generator_config["context_window"] = original_context_window
         generator_config["host_tool_version"] = original_host_tool_version
         generator_config["instance_template"] = original_instance_template
         if original_codex_model_catalog is None:

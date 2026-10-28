@@ -115,6 +115,12 @@ class DockerEnvironmentConfig:
     """
 
     def __post_init__(self) -> None:
+        relay_pin = os.environ.get("LEANLEAN_MODEL_RELAY_IMAGE")
+        if relay_pin and self.model_relay_image == "leanlean-model-relay:latest":
+            digest = relay_pin.removeprefix("sha256:")
+            if not relay_pin.startswith("sha256:") or len(digest) != 64 or any(c not in "0123456789abcdef" for c in digest):
+                raise ValueError("LEANLEAN_MODEL_RELAY_IMAGE must be an immutable sha256 image ID")
+            self.model_relay_image = relay_pin
         policies = {"none", "model_proxy_only"}
         if self.network_policy not in policies:
             raise ValueError(
@@ -426,8 +432,13 @@ class DockerEnvironment(BaseDockerEnvironment, Environment):
             pass
         return {address for address in addresses if not address.startswith("127.")}
 
-    def attach_model_gateway(self, base_url: str) -> str:
-        """Attach a private fixed-target relay and return its container URL."""
+    def attach_model_gateway(self, base_url: str, *, idle_timeout_seconds: int | None = None) -> str:
+        """Attach a private relay, optionally bounding application-byte silence."""
+
+        if idle_timeout_seconds is not None and (
+            type(idle_timeout_seconds) is not int or not 1 <= idle_timeout_seconds <= 86400
+        ):
+            raise ValueError("relay idle timeout must be an integer in 1..86400 seconds")
 
         if self.config.network_policy != "model_proxy_only":
             raise RuntimeError(
@@ -459,6 +470,8 @@ class DockerEnvironment(BaseDockerEnvironment, Environment):
         if self._model_gateway_target is not None:
             if self._model_gateway_target != target:
                 raise RuntimeError("an eval container cannot attach two model gateways")
+            if getattr(self, "_model_gateway_idle_timeout_seconds", None) != idle_timeout_seconds:
+                raise RuntimeError("cannot change the idle timeout of an attached model gateway")
             return urlunsplit(
                 (parsed.scheme, "model-gateway:18080", parsed.path, parsed.query, "")
             )
@@ -515,6 +528,7 @@ class DockerEnvironment(BaseDockerEnvironment, Environment):
                     target_host,
                     str(target_port),
                     "18080",
+                    *([] if idle_timeout_seconds is None else [str(idle_timeout_seconds)]),
                 ],
                 capture_output=True,
                 text=True,
@@ -606,10 +620,12 @@ class DockerEnvironment(BaseDockerEnvironment, Environment):
         self._model_network_name = network_name
         self._model_relay_id = relay_id
         self._model_gateway_target = target
+        self._model_gateway_idle_timeout_seconds = idle_timeout_seconds
         self.logger.info(
-            "Attached model-only network %s via fixed relay to %s",
+            "Attached model-only network %s via fixed relay to %s (idle timeout: %s seconds)",
             network_name,
             target,
+            idle_timeout_seconds,
         )
         return urlunsplit(
             (parsed.scheme, "model-gateway:18080", parsed.path, parsed.query, "")

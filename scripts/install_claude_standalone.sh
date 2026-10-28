@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# 2.1.269 is the benchmark default; Opus 5.5 needs 2.1.280.
+# 2.1.269 is the benchmark default; Opus 5.5 needs 2.1.280; Haiku 5.5 needs 2.1.294.
 version="${1:-2.1.269}"
 case "${version}/$(uname -m)" in
   2.1.269/x86_64|2.1.269/amd64)
@@ -15,6 +15,10 @@ case "${version}/$(uname -m)" in
   2.1.280/x86_64|2.1.280/amd64)
     asset="claude-linux-x64.tar.gz"
     sha256="4239c476881f46f5bd2cccee97c10b1c8073f4ab4ae40e3c829493210e757764"
+    ;;
+  2.1.294/x86_64|2.1.294/amd64)
+    asset="claude-linux-x64.tar.gz"
+    sha256="c152a9520cbe30adfaa7dbff26016d74c668c7dfb093fca2a06fa72cb6e98369"
     ;;
   *)
     echo "No pinned Claude Code ${version} archive for $(uname -m)" >&2

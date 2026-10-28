@@ -1,9 +1,5 @@
-# GPT-6.1 Sol on Codex 0.160.0 (scripts/install_codex_standalone.sh 0.160.0), the first pinned release
-# whose bundled catalog has gpt-6.1-sol (0.154.0 falls back to generic model metadata and tools). The
-# codex_model_catalog below is 0.160.0's bundled catalog with gpt-6.1-sol's two experimental tools
-# (send_user_message_async, clock) removed, so its tool settings equal GPT-5.6 Sol's and the request
-# carries the same tools (code-mode exec, wait, request_user_input); the runner passes it as
-# -c model_catalog_json. Request captured on loopback with scripts/capture_harness_request.py.
+# Codex 0.160.0 with send_user_message_async and clock removed from its catalog.
+# The remaining request tools match the GPT-5.6 Sol benchmark profile.
 kind: leanlean_evaluation_model
 schema_version: 1
 model: gpt-6.1-sol

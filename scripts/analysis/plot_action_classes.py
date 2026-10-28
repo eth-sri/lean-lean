@@ -12,7 +12,7 @@ delegation calls are not counted at all.
 
 Usage:
     python scripts/analysis/plot_action_classes.py \\
-        output/evaluation/leanlean_20260914/anthropic/opus-5-high [MORE_MODEL_DIRS...] \\
+        results/leanlean_20260914/anthropic/opus-5-high [MORE_MODEL_DIRS...] \\
         --dataset datasets/leanlean_20260914 --output-dir output/analysis/agent-actions
 
 Writes action-repositories.csv (counts per trajectory), agent-actions.csv (mean
@@ -530,7 +530,7 @@ def render(summary, output):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("runs", nargs="+", type=Path,
-                        help="model directories, output/evaluation/<dataset>/<provider>/<model>")
+                        help="model directories, results/<dataset>/<provider>/<model>")
     parser.add_argument("--labels", nargs="+", help="figure label per model directory (default: its name)")
     parser.add_argument("--dataset", type=Path, default=Path("datasets/leanlean_20260914"),
                         help="dataset whose repos/<id>/ define each starting repository")

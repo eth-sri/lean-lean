@@ -10,9 +10,7 @@ from __future__ import annotations
 
 import hashlib
 import json
-import shutil
 import tarfile
-import tempfile
 from pathlib import Path, PurePosixPath
 from typing import Any, Mapping
 from leanlean.identifiers import same_identifier
@@ -248,75 +246,6 @@ def load_comparator_bundle(
     _, registry = _bundle_file(bundle, registry_record, "Palomar registry record")
     return bundle, manifest, challenge, configuration, registry
 
-
-def copy_comparator_bundle(
-    *,
-    repo_root: Path,
-    bundle_record: Mapping[str, Any],
-    instance_id: str,
-    destination: Path,
-) -> dict[str, str]:
-    """Copy a verified bundle to a durable repository artifact directory."""
-
-    root = repo_root.resolve()
-    _, manifest, challenge, configuration, registry = load_comparator_bundle(
-        repo_root=root,
-        bundle_record=bundle_record,
-        instance_id=instance_id,
-    )
-    destination = destination.resolve()
-    if not destination.is_relative_to(root):
-        raise ValueError(f"{instance_id}: comparator destination escapes repository")
-    manifest_bytes = (
-        json.dumps(manifest, indent=2, sort_keys=True, ensure_ascii=False).encode()
-        + b"\n"
-    )
-    files = {
-        COMPARATOR_BUNDLE_MANIFEST: manifest_bytes,
-        _text(
-            _mapping(manifest["challenge"], "manifest.challenge").get("path"),
-            "manifest.challenge.path",
-        ): challenge,
-        _text(
-            _mapping(
-                manifest["configuration"], "manifest.configuration"
-            ).get("path"),
-            "manifest.configuration.path",
-        ): configuration,
-        _text(
-            _mapping(manifest["registry_record"], "manifest.registry_record").get(
-                "path"
-            ),
-            "manifest.registry_record.path",
-        ): registry,
-    }
-    if destination.exists():
-        actual = {
-            path.relative_to(destination).as_posix(): path.read_bytes()
-            for path in destination.rglob("*")
-            if path.is_file()
-        }
-        if actual != files:
-            raise ValueError(f"{instance_id}: durable comparator bundle drifted")
-    else:
-        destination.parent.mkdir(parents=True, exist_ok=True)
-        staging = Path(
-            tempfile.mkdtemp(prefix=".comparator-", dir=destination.parent)
-        )
-        try:
-            for relative, content in files.items():
-                path = staging / relative
-                path.parent.mkdir(parents=True, exist_ok=True)
-                path.write_bytes(content)
-            staging.replace(destination)
-        finally:
-            if staging.exists():
-                shutil.rmtree(staging)
-    return {
-        "path": destination.relative_to(root).as_posix(),
-        "manifest": COMPARATOR_BUNDLE_MANIFEST,
-        "manifest_sha256": _sha256_bytes(manifest_bytes),
-    }
 
 
 def tool_bundle_path(tool: str, commit: str) -> Path:

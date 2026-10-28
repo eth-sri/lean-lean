@@ -1,33 +1,11 @@
 #!/usr/bin/env python3
-"""Price the macros that compute their own expansion, by running them.
+"""Measure programmatic macro savings using one native Lean expansion step.
 
-Some of what a model writes is not an abbreviation.  One repository encodes a
-table of 132 signed integers as a base-62 string and writes a ``macro_rules``
-that decodes it at elaboration time: ``integerRow% "0000w0001O..."`` is five
-scored tokens standing in for three hundred and seventy-five.  Another writes
-command macros that emit whole proof blocks from a handful of numeric arguments.
-Neither is a re-spelling of a proof -- one changes how data is represented and
-the other generates proof script -- so they are measured here and reported as
-their own bucket rather than folded into the notation leg.
-
-These cannot be expanded by pattern substitution, because the right-hand side is
-a ``MacroM`` program rather than a template.  They do not need to be: the program
-is exactly what Lean runs, so this generates a standalone Lean file holding the
-repository's new syntax commands verbatim, asks Lean to take *one* macro step at
-each call site, and reads the result back.
-
-Three things make that cheap.  The macro bodies use core Lean only -- the
-constants in their output have to parse, not elaborate -- so no Mathlib, no
-repository build and no container are involved.  One step rather than a fixpoint
-is the counterfactual actually wanted: recursing would also expand Lean's own
-list and numeral notation, turning ``[29, 43]`` into ``List.cons`` and pricing a
-world without Lean's syntax instead of a world without the model's.  And macro
-hygiene marks the identifiers it introduces, which the scoring lexer would count
-as extra tokens, so the marks are stripped before anything is measured.
-
-An ``elab`` is out of reach here: it runs in ``CommandElabM`` with environment
-effects rather than in ``MacroM``, and several of them call helper functions
-defined elsewhere in the repository.  Those are reported as uncovered.
+A standalone file registers the repository's syntax commands and expands each
+call site without a repository build. Expansion stops after one step so Lean's
+own list and numeral syntax remain intact. Hygiene marks are removed before
+source-token scoring. Elaborators with environment effects are reported as
+uncovered. See docs/compression_categories.md.
 """
 
 from __future__ import annotations
@@ -213,7 +191,22 @@ def collect_programs(sources: SourceIndex, after, added, *, rules: str = "progra
     programs: list[Program] = []
     uncovered: list[dict[str, Any]] = []
     context: list[tuple[str, int, str]] = []
-    for representative, _members in written_declaration_groups(after, added):
+    groups = list(written_declaration_groups(after, added))
+    # A parser answered only by elab_rules has no MacroM expansion. Keep it
+    # explicitly uncovered, just like inline elab commands, rather than trying
+    # to measure it as a macro and failing the entire repository.
+    rule_leads: dict[str, set[tuple[str, str]]] = {"elab_rules": set(), "macro_rules": set()}
+    for representative, _members in groups:
+        node = after.nodes[representative]
+        source = sources.slice(node) or ""
+        keyword = leading_command(source)
+        if keyword in rule_leads:
+            path = sources.path_of_module(str(node.get("module", ""))) or ""
+            code = remove_lean_comments(source, mask_strings=True)
+            for lead in re.findall(r"\|\s*`\(\s*([^\s$()]+)", code):
+                rule_leads[keyword].add((path, lead))
+    elaborator_only = rule_leads["elab_rules"] - rule_leads["macro_rules"]
+    for representative, _members in groups:
         node = after.nodes[representative]
         source = sources.slice(node) or ""
         keyword = leading_command(source)
@@ -249,6 +242,10 @@ def collect_programs(sources: SourceIndex, after, added, *, rules: str = "progra
             uncovered.append({"keyword": str(keyword), "reason": items, "tokens": tokens})
             continue
         lead = next(v.strip() for k, v, _ in items if k == "lit" and v.strip())
+        if keyword == "syntax" and (path or "", lead) in elaborator_only:
+            uncovered.append({"keyword": "syntax", "reason": "elab_rules: not a macro expansion",
+                              "tokens": tokens})
+            continue
         programs.append(Program(
             keyword=str(keyword), category=category,
             source=source, path=path, start_line=int(node["start_line"]),
@@ -626,9 +623,45 @@ def run_lean(context: Sequence[str], sites: Sequence[Site], toolchains: Sequence
     return "", "", last_error or "no usable toolchain", []
 
 
+def run_project_lean(context: Sequence[str], sites: Sequence[Site], project: Path,
+                     timeout: int) -> tuple[str, str, str, list[str]]:
+    """Measure with an explicitly selected, already built Mathlib environment.
+
+    ``lake env lean`` loads existing dependencies; it never runs ``lake build``.
+    Keep the same one-step measurement and require an answer for every candidate.
+    Unrelated elaborator declarations may report errors: their bodies are not
+    executed and only successful macro expansions are used as measurements.
+    """
+    project = project.resolve()
+    toolchain = (project/'lean-toolchain').read_text().strip()
+    driver = build_driver(context, sites, [])
+    driver = driver.replace('import Lean\n', '\n'.join([
+        'import Lean', 'import Mathlib.Util.Notation3', 'import Mathlib.Tactic.NormNum',
+        'import Mathlib.Tactic.Linarith', 'import Batteries.Tactic.SeqFocus', '']), 1)
+    driver = driver.replace('open Lean Elab Command PrettyPrinter',
+                            'open Lean Meta Elab Term Tactic Command PrettyPrinter')
+    with tempfile.TemporaryDirectory(prefix='checkpoint-macro-') as temporary:
+        path = Path(temporary)/'Driver.lean'
+        path.write_text(driver, encoding='utf-8')
+        try:
+            completed = subprocess.run([str(Path.home()/'.elan/bin/lake'), 'env', 'lean', str(path)],
+                cwd=project, capture_output=True, text=True, timeout=timeout)
+        except subprocess.TimeoutExpired:
+            return toolchain, '', 'Mathlib macro measurement timed out', []
+    output = completed.stdout
+    answers = parse_driver_output(output)
+    missing = {s.identifier for s in sites} - answers.keys()
+    expanded = any(status == 'OK' and body for status,body,*_ in answers.values())
+    error = (f'Mathlib driver missed {len(missing)} candidates' if missing else
+             'Mathlib driver expanded no call sites' if not expanded else '')
+    if error:
+        error += '\n' + (output + completed.stderr)[-1500:]
+    return toolchain + ' (existing Mathlib environment)', output, error, []
+
+
 def analyse_repository(model: str, repo: str, repo_dir: Path, record: Mapping[str, Any],
                        toolchains: Sequence[str], timeout: int,
-                       rules: str = "programs") -> RepositoryResult | None:
+                       rules: str = "programs", *, lean_project: Path | None = None) -> RepositoryResult | None:
     need = [repo_dir / "before.json", repo_dir / "after.json",
             repo_dir / "after" / "original-sources.tar.gz"]
     if not all(path.is_file() for path in need):
@@ -666,7 +699,8 @@ def analyse_repository(model: str, repo: str, repo_dir: Path, record: Mapping[st
     if not sites:
         return result
 
-    toolchain, output, error, stubs = run_lean(context, sites, toolchains, timeout)
+    toolchain, output, error, stubs = (run_project_lean(context, sites, lean_project, timeout)
+        if lean_project is not None else run_lean(context, sites, toolchains, timeout))
     result.toolchain, result.driver_error, result.tactic_stubs = toolchain, error, stubs
     if not output:
         return result

@@ -1,0 +1,55 @@
+# Codex 0.160.0 with send_user_message_async and clock removed from its catalog.
+# The remaining request tools match the GPT-5.6 Sol benchmark profile.
+kind: leanlean_evaluation_model
+schema_version: 1
+model: gpt-6.1-sol
+harness: codex_sub
+harness_version: 0.160.0
+codex_model_catalog:
+  path: configs/models/openai/codex-0.160.0-catalog-gpt-6.1-sol-sol56-tools.json
+  sha256: bd3094ec6a06a7a23ebdf32d350f31cbaf2f72e73d5271dbcfae6ed546412294
+reasoning_effort: max
+parallelism:
+  workers: 6
+  start_interval_seconds: 2
+system_prompt:
+  mode: native
+  snapshot: experiments/payload_audit/prompts/openai-gpt-6.1-sol-max.json
+  sha256: 9bfc9303819874988f0b49cb68d0f7755ebd60949edc4c05f4f36207f90717fd
+generation_parameters:
+  policy: native_harness_defaults
+  observed_at: '2026-10-08'
+  request_sha256: 7354baf4bf9f4e3800f47693d4c6401347f320c22b4009a2fb8c5ac6306c6665
+  request:
+    reasoning:
+      effort: max
+      context: all_turns
+    text_verbosity: low
+    stream: true
+    tool_choice: auto
+    parallel_tool_calls: false
+    store: false
+    include:
+    - reasoning.encrypted_content
+    known_dynamic_inputs:
+    - current_date
+    - working_directory
+    - session_identifiers
+pricing:
+  basis: benchmark_cost_accounting_snapshot
+  observed_at: '2026-10-01'
+  source: src/configs/model_constants.py
+  currency: USD
+  unit: per_million_tokens
+  reasoning_tokens_billed_as: output
+  rates:
+    input: 2.0
+    output: 10.0
+    cache_read: 0.1
+    cache_creation: 2.5
+access:
+  mode: subscription
+  credential_env: OPENAI_SUBSCRIPTION_KEY
+  limits:
+    five_hour: true
+    weekly: true

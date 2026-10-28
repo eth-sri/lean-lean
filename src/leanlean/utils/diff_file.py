@@ -3,7 +3,6 @@ from __future__ import annotations
 from dataclasses import dataclass
 from pathlib import Path
 import shlex
-from typing import Iterable
 
 
 @dataclass
@@ -250,19 +249,7 @@ class DiffFile:
         if current_lines:
             flush_section()
 
-    def get_file_names(self) -> list[str]:
-        return list(self._file_order)
 
-    def get_file_diff(self, file_name: str) -> str:
-        normalized = _normalize_path(file_name) or file_name
-        entries = self._entries_by_path.get(normalized)
-        if not entries:
-            raise KeyError(f"File not found in diff: {file_name}")
-        return "\n".join(entry.text for entry in entries)
-
-    def iter_file_diffs(self) -> Iterable[tuple[str, str]]:
-        for path in self._file_order:
-            yield path, self.get_file_diff(path)
 
     def get_cleaned_diff(self) -> str:
         if not self._entries:
@@ -274,45 +261,6 @@ class DiffFile:
             lines.extend(entry.lines)
         return "\n".join(lines)
     
-    def get_number_of_lines(self) -> int:
-        count = 0
-        for entry in self._entries:
-            count += len(entry.lines)
-        return count
-
-    def extract_created_file_content(self, file_name: str) -> str:
-        """
-        Extract the content of a newly created file from the diff.
-
-        Parameters:
-          file_name: target file name, e.g. "foo.py" or "path/to/foo.py"
-
-        Returns:
-          The file content as a string.
-
-        Raises:
-          ValueError: if file_name is not found as a created file in the diff.
-        """
-        normalized = _normalize_path(file_name) or file_name
-        entries = self._entries_by_path.get(normalized)
-
-        if not entries:
-            raise ValueError(f"File {file_name!r} not found as a created file in diff.")
-
-        content_lines: list[str] = []
-        for entry in entries:
-            for line in entry.lines:
-                if line.startswith("diff --git "):
-                    continue
-                if line.startswith("@@") or line.startswith("--- "):
-                    continue
-
-                if line.startswith("+") and not line.startswith("+++ "):
-                    content_lines.append(line[1:])
-                elif line.startswith(" "):
-                    content_lines.append(line[1:])
-
-        return "\n".join(content_lines)
 
     def __len__(self) -> int:
         return len(self._file_order)

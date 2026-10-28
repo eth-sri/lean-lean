@@ -37,6 +37,11 @@ def antigravity_terminal_success(result: Mapping[str, Any]) -> bool:
         (
             str(result.get("status") or "").upper() == "SUCCESS"
             and not result.get("error")
+            # AGY 1.4.0 can report SUCCESS after an empty or interrupted
+            # error stream. Require the canonical benchmark submission marker,
+            # just as for recovered ERROR results, before accepting its patch.
+            and isinstance(result.get("response"), str)
+            and "<submit>" in result["response"].lower()
         )
         or is_antigravity_recovered_submission(result)
     )

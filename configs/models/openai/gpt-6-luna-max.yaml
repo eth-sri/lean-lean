@@ -1,0 +1,55 @@
+# Match GPT-5.6 Sol's request tools using a filtered Codex 0.160.0 catalog.
+# Retain Luna's native priority service tier.
+kind: leanlean_evaluation_model
+schema_version: 1
+model: gpt-6-luna
+harness: codex_sub
+harness_version: 0.160.0
+codex_model_catalog:
+  path: configs/models/openai/codex-0.160.0-catalog-gpt-6.1-sol-gpt-6-luna-sol56-tools.json
+  sha256: 9ab91f6e4b7c5708c3722df161d445f1be0dc6b97a98dc792440d9065daef406
+reasoning_effort: max
+parallelism:
+  workers: 4
+  start_interval_seconds: 2
+system_prompt:
+  mode: native
+  snapshot: experiments/payload_audit/prompts/openai-gpt-6-luna-max.json
+  sha256: 5834a4204726af1906eb2c1a987ee8579f72a2645767b1cf6749c18076e96e7b
+generation_parameters:
+  policy: native_harness_defaults
+  observed_at: '2026-10-09'
+  request_sha256: 4ecceddc33ee5eaf36039b953479ae7f5907ff355ce4ae1306a7b96f7b004297
+  request:
+    reasoning:
+      effort: max
+      context: all_turns
+    text_verbosity: low
+    stream: true
+    tool_choice: auto
+    parallel_tool_calls: false
+    store: false
+    include:
+    - reasoning.encrypted_content
+    known_dynamic_inputs:
+    - current_date
+    - working_directory
+    - session_identifiers
+pricing:
+  basis: benchmark_cost_accounting_snapshot
+  observed_at: '2026-10-01'
+  source: src/configs/model_constants.py
+  currency: USD
+  unit: per_million_tokens
+  reasoning_tokens_billed_as: output
+  rates:
+    input: 0.1
+    output: 0.5
+    cache_read: 0.01
+    cache_creation: 0.125
+access:
+  mode: subscription
+  credential_env: OPENAI_SUBSCRIPTION_KEY
+  limits:
+    five_hour: true
+    weekly: true

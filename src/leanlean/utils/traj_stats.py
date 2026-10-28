@@ -334,36 +334,6 @@ def count_mcp_calls(traj: dict) -> dict:
 _SKILLS_WRAPPER_RE = re.compile(r"\blean4-skills-[a-z0-9]+(?:-[a-z0-9]+)*")
 
 
-def _skills_in_cmd(cmd: str | None) -> list[str]:
-    """Return each `lean4-skills-*` wrapper invoked in a shell command."""
-    if not cmd:
-        return []
-    return _SKILLS_WRAPPER_RE.findall(cmd)
-
-
-def count_skills_calls(traj: dict) -> dict:
-    """Count lean4-skills wrapper invocations and their per-skill distribution.
-
-    Returns ``{"total": int, "by_tool": {wrapper_name: count}}`` (by_tool ordered
-    most-frequent first). Scans shell command text across codex
-    (`messages[].name`) and Claude (tool calls under `responses`) trajectory
-    formats, mirroring :func:`count_mcp_calls`."""
-    messages = traj.get("messages", [])
-    has_codex = any(m.get("attempt_message_type") == "tool_call" for m in messages)
-    dist: dict[str, int] = {}
-    if has_codex:
-        for m in messages:
-            if m.get("attempt_message_type") == "tool_call":
-                for w in _skills_in_cmd(_parse_cmd(m)):
-                    dist[w] = dist.get(w, 0) + 1
-    else:
-        for _name, args in _claude_tool_calls(traj):
-            cmd = args.get("command") or args.get("cmd") or ""
-            for w in _skills_in_cmd(cmd if isinstance(cmd, str) else ""):
-                dist[w] = dist.get(w, 0) + 1
-    by_tool = dict(sorted(dist.items(), key=lambda kv: (-kv[1], kv[0])))
-    return {"total": sum(dist.values()), "by_tool": by_tool}
-
 
 # --- Edit-mechanism classification -----------------------------------------
 #

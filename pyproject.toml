@@ -37,8 +37,6 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-# Lightweight local run monitor (no Streamlit or frontend build required).
-dashboard = ["psutil>=5.9", "ijson>=3.2"]
 # Local model serving (host-side only). Heavy: pulls torch + CUDA. Install with
 #   uv sync --extra serve
 # then launch e.g. `bash local_lms/vllm_qwen_9b.sh localhost 4002`.
@@ -55,6 +53,3 @@ where = ["src"]
 [tool.pytest.ini_options]
 pythonpath = ["."]
 testpaths = ["tests"]
-
-[tool.setuptools.package-data]
-"leanlean.run_monitor" = ["static/*"]

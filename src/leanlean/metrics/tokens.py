@@ -225,57 +225,6 @@ def proof_length(statement_and_proof: str) -> int:
         return PROOF_LENGTH_ERROR
 
 
-def _command_boundaries(source_without_comments: str) -> list[tuple[int, int, str]]:
-    """Return ``(offset, indentation, kind)`` for top-level command-looking lines."""
-
-    boundaries: list[tuple[int, int, str]] = []
-    offset = 0
-    for line in source_without_comments.splitlines(keepends=True):
-        content = line.rstrip("\r\n")
-        stripped = content.lstrip(" \t")
-        indentation = len(content) - len(stripped)
-
-        # A standalone attribute belongs to the following declaration.  Treat it
-        # as a boundary so its tokens are not charged to the preceding proof.
-        if stripped.startswith("@["):
-            boundaries.append((offset, indentation, "attribute"))
-
-        match = _COMMAND_START_RE.match(content)
-        if match:
-            boundaries.append((offset, indentation, match.group("kind")))
-        offset += len(line)
-    return boundaries
-
-
-def iter_proof_declarations(source: str) -> Iterator[str]:
-    """Yield theorem-like declarations from a Lean source file."""
-
-    boundaries = _command_boundaries(remove_lean_comments(source, mask_strings=True))
-    for index, (start, indentation, kind) in enumerate(boundaries):
-        if kind not in _PROOF_COMMANDS:
-            continue
-
-        end = len(source)
-        for next_start, next_indentation, _ in boundaries[index + 1 :]:
-            if next_indentation <= indentation:
-                end = next_start
-                break
-        yield source[start:end]
-
-
-def count_proof_tokens_in_source(source: str) -> tuple[int, int]:
-    """Return ``(token_count, proof_count)`` for a Lean source string."""
-
-    token_count = 0
-    proof_count = 0
-    for declaration in iter_proof_declarations(source):
-        length = proof_length(declaration)
-        if length >= PROOF_LENGTH_ERROR:
-            return PROOF_LENGTH_ERROR, proof_count
-        token_count += length
-        proof_count += 1
-    return token_count, proof_count
-
 
 def count_lean_tokens_in_source(source: str) -> int:
     """Count all source tokens except comments and import commands."""

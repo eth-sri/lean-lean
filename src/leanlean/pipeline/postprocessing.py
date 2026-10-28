@@ -8,6 +8,7 @@ import copy
 import gzip
 import hashlib
 import json
+import math
 import os
 import re
 import shlex
@@ -87,6 +88,11 @@ LEANLEAN_20260914_PROMPT_SHA256 = (
 )
 DERIVED_PLAYBACK = "postprocessed-playback.json"
 REPLAY_PLAYBACK = "replayed-playback.json"
+# Per-repository postprocessing outputs that are not tied to one capture,
+# relative to the repository's directory in the evaluation output.
+LAKE_BUILD_ARCHIVE = "derived/lake-build.tar.gz"
+HEARTBEATS_RESULT = "derived/heartbeats.json"
+RESULT_FILENAME = "result.json"
 
 
 def derived_playback_path(capture_dir: Path, *, replay: bool) -> Path:
@@ -103,6 +109,7 @@ def _previous_playback_path(capture_dir: Path, *, replay: bool) -> Path:
     return destination
 
 SUMMARY_FILENAME = "postprocess_summary.json"
+POSTPROCESSING_STAGES = ("endpoints", "heartbeats", "report", "replay")
 BENCHMARK_FIXTURE_INTEGRITY_SCHEMA = (
     "leanlean_benchmark_fixture_integrity_v1"
 )
@@ -119,7 +126,6 @@ INCREMENTAL_REPLAY_BUILD_ONLY_POLICY = "incremental_replay_orphan_pruned_build_o
 CHECKPOINT_LEAN_VERIFY_SKIPPED = "checkpoint_lean_verify_disabled"
 REPLAY_LEAN_VERIFY_SKIPPED = "replay_lean_verify_disabled"
 IMPLEMENTATION_FILES = (
-    "postprocessing.py",
     "postprocess.sh",
     "scripts/postprocess.py",
     "scripts/measure_heartbeats.py",
@@ -145,7 +151,6 @@ IMPLEMENTATION_FILES = (
     "src/leanlean/metrics/source_archive.py",
     "src/leanlean/metrics/tokens.py",
     "src/leanlean/playback.py",
-    "src/leanlean/report_summary.py",
     "src/leanlean/run_action_summary.py",
 )
 
@@ -203,31 +208,6 @@ def _text(row: Mapping[str, Any], key: str, name: str) -> str:
         raise ValueError(f"{name}.{key} must be a non-empty string")
     return value
 
-
-def _manifest_resource_overrides(
-    manifest: Mapping[str, Any],
-) -> tuple[str | None, str | None]:
-    if "resource_overrides" in manifest:
-        overrides = _mapping(
-            manifest.get("resource_overrides"), "manifest.resource_overrides"
-        )
-        values = (
-            overrides.get("cgroup_parent"),
-            overrides.get("container_memory"),
-        )
-    else:
-        # Compatibility with manifests written before raw overrides were pinned.
-        container = _mapping(manifest.get("container"), "manifest.container")
-        values = (container.get("cgroup_parent"), container.get("memory"))
-    result: list[str | None] = []
-    for name, value in zip(("cgroup_parent", "container_memory"), values):
-        if value is None or value == "":
-            result.append(None)
-        elif isinstance(value, str):
-            result.append(value)
-        else:
-            raise ValueError(f"manifest resource override {name} must be a string or null")
-    return result[0], result[1]
 
 
 def _load_yaml(path: Path, name: str) -> Mapping[str, Any]:
@@ -395,12 +375,9 @@ def _source_root(path: Path, experiment_relative: str) -> Path:
 
 
 def _resolve_source_run(reference: str | Path, repo_root: Path) -> tuple[Path, Path]:
+    """The evaluation's run.yaml and the repository root its paths are relative to."""
     candidate = Path(reference)
-    if not candidate.is_absolute() and len(candidate.parts) == 1:
-        by_id = repo_root / "runs/evaluation" / candidate / "run.yaml"
-        if by_id.is_file():
-            candidate = by_id
-    elif not candidate.is_absolute():
+    if not candidate.is_absolute():
         candidate = repo_root / candidate
     path = candidate.resolve()
     if not path.is_file():
@@ -568,9 +545,6 @@ def _load_evaluation_attempt(
     *,
     repo_root: Path,
     index: int,
-    allow_partial: bool = False,
-    repository_subset: Sequence[str] | None = None,
-    allow_missing_repositories: bool = False,
 ) -> EvaluationAttempt:
     source_path, source_root = _resolve_source_run(path, repo_root)
     source_run = _load_yaml(source_path, "evaluation run artifact")
@@ -602,11 +576,7 @@ def _load_evaluation_attempt(
     )
     if file_sha256(dataset_path) != dataset_pin.get("sha256"):
         raise ValueError(f"dataset manifest drifted: {dataset_path}")
-    dataset = (
-        load_dataset(dataset_path)
-        if repository_subset is None
-        else load_dataset(dataset_path, repository_ids=repository_subset)
-    )
+    dataset = load_dataset(dataset_path)
 
     artifacts = _mapping(source_run.get("artifacts"), "run.artifacts")
     output_dir = _resolve_path(
@@ -659,34 +629,16 @@ def _load_evaluation_attempt(
             "the evaluation manifest"
         )
     prediction_ids = {str(key) for key in predictions}
-    partial = allow_partial and source_status == "failed"
-    if not prediction_ids <= set(repository_ids) or (
-        not partial and prediction_ids != set(repository_ids)
-    ):
+    if prediction_ids != set(repository_ids):
         raise ValueError(
             f"{source_path}: prediction repository set does not match "
             "the evaluation manifest"
         )
-    capture_rows = (
-        _input_capture_rows(output_dir)
-        if repository_subset is None
-        else _input_capture_rows(output_dir, repositories=repository_subset)
-    )
-    captures = tuple(capture_rows)
+    captures = tuple(_input_capture_rows(output_dir))
     monitoring = _mapping(evaluation.get("monitoring"), "evaluation.monitoring")
     if monitoring.get("snapshots") is True:
         capture_ids = {str(row["instance_id"]) for row in captures}
-        expected_capture_ids = set(repository_subset or repository_ids)
-        if allow_missing_repositories:
-            expected_capture_ids &= set(repository_ids)
-        if not expected_capture_ids <= set(repository_ids):
-            unknown = sorted(expected_capture_ids - set(repository_ids))
-            raise ValueError(
-                f"{source_path}: requested repositories are absent: {unknown}"
-            )
-        if not capture_ids <= expected_capture_ids or (
-            not partial and capture_ids != expected_capture_ids
-        ):
+        if capture_ids != set(repository_ids):
             raise ValueError(
                 f"{source_path}: capture repository set does not match "
                 "the evaluation manifest"
@@ -709,77 +661,24 @@ def _load_evaluation_attempt(
     )
 
 
-def _validate_additional_attempt(
-    root: EvaluationAttempt,
-    attempt: EvaluationAttempt,
-    *,
-    allow_repository_union: bool = False,
-) -> None:
-    if (
-        attempt.dataset_path != root.dataset_path
-        or file_sha256(attempt.dataset_path) != file_sha256(root.dataset_path)
-    ):
-        raise ValueError(f"{attempt.run_id}: dataset differs from the first run")
-    for key in ("model", "reasoning_effort", "harness", "rounds"):
-        if attempt.evaluation_manifest.get(key) != root.evaluation_manifest.get(key):
-            raise ValueError(
-                f"{attempt.run_id}: {key} differs from the first run"
-            )
-    root_rows = {
-        str(row["id"]): row
-        for row in root.evaluation_manifest["repositories"]
-    }
-    selected = [
-        instance_id
-        for instance_id in root.repositories
-        if instance_id in set(attempt.repositories)
-    ]
-    if not allow_repository_union and selected != list(attempt.repositories):
-        raise ValueError(
-            f"{attempt.run_id}: repositories are not an ordered first-run subset"
-        )
-    for raw in attempt.evaluation_manifest["repositories"]:
-        row = _mapping(raw, "additional repository")
-        instance_id = _text(row, "id", "additional repository")
-        if instance_id not in root_rows:
-            continue
-        expected = _mapping(root_rows[instance_id], "root repository")
-        materialized = isinstance(expected.get("materialization"), Mapping)
-        for key in (
-            "image",
-            "image_id",
-            "source_tree",
-            "tree_sha256",
-            "environment_id",
-            "environment_image_id",
-            "warm_build_cache_sha256",
-            "materialization",
-        ):
-            actual_value, expected_value = row.get(key), expected.get(key)
-            if key == "image" and materialized:
-                # Each continuation deliberately owns a different ephemeral tag.
-                continue
-            if key == "materialization" and materialized:
-                if isinstance(actual_value, Mapping):
-                    actual_value = _canonical_materialization_paths(
-                        actual_value, source_root=attempt.source_root
-                    )
-                    actual_value.pop("tag", None)
-                expected_value = _canonical_materialization_paths(
-                    expected_value, source_root=root.source_root
-                )
-                expected_value.pop("tag", None)
-            if actual_value != expected_value:
-                raise ValueError(
-                    f"{attempt.run_id}: {instance_id} changed {key}"
-                )
+def _recorded_budget_exhaustion(attempt: EvaluationAttempt, instance_id: str) -> bool:
+    """Accept only recorded execution timeouts that consumed the task budget."""
+    directory = attempt.output_dir / instance_id
+    try:
+        metrics = json.loads((directory / "round_0_gen_metrics.json").read_text())
+        duration = float(metrics["wall_time_seconds"])
+        budget = _seconds(str(attempt.evaluation_manifest["container"]["timeout"]))
+    except (OSError, ValueError, TypeError, KeyError):
+        return False
+    if not math.isfinite(duration) or duration < budget:
+        return False
+    return any(_playback_timeout(path) for path in (directory / "playback").glob("capture_*"))
 
 
 def _trajectory_selection(
     attempt: EvaluationAttempt,
     instance_id: str,
-    *,
-    allow_failed: bool = False,
+    *, accept_budget_exhausted: bool = False,
 ) -> dict[str, Any] | None:
     prediction = attempt.predictions.get(instance_id)
     if not isinstance(prediction, Mapping) or not isinstance(
@@ -800,16 +699,17 @@ def _trajectory_selection(
         return None
     if not isinstance(payload, Mapping):
         return None
-    failure = classify_trajectory(payload)
-    if failure is not None and not allow_failed:
+    budget_exhausted = accept_budget_exhausted and _recorded_budget_exhaustion(attempt, instance_id)
+    if classify_trajectory(payload) is not None and not budget_exhausted:
         return None
     info = payload.get("info")
     exit_status = info.get("exit_status") if isinstance(info, Mapping) else None
     if not isinstance(exit_status, str) or not exit_status:
         return None
-    if exit_status in {"ExecutionFailed", "ProviderFailed", "QuotaExceeded"}:
+    if exit_status in {"ExecutionFailed", "ProviderFailed", "QuotaExceeded"} and not budget_exhausted:
         return None
     return {
+        "outcome": "budget_exhausted" if budget_exhausted else "submitted",
         "run_id": attempt.run_id,
         "attempt_index": attempt.index,
         "output_directory": str(attempt.output_dir),
@@ -820,70 +720,26 @@ def _trajectory_selection(
     }
 
 
-def _combine_runs(
-    root: EvaluationAttempt,
-    additional: list[EvaluationAttempt],
-    *,
-    allow_failed: bool = False,
-    allow_unresolved: bool = False,
-    repositories: Sequence[str] | None = None,
-    allow_repository_union: bool = False,
+def _select_submissions(
+    attempt: EvaluationAttempt,
+    *, accept_budget_exhausted: bool = False,
 ) -> tuple[
     dict[str, Any],
     list[dict[str, Any]],
     dict[str, dict[str, Any]],
     list[dict[str, Any]],
 ]:
-    attempts = [root, *additional]
-    selected_repositories = list(repositories or root.repositories)
-    if len(selected_repositories) != len(set(selected_repositories)):
-        raise ValueError("postprocessing repository subset contains duplicates")
-    available_repositories = {
-        instance_id for attempt in attempts for instance_id in attempt.repositories
-    }
-    allowed_repositories = (
-        available_repositories if allow_repository_union else set(root.repositories)
-    )
-    unknown = sorted(set(selected_repositories) - allowed_repositories)
-    if unknown:
-        raise ValueError(
-            "postprocessing repository subset is absent from the root evaluation: "
-            + ", ".join(unknown)
-        )
-    selected_repository_set = set(selected_repositories)
-    selected_attempts: dict[str, EvaluationAttempt] = {}
-    selection: dict[str, dict[str, Any]] = {}
-    for attempt in attempts:
-        if attempt is not root:
-            _validate_additional_attempt(
-                root, attempt, allow_repository_union=allow_repository_union
-            )
-        for instance_id in attempt.repositories:
-            if instance_id not in selected_repository_set:
-                continue
-            selected = _trajectory_selection(
-                attempt, instance_id, allow_failed=allow_failed
-            )
-            if selected is not None:
-                selected_attempts[instance_id] = attempt
-                selection[instance_id] = selected
-    unresolved = [
-        instance_id
-        for instance_id in selected_repositories
-        if instance_id not in selected_attempts
-    ]
-    if unresolved and not allow_unresolved:
-        raise ValueError(
-            "explicit run combination has unresolved repositories: "
-            + ", ".join(unresolved)
-        )
-
+    """Each repository's prediction and captures from the pair's evaluation run."""
     predictions: dict[str, Any] = {}
     captures: list[dict[str, Any]] = []
-    for instance_id in selected_repositories:
-        if instance_id not in selected_attempts:
+    selection: dict[str, dict[str, Any]] = {}
+    unresolved = []
+    for instance_id in attempt.repositories:
+        selected = _trajectory_selection(attempt, instance_id, accept_budget_exhausted=accept_budget_exhausted)
+        if selected is None:
+            unresolved.append(instance_id)
             continue
-        attempt = selected_attempts[instance_id]
+        selection[instance_id] = selected
         predictions[instance_id] = copy.deepcopy(attempt.predictions[instance_id])
         for raw in attempt.captures:
             if raw["instance_id"] != instance_id:
@@ -893,81 +749,66 @@ def _combine_runs(
             row["attempt_index"] = attempt.index
             row["output_directory"] = str(attempt.output_dir)
             captures.append(row)
-
-    components = []
-    for attempt in attempts:
-        components.append(
-            {
-                "run_id": attempt.run_id,
-                "attempt_index": attempt.index,
-                "artifact": _relative_or_absolute(
-                    attempt.source_root,
-                    attempt.run_artifact_path,
-                ),
-                "artifact_sha256": file_sha256(attempt.run_artifact_path),
-                "experiment": _relative_or_absolute(
-                    attempt.source_root,
-                    attempt.evaluation_manifest_path,
-                ),
-                "experiment_sha256": file_sha256(
-                    attempt.evaluation_manifest_path
-                ),
-                "predictions": str(attempt.predictions_path),
-                "predictions_sha256": file_sha256(attempt.predictions_path),
-                "output_directory": str(attempt.output_dir),
-                "model": attempt.evaluation_manifest.get("model"),
-                "reasoning_effort": attempt.evaluation_manifest.get("reasoning_effort"),
-                "harness": attempt.evaluation_manifest.get("harness"),
-                "status": attempt.run_artifact.get("status"),
-                "repositories": list(attempt.repositories),
-                    "selected_repositories": [
-                        instance_id
-                        for instance_id in selected_repositories
-                        if selected_attempts.get(instance_id) is attempt
-                    ],
-            }
+    if unresolved:
+        raise ValueError(
+            "evaluation has repositories without a valid submission; rerun eval.sh: "
+            + ", ".join(unresolved)
         )
-    return predictions, captures, selection, components
+    component = {
+        "run_id": attempt.run_id,
+        "attempt_index": attempt.index,
+        "artifact": _relative_or_absolute(attempt.source_root, attempt.run_artifact_path),
+        "artifact_sha256": file_sha256(attempt.run_artifact_path),
+        "experiment": _relative_or_absolute(attempt.source_root, attempt.evaluation_manifest_path),
+        "experiment_sha256": file_sha256(attempt.evaluation_manifest_path),
+        "predictions": str(attempt.predictions_path),
+        "predictions_sha256": file_sha256(attempt.predictions_path),
+        "output_directory": str(attempt.output_dir),
+        "model": attempt.evaluation_manifest.get("model"),
+        "reasoning_effort": attempt.evaluation_manifest.get("reasoning_effort"),
+        "harness": attempt.evaluation_manifest.get("harness"),
+        "status": attempt.run_artifact.get("status"),
+        "repositories": list(attempt.repositories),
+        "selected_repositories": list(selection),
+    }
+    return predictions, captures, selection, [component]
 
 
-def _postprocessing_artifact_paths(
-    root: Path,
-    evaluation: Mapping[str, Any],
-    *,
-    postprocess_id: str,
-    mode: str,
-) -> tuple[Path, Path]:
-    source_configs = evaluation.get("source_configs")
-    logical_path: Path | None = None
-    if isinstance(source_configs, list):
-        config_keys = {
-            str(item.get("role")): str(item.get("key"))
-            for item in source_configs
-            if isinstance(item, Mapping)
-        }
-        if config_keys.get("dataset") and config_keys.get("model"):
-            logical_path = (
-                Path(config_keys["dataset"]) / Path(config_keys["model"]) / mode
+def _postprocessing_stage_directory(output_dir: Path, stage: str) -> Path:
+    """<evaluation output>/postprocess/<stage>/ holds the current definition and run state."""
+
+    if stage not in POSTPROCESSING_STAGES:
+        raise ValueError(f"unknown postprocessing stage {stage!r}")
+    return output_dir / "postprocess" / stage
+
+
+def _retire_superseded_definition(stage_dir: Path, postprocess_id: str) -> None:
+    """Move a different earlier definition of this stage to previous/<its id>/.
+
+    Definitions are immutable, so a changed verifier or flag set is a new
+    definition. The current one always sits directly in the stage directory.
+    """
+    manifest_path = stage_dir / "manifest.yaml"
+    if not manifest_path.exists():
+        return
+    existing = _load_yaml(manifest_path, "existing postprocessing manifest")
+    previous_id = str(existing.get("postprocess_id") or "")
+    if previous_id == postprocess_id:
+        return
+    run_artifact = stage_dir / "run.yaml"
+    if run_artifact.exists():
+        status = _load_yaml(run_artifact, "postprocessing run artifact").get("status")
+        if status == "running":
+            raise RuntimeError(
+                f"{stage_dir} is still running {previous_id}; wait for it or stop it first"
             )
-            if logical_path.is_absolute() or ".." in logical_path.parts:
-                raise ValueError("hierarchical postprocessing path is unsafe")
-    if logical_path is None:
-        # Temporary compatibility for pre-hierarchy evaluations.
-        return (
-            root / "experiments/postprocessing" / f"{postprocess_id}.yaml",
-            root / "runs/postprocessing" / postprocess_id,
-        )
-    existing_manifest = root / "experiments/postprocessing" / logical_path / "manifest.yaml"
-    if existing_manifest.exists():
-        existing = _load_yaml(existing_manifest, "existing postprocessing manifest")
-        if existing.get("postprocess_id") != postprocess_id:
-            # A changed verifier gets a new immutable definition. Keep the old
-            # completed run addressable while reusing matching checkpoint data.
-            logical_path = logical_path / "revisions" / postprocess_id
-    return (
-        root / "experiments/postprocessing" / logical_path / "manifest.yaml",
-        root / "runs/postprocessing" / logical_path,
-    )
+    destination = stage_dir / "previous" / previous_id
+    if destination.exists():
+        raise RuntimeError(f"{destination} already exists")
+    destination.mkdir(parents=True)
+    for name in ("manifest.yaml", "run.yaml"):
+        if (stage_dir / name).exists():
+            (stage_dir / name).rename(destination / name)
 
 
 def _preprocessing_palomar_attestation(
@@ -1033,7 +874,7 @@ def _preprocessing_palomar_attestation(
 
 
 def resolve_run(
-    reference: str | Path | Sequence[str | Path],
+    reference: str | Path,
     *,
     repo_root: Path,
     replay: bool,
@@ -1041,12 +882,8 @@ def resolve_run(
     threads_per_repository: int | None = None,
     measure_heartbeats: bool = False,
     allow_relocated_dataset: bool = False,
-    prefire: bool = False,
-    ignore_incomplete: bool = False,
     endpoints_only: bool = False,
-    repository_subset: Sequence[str] | None = None,
-    allow_missing_subset: bool = False,
-    repository_subset_source: Mapping[str, Any] | None = None,
+    accept_budget_exhausted: bool = False,
     cgroup_parent: str | None = None,
     container_memory: str | None = None,
     warm_baseline_build: bool = False,
@@ -1056,6 +893,8 @@ def resolve_run(
     build_only_replay: bool = False,
     checkpoint_selection: Mapping[str, Any] | None = None,
 ) -> PreparedPostprocessing:
+    if accept_budget_exhausted and (not endpoints_only or replay):
+        raise ValueError("accept_budget_exhausted requires endpoints_only without replay")
     if endpoints_only and replay:
         raise ValueError("endpoints_only cannot be combined with replay")
     if incremental_replay and not replay:
@@ -1081,58 +920,10 @@ def resolve_run(
     if save_lake_build and not warm_baseline_build:
         raise ValueError("save_lake_build requires warm_baseline_build")
     root = repo_root.resolve()
-    references = (
-        [reference] if isinstance(reference, (str, Path)) else list(reference)
-    )
-    if not references:
-        raise ValueError("at least one evaluation run ID is required")
-    attempts = [
-        _load_evaluation_attempt(
-            _resolve_source_run(item, root)[0], repo_root=root, index=index,
-            allow_partial=ignore_incomplete or len(references) > 1,
-            repository_subset=repository_subset,
-            allow_missing_repositories=allow_missing_subset,
-        )
-        for index, item in enumerate(references)
-    ]
-    root_attempt, *additional_attempts = attempts
-    requested_repositories = (
-        list(repository_subset)
-        if repository_subset is not None
-        else list(root_attempt.repositories)
-    )
-    available_repositories = {
-        instance_id
-        for attempt in attempts
-        for instance_id in attempt.repositories
-    }
-    missing_requested_repositories = [
-        instance_id
-        for instance_id in requested_repositories
-        if instance_id not in available_repositories
-    ]
-    selected_repositories = [
-        instance_id
-        for instance_id in requested_repositories
-        if instance_id in available_repositories
-    ]
-    if missing_requested_repositories and not allow_missing_subset:
-        raise ValueError(
-            "postprocessing repository subset is absent from the root evaluation: "
-            + ", ".join(missing_requested_repositories)
-        )
-    if not selected_repositories:
-        raise ValueError("postprocessing repository subset must not be empty")
-    source_path = root_attempt.run_artifact_path
+    source_path, _ = _resolve_source_run(reference, root)
+    root_attempt = _load_evaluation_attempt(source_path, repo_root=root, index=0)
     prediction_payload, capture_rows, run_selection, component_runs = (
-        _combine_runs(
-            root_attempt,
-            additional_attempts,
-            allow_failed=prefire,
-            allow_unresolved=ignore_incomplete or allow_missing_subset,
-            repositories=selected_repositories,
-            allow_repository_union=repository_subset is not None,
-        )
+        _select_submissions(root_attempt, accept_budget_exhausted=accept_budget_exhausted)
     )
     source_run = root_attempt.run_artifact
     source_status = source_run.get("status")
@@ -1161,39 +952,16 @@ def resolve_run(
                 "LeanLean 2026-09-14 resolved evaluation prompt mismatch: "
                 f"expected {LEANLEAN_20260914_PROMPT_SHA256}, got {prompt_sha256}"
             )
-        subset_prompt_sha256 = (repository_subset_source or {}).get(
-            "canonical_prompt_sha256"
-        )
-        if (
-            repository_subset_source is not None
-            and subset_prompt_sha256 != LEANLEAN_20260914_PROMPT_SHA256
-        ):
-            raise ValueError(
-                "LeanLean 2026-09-14 repository subset prompt mismatch: "
-                f"expected {LEANLEAN_20260914_PROMPT_SHA256}, got {subset_prompt_sha256}"
-            )
     if replay and monitoring.get("snapshots") is not True:
         raise ValueError("--replay requires an evaluation with monitoring.snapshots: true")
 
     repositories = evaluation.get("repositories")
     assert isinstance(repositories, list)
     repository_specs: dict[str, Mapping[str, Any]] = {}
-    for attempt in attempts:
-        for raw in attempt.evaluation_manifest["repositories"]:
-            row = _mapping(raw, "evaluation repository")
-            repository_specs[_text(row, "id", "evaluation repository")] = row
-    expected_ids = [
-        instance_id
-        for instance_id in selected_repositories
-        if instance_id in run_selection
-    ]
-    ignored_incomplete = [
-        instance_id
-        for instance_id in selected_repositories
-        if instance_id not in run_selection
-    ]
-    if not expected_ids:
-        raise ValueError("completed-only postprocessing found no valid repositories")
+    for raw in repositories:
+        row = _mapping(raw, "evaluation repository")
+        repository_specs[_text(row, "id", "evaluation repository")] = row
+    expected_ids = list(run_selection)
     patch_digests = {
         instance_id: hashlib.sha256(
             str(prediction_payload[instance_id]["model_patch"]).encode(
@@ -1255,13 +1023,9 @@ def resolve_run(
                 "inputs": component_runs,
                 "measure_heartbeats": measure_heartbeats,
                 "endpoints_only": endpoints_only,
+                "accept_budget_exhausted": accept_budget_exhausted,
                 "allow_relocated_dataset": allow_relocated_dataset,
                 "selection": run_selection,
-                "prefire": prefire,
-                "ignore_incomplete": ignore_incomplete,
-                "repository_subset": requested_repositories,
-                "allow_missing_subset": allow_missing_subset,
-                "repository_subset_source": repository_subset_source,
                 "cgroup_parent": cgroup_parent,
                 "container_memory": container_memory,
                 "warm_baseline_build": warm_baseline_build,
@@ -1279,6 +1043,12 @@ def resolve_run(
         ).encode()
     ).hexdigest()
     mode = "replay" if replay else "report"
+    stage = (
+        "replay" if replay
+        else "heartbeats" if measure_heartbeats
+        else "endpoints" if endpoints_only
+        else "report"
+    )
     source_run_id = _text(source_run, "run_id", "run")
     container = _mapping(evaluation.get("container"), "evaluation.container")
     parallelism = _mapping(evaluation.get("parallelism"), "evaluation.parallelism")
@@ -1299,57 +1069,8 @@ def resolve_run(
         f"{source_run_id}_{mode}_w{worker_count}_t{thread_count}_"
         f"{implementation_digest[:8]}_{combination_digest[:8]}"
     )
-    heartbeat_reuse_directories: list[str] = []
-    heartbeat_reuse_artifact_count = 0
-    if measure_heartbeats:
-        expected_heartbeat_sources: dict[str, set[str]] = {}
-        for capture in capture_rows:
-            instance_id = str(capture["instance_id"])
-            expected_heartbeat_sources.setdefault(instance_id, set()).update(
-                str(archive["source_archive_sha256"])
-                for archive in capture.get("archives") or []
-                if archive.get("path") == "submitted.sources.tar.gz"
-            )
-        heartbeat_root = root / "output/heartbeats"
-        prior_heartbeat_directories = [
-            path
-            for path in heartbeat_root.glob(f"{source_run_id}_*-heartbeats-v1")
-            if path.is_dir()
-            and path.name != f"{postprocess_id}-heartbeats-v1"
-        ]
-
-        def valid_heartbeat_count(directory: Path) -> int:
-            count = 0
-            for artifact_path in directory.glob("*/optimized.json"):
-                try:
-                    artifact = json.loads(artifact_path.read_text())
-                except (OSError, ValueError):
-                    continue
-                repository_id = artifact_path.parent.name
-                if (
-                    isinstance(artifact, Mapping)
-                    and artifact.get("repository") == repository_id
-                    and artifact.get("status") in {"complete", "ineligible"}
-                    and artifact.get("method") == "exact_lake_setup_sync_v2"
-                    and artifact.get("source_archive_sha256")
-                    in expected_heartbeat_sources.get(repository_id, set())
-                ):
-                    count += 1
-            return count
-
-        if prior_heartbeat_directories:
-            scored = [
-                (valid_heartbeat_count(path), path.stat().st_mtime_ns, path.name, path)
-                for path in prior_heartbeat_directories
-            ]
-            heartbeat_reuse_artifact_count, _, _, selected = max(scored)
-            if heartbeat_reuse_artifact_count:
-                heartbeat_reuse_directories.append(
-                    _relative_or_absolute(root, selected)
-                )
-    manifest_path, run_dir = _postprocessing_artifact_paths(
-        root, evaluation, postprocess_id=postprocess_id, mode=mode
-    )
+    run_dir = _postprocessing_stage_directory(output_dir, stage)
+    manifest_path = run_dir / "manifest.yaml"
     run_artifact_path = run_dir / "run.yaml"
     # tmux reads "." and ":" in a target as window/pane separators.
     tmux_session = re.sub(r"[.:]", "-", (
@@ -1451,20 +1172,14 @@ def resolve_run(
             "predictions": str(predictions),
             "predictions_sha256": file_sha256(predictions),
             "status": source_status,
-            "generation_complete_verified": not ignored_incomplete,
+            "generation_complete_verified": True,
         },
         "run_combination": {
-            "policy": (
-                "explicit_order_latest_valid_repository_ignore_incomplete"
-                if ignore_incomplete
-                else "explicit_order_latest_valid_repository"
-            ),
-            "automatic_discovery": False,
-            "combined": len(component_runs) > 1,
+            "policy": "single_run",
+            "combined": False,
             "digest": combination_digest,
             "inputs": component_runs,
             "selection": run_selection,
-            "ignored_incomplete_repositories": ignored_incomplete,
         },
         "prompt_lock": {
             "required": prompt_lock_required,
@@ -1482,26 +1197,6 @@ def resolve_run(
                 if prompt_ablation is not None
                 else {}
             ),
-        },
-        "repository_selection": {
-            "policy": "explicit_ordered_subset",
-            "explicit": repository_subset is not None,
-            "requested_repositories": requested_repositories,
-            "repositories": expected_ids,
-            "missing_requested_repositories": missing_requested_repositories,
-            "unresolved_requested_repositories": ignored_incomplete,
-            "allow_missing_subset": allow_missing_subset,
-            "excluded_source_repositories": [
-                instance_id
-                for instance_id in root_attempt.repositories
-                if instance_id not in set(expected_ids)
-            ],
-            "source": copy.deepcopy(dict(repository_subset_source or {})),
-        },
-        "prefire": {
-            "enabled": prefire,
-            "purpose": "provisional cache warming before strict combined postprocessing",
-            "failed_trajectories_may_be_selected": prefire,
         },
         "dataset_relocation": {
             "enabled": allow_relocated_dataset,
@@ -1531,6 +1226,9 @@ def resolve_run(
             "cpus": thread_count,
             "build_jobs": thread_count,
             "endpoints_only": endpoints_only,
+            "budget_exhausted_repositories": [
+                rid for rid, row in run_selection.items() if row.get("outcome") == "budget_exhausted"
+            ],
             "source_evaluation_cpus": container.get("cpus"),
             "source_evaluation_build_jobs": container.get("build_jobs"),
             "memory": container_memory or container.get("memory"),
@@ -1568,7 +1266,7 @@ def resolve_run(
                 dict(checkpoint_selection) if checkpoint_selection is not None else None
             ),
             **(
-                {"lake_build_output_directory": str(run_dir / "lake-builds")}
+                {"lake_build_output_directory": str(output_dir)}
                 if save_lake_build
                 else {}
             ),
@@ -1651,6 +1349,7 @@ def resolve_run(
             ),
             "headline_metric": "macro_average_selected_state_word_compression",
             "failed_submission_score": 0,
+            "budget_exhaustion_policy": "verified_final_endpoint" if accept_budget_exhausted else None,
             "timed_out_selection": (
                 "submitted_final_state"
                 if endpoints_only
@@ -1684,11 +1383,7 @@ def resolve_run(
             "variation_warning_relative_range_pct": 5.0,
             "file_timeout_seconds": build_timeout,
             "output_directory": _relative_or_absolute(root, output_dir),
-            "result_filename": "heartbeats.json",
-            "reuse_policy": "exact_source_archive_method_consensus_v1",
-            "reuse_selection": "maximum_exact_artifact_coverage_then_newest",
-            "reuse_artifact_count": heartbeat_reuse_artifact_count,
-            "reuse_directories": heartbeat_reuse_directories,
+            "result_filename": HEARTBEATS_RESULT,
             "failures": "null counts; retain repository in coverage denominator",
         },
         "monitoring": {
@@ -1704,7 +1399,7 @@ def resolve_run(
             "summary": str(output_dir / ("replay_summary.json" if replay else SUMMARY_FILENAME)),
             "derived_playback": f"{output_dir}/*/playback/capture_*/{REPLAY_PLAYBACK if replay else DERIVED_PLAYBACK}",
             **(
-                {"lake_builds": str(run_dir / "lake-builds")}
+                {"lake_builds": f"{output_dir}/*/{LAKE_BUILD_ARCHIVE}"}
                 if save_lake_build
                 else {}
             ),
@@ -1740,6 +1435,7 @@ def resolve_run(
 def write_run_definition(prepared: PreparedPostprocessing, *, repo_root: Path) -> None:
     content = _dump(prepared.manifest)
     postprocess_id = str(prepared.manifest["postprocess_id"])
+    _retire_superseded_definition(prepared.manifest_path.parent, postprocess_id)
     _write_exact(prepared.manifest_path, content, postprocess_id)
     if prepared.run_artifact_path.exists():
         existing = _load_yaml(prepared.run_artifact_path, "postprocessing run artifact")
@@ -1792,123 +1488,6 @@ def update_run_status(
         lifecycle.pop("error", None)
     artifact["lifecycle"] = lifecycle
     _atomic_yaml(path, artifact)
-
-
-def load_run_manifest(path: Path, *, repo_root: Path) -> PreparedPostprocessing:
-    root = repo_root.resolve()
-    manifest = _load_yaml(path.resolve(), "postprocessing manifest")
-    if manifest.get("kind") != MANIFEST_KIND or manifest.get("schema_version") != SCHEMA_VERSION:
-        raise ValueError(f"{path}: unsupported postprocessing manifest")
-    combination = _mapping(
-        manifest.get("run_combination"), "manifest.run_combination"
-    )
-    inputs = combination.get("inputs")
-    if not isinstance(inputs, list) or not inputs:
-        raise ValueError("manifest.run_combination.inputs must be a non-empty list")
-    source_paths: list[Path] = []
-    for index, raw in enumerate(inputs):
-        item = _mapping(raw, f"manifest.run_combination.inputs[{index}]")
-        source_path = _resolve_path(
-            root,
-            _text(item, "artifact", f"manifest.run_combination.inputs[{index}]"),
-        )
-        if file_sha256(source_path) != item.get("artifact_sha256"):
-            raise ValueError(f"source run artifact drifted: {source_path}")
-        source_paths.append(source_path)
-    replay = manifest.get("mode") == "replay"
-    parallelism = _mapping(manifest.get("parallelism"), "manifest.parallelism")
-    prefire_config = _mapping(manifest.get("prefire", {}), "manifest.prefire")
-    prefire = prefire_config.get("enabled") is True
-    heartbeat_config = _mapping(manifest.get("heartbeats", {}), "manifest.heartbeats")
-    measure_heartbeats = heartbeat_config.get("enabled") is True
-    relocation_config = _mapping(
-        manifest.get("dataset_relocation", {}), "manifest.dataset_relocation"
-    )
-    allow_relocated_dataset = relocation_config.get("enabled") is True
-    ignore_incomplete = bool(
-        combination.get("ignored_incomplete_repositories")
-    )
-    repository_selection = _mapping(
-        manifest.get("repository_selection", {}), "manifest.repository_selection"
-    )
-    repository_subset = repository_selection.get(
-        "requested_repositories", repository_selection.get("repositories")
-    )
-    repository_subset_explicit = repository_selection.get("explicit")
-    allow_missing_subset = repository_selection.get("allow_missing_subset") is True
-    if not isinstance(repository_subset, list) or not repository_subset or not all(
-        isinstance(value, str) and value for value in repository_subset
-    ):
-        raise ValueError(
-            "manifest.repository_selection.repositories must be a non-empty string list"
-        )
-    repository_subset_source = _mapping(
-        repository_selection.get("source", {}), "manifest.repository_selection.source"
-    )
-    if not repository_subset_source:
-        repository_subset_source = None
-    if repository_subset_explicit is None:
-        repository_subset_explicit = repository_subset_source is not None
-    if not isinstance(repository_subset_explicit, bool):
-        raise ValueError("manifest.repository_selection.explicit must be a boolean")
-    source_config = (repository_subset_source or {}).get("config")
-    source_sha256 = (repository_subset_source or {}).get("sha256")
-    if source_config:
-        source_config_path = _resolve_path(root, str(source_config))
-        if file_sha256(source_config_path) != source_sha256:
-            raise ValueError(
-                f"repository subset source config drifted: {source_config_path}"
-            )
-        source_document = _load_yaml(source_config_path, "repository subset source")
-        if source_document.get("repositories") != repository_subset:
-            raise ValueError("repository subset source list drifted")
-        source_agent = _mapping(
-            source_document.get("agent"), "repository subset source.agent"
-        )
-        source_prompt = _text(
-            source_agent, "prompt", "repository subset source.agent"
-        )
-        source_prompt_sha256 = hashlib.sha256(
-            source_prompt.encode("utf-8")
-        ).hexdigest()
-        if source_prompt_sha256 != repository_subset_source.get(
-            "canonical_prompt_sha256"
-        ):
-            raise ValueError("repository subset source prompt drifted")
-    manifest_container = _mapping(
-        manifest.get("container"), "manifest.container"
-    )
-    cgroup_parent_override, container_memory_override = (
-        _manifest_resource_overrides(manifest)
-    )
-    prepared = resolve_run(
-        source_paths,
-        repo_root=root,
-        replay=replay,
-        workers=int(parallelism.get("workers", 1)),
-        threads_per_repository=int(parallelism["threads_per_repository"]),
-        prefire=prefire,
-        measure_heartbeats=measure_heartbeats,
-        allow_relocated_dataset=allow_relocated_dataset,
-        ignore_incomplete=ignore_incomplete,
-        endpoints_only=manifest.get("evaluation", {}).get("endpoints_only", False),
-        repository_subset=(repository_subset if repository_subset_explicit else None),
-        allow_missing_subset=allow_missing_subset,
-        repository_subset_source=repository_subset_source,
-        cgroup_parent=cgroup_parent_override,
-        container_memory=container_memory_override,
-        warm_baseline_build=manifest_container.get("warm_baseline_build") is True,
-        save_lake_build=manifest_container.get("save_lake_build") is True,
-        incremental_replay=manifest_container.get("incremental_replay") is True,
-        skip_checkpoint_lean_verify=(
-            manifest_container.get("skip_checkpoint_lean_verify") is True
-        ),
-        build_only_replay=manifest_container.get("build_only_replay") is True,
-        checkpoint_selection=manifest_container.get("checkpoint_selection"),
-    )
-    if prepared.manifest != manifest:
-        raise ValueError(f"{path}: postprocessing inputs or implementation drifted")
-    return prepared
 
 
 def _playback_timeout(capture_dir: Path) -> bool:
@@ -2248,10 +1827,15 @@ def _preserve_checkpoint_results(
 
 
 def _selected_state(
-    playback: Mapping[str, Any], *, timed_out: bool, replay: bool
+    playback: Mapping[str, Any], *, timed_out: bool, replay: bool,
+    budget_exhausted: bool = False,
 ) -> dict[str, Any]:
     points = playback.get("points")
     assert isinstance(points, list) and points
+    if budget_exhausted:
+        # Exhausting the agent budget does not invalidate a verified saved endpoint.
+        state = _selected_state(playback, timed_out=False, replay=replay)
+        return {**state, "budget_exhausted": True}
     if not timed_out:
         point = points[-1]
         build_passed = playback.get("build_passed") is True
@@ -3557,7 +3141,7 @@ def _lake_build_artifact_current(
     repository_id = str(repository.get("id") or "")
     if not repository_id or Path(repository_id).name != repository_id:
         return False
-    expected = (Path(root) / repository_id / "lake-build.tar.gz").resolve()
+    expected = (Path(root) / repository_id / LAKE_BUILD_ARCHIVE).resolve()
     try:
         actual = Path(str(artifact.get("path"))).resolve()
         archive_bytes = int(artifact.get("archive_bytes") or 0)
@@ -3594,7 +3178,7 @@ def _export_lake_build(
     repository_id = str(repository.get("id") or "")
     if not repository_id or Path(repository_id).name != repository_id:
         raise ValueError(f"unsafe repository id for .lake/build export: {repository_id!r}")
-    destination = Path(root).resolve() / repository_id / "lake-build.tar.gz"
+    destination = Path(root).resolve() / repository_id / LAKE_BUILD_ARCHIVE
     exported = env.export_directory_archive(
         destination,
         "/testbed/.lake/build",
@@ -3646,76 +3230,12 @@ def _heartbeat_result_current(
         row = json.loads(path.read_text())
     except (OSError, ValueError):
         row = None
-    if isinstance(row, Mapping) and (
+    return isinstance(row, Mapping) and (
         row.get("status") in {"complete", "ineligible"}
         and row.get("source_archive_sha256") == point.get("source_archive_sha256")
         and row.get("method") == heartbeat_config.get("method")
-    ):
-        return True
+    )
 
-
-    if heartbeat_config.get("reuse_policy") != "exact_source_archive_method_consensus_v1":
-        return False
-    reuse_directories = heartbeat_config.get("reuse_directories") or []
-    if not isinstance(reuse_directories, list):
-        return False
-    try:
-        candidates = sorted(
-            (Path.cwd() / str(directory) / repository_id / "optimized.json").resolve()
-            for directory in reuse_directories
-        )
-    except OSError:
-        return False
-    matches: list[tuple[Path, dict[str, Any]]] = []
-    for candidate in candidates:
-        if candidate.resolve() == path:
-            continue
-        try:
-            candidate_row = json.loads(candidate.read_text())
-        except (OSError, ValueError):
-            continue
-        if (
-            isinstance(candidate_row, dict)
-            and candidate_row.get("repository") == repository_id
-            and candidate_row.get("status") in {"complete", "ineligible"}
-            and candidate_row.get("source_archive_sha256")
-            == point.get("source_archive_sha256")
-            and candidate_row.get("method") == heartbeat_config.get("method")
-        ):
-            matches.append((candidate, candidate_row))
-    if not matches:
-        return False
-
-    def consensus_key(candidate_row: Mapping[str, Any]) -> str:
-        return json.dumps(
-            {
-                key: candidate_row.get(key)
-                for key in (
-                    "status", "body_heartbeats", "total_heartbeats",
-                    "import_heartbeats", "expected_file_count",
-                    "measured_file_count", "unbuilt_sources",
-                )
-            },
-            sort_keys=True,
-        )
-
-    if len({consensus_key(candidate_row) for _, candidate_row in matches}) != 1:
-        return False
-    source_path, source_row = matches[-1]
-    reused = copy.deepcopy(source_row)
-    reused["original_postprocess_id"] = source_row.get("postprocess_id")
-    reused["postprocess_id"] = heartbeat_config.get("postprocess_id")
-    reused["reuse"] = {
-        "policy": heartbeat_config["reuse_policy"],
-        "source_artifact": str(source_path),
-        "source_artifact_sha256": file_sha256(source_path),
-    }
-    _atomic_json(path, reused)
-    source_log = source_path.with_suffix(".log")
-    destination_log = path.with_suffix(".log")
-    if source_log.is_file() and not destination_log.exists():
-        destination_log.write_bytes(source_log.read_bytes())
-    return True
 
 def _measure_postprocessing_heartbeats(
     env: DockerEnvironment,
@@ -4296,6 +3816,7 @@ def process_capture(
         result,
         timed_out=timed_out and not container.get("endpoints_only", False),
         replay=replay,
+        budget_exhausted=str(repository["id"]) in container.get("budget_exhausted_repositories", []),
     )
     _atomic_json(destination, result)
     return result
@@ -4509,8 +4030,8 @@ def _write_postprocessed_report_summary(
             },
             "n_sorry": _patch_sorry_count(patch),
             "patch_files": _patch_file_count(patch),
-            "round_cost": float(capture.get("final_cost_usd") or 0.0),
-            "cost_total": float(capture.get("final_cost_usd") or 0.0),
+            "round_cost": (float(capture["final_cost_usd"]) if capture.get("final_cost_usd") is not None else None),
+            "cost_total": (float(capture["final_cost_usd"]) if capture.get("final_cost_usd") is not None else None),
             "lake_builds": {
                 "attempts": build_count,
                 "successes": build_successes,
@@ -4753,7 +4274,8 @@ def _write_postprocessed_report_summary(
             for entry in latest
         ),
         "repos_with_sorry": sum(entry["n_sorry"] > 0 for entry in latest),
-        "cost_total": sum(float(entry["cost_total"]) for entry in latest),
+        "cost_total": (sum(float(entry["cost_total"]) for entry in latest)
+                       if all(entry["cost_total"] is not None for entry in latest) else None),
         "source_metrics_complete": all(
             entry["source_metrics_complete"] for entry in latest
         ),
@@ -4832,6 +4354,64 @@ def _write_postprocessed_report_summary(
             "instances": instances,
         },
     )
+    if not prepared.replay:
+        _write_repository_results(prepared, instances, selected_states)
+
+
+def _write_repository_results(
+    prepared: PreparedPostprocessing,
+    instances: Mapping[str, Any],
+    selected_states: Mapping[str, Mapping[str, Any]],
+) -> None:
+    """Write <repository>/result.json, the one per-repository record of a pair.
+
+    A failed or missing submission scores 0. Heartbeats are filled in once the
+    heartbeat stage has run; the endpoint stage writes the record first.
+    """
+    manifest = prepared.manifest
+    for instance_id, entry in instances.items():
+        latest = entry["latest"]
+        state = selected_states.get(instance_id) or {}
+        repository_dir = prepared.output_dir / instance_id
+        try:
+            generation = json.loads((repository_dir / "round_0_gen_metrics.json").read_text())
+        except (OSError, ValueError):
+            generation = {}
+        heartbeats_path = repository_dir / HEARTBEATS_RESULT
+        lake_build_path = repository_dir / LAKE_BUILD_ARCHIVE
+        result = {
+            "schema_version": 1,
+            "repository": instance_id,
+            "dataset": copy.deepcopy(manifest.get("dataset")),
+            "model": manifest.get("model"),
+            "reasoning_effort": manifest.get("reasoning_effort"),
+            "harness": manifest.get("generator"),
+            "status": "passed" if latest["resolved"] else "failed",
+            "selection_policy": state.get("policy"),
+            "penalty_reason": state.get("penalty_reason"),
+            "lean_token_compression_pct": float(state.get("lean_token_compression_pct") or 0.0),
+            "word_compression_pct": float(state.get("word_compression_pct") or 0.0),
+            "build_passed": latest["build_passed"],
+            "signatures_preserved": latest.get("signatures_preserved"),
+            "evaluation_infrastructure_ok": latest["evaluation_infrastructure_ok"],
+            "empty_patch": latest["empty_patch"],
+            "metrics": copy.deepcopy(latest["metrics"]),
+            "cost_usd": latest["cost_total"],
+            "agent_exit_status": generation.get("exit_status"),
+            "agent_seconds": generation.get("wall_time_seconds"),
+            "files": {
+                "postprocessed_playback": _relative_or_absolute(
+                    repository_dir, Path(str(latest["report_path"]))
+                ) if latest.get("report_path") else None,
+                "heartbeats": HEARTBEATS_RESULT if heartbeats_path.is_file() else None,
+                "lake_build": LAKE_BUILD_ARCHIVE if lake_build_path.is_file() else None,
+            },
+            "postprocessing": {
+                "stage": prepared.manifest_path.parent.name,
+                "postprocess_id": manifest.get("postprocess_id"),
+            },
+        }
+        _atomic_json(repository_dir / RESULT_FILENAME, result)
 
 
 def finalize_run(
@@ -4868,7 +4448,7 @@ def finalize_run(
                 and loaded.get("source_playback_sha256") == row.get("playback_sha256")
                 and isinstance(loaded.get("selected_state"), Mapping)
                 and (not prepared.manifest["container"].get("endpoints_only")
-                     or loaded["selected_state"].get("policy") == "submitted_final_state")
+                     or loaded["selected_state"].get("policy") in {"submitted_final_state", "budget_exhausted_zero_score"})
             ):
                 points = [
                     point
@@ -4941,6 +4521,14 @@ def finalize_run(
 
         if cached_result is not None:
             result = cached_result
+            if prepared.manifest["container"].get("endpoints_only", False):
+                # Validation caches remain valid when the scoring policy changes.
+                result["selected_state"] = _selected_state(
+                    result, timed_out=False, replay=prepared.replay,
+                    budget_exhausted=instance_id in prepared.manifest["container"].get(
+                        "budget_exhausted_repositories", []
+                    ),
+                )
             retirement = {
                 "status": "not_materialized",
                 "reason": "postprocessing_and_heartbeat_cache_current",
@@ -4989,7 +4577,7 @@ def finalize_run(
         result["_source_run_id"] = str(row["source_run_id"])
         result["_source_output_directory"] = str(source_output)
         destination = derived_playback_path(capture_dir, replay=prepared.replay)
-        if cached_result is not None and cached_path != destination:
+        if cached_result is not None:
             _atomic_json(destination, result)
         result["_derived_playback_path"] = str(destination)
         return result
@@ -5184,7 +4772,6 @@ __all__ = [
     "DERIVED_PLAYBACK",
     "PreparedPostprocessing",
     "finalize_run",
-    "load_run_manifest",
     "process_capture",
     "resolve_run",
     "update_run_status",

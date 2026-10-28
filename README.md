@@ -25,7 +25,7 @@ uv run python scripts/build_comparator_bundle.py    # pinned Palomar Comparator 
 
 ### Credentials
 
-Put the keys for the models you run in `secret.sh` (ignored by Git); the launch scripts source it.
+Put the keys for the models you run in `secret.sh` (ignored by Git). The launch scripts source it.
 
 | Harness | Variable |
 | --- | --- |
@@ -37,7 +37,7 @@ Put the keys for the models you run in `secret.sh` (ignored by Git); the launch 
 
 ### Agent harnesses
 
-Each model config pins its harness version, and a launch refuses any other. Install them with `scripts/install_codex_standalone.sh <version>`, `scripts/install_claude_standalone.sh <version>`, `scripts/install_antigravity_standalone.sh`, `scripts/install_muse_standalone.py` or `scripts/install_mistral_vibe_standalone.sh`.
+Each model config pins its harness version, and a launch refuses any other. Install them with `scripts/install_codex_standalone.sh <version>`, `scripts/install_claude_standalone.sh <version>`, `scripts/install_antigravity_standalone.sh <version>`, `scripts/install_muse_standalone.py` or `scripts/install_mistral_vibe_standalone.sh`.
 
 ## Quick start
 
@@ -46,8 +46,7 @@ The whole pipeline on four small repositories:
 ```bash
 bash preprocess.sh configs/preprocessing/palomar-compact4.yaml    # -> datasets/palomar-compact4
 bash eval.sh demo --model openai/gpt-5.6-luna-xhigh
-uv run postprocessing.py demo --model openai/gpt-5.6-luna-xhigh --endpoints-only --warm-stripped-baseline-build --save-lake-build
-uv run postprocessing.py demo --model openai/gpt-5.6-luna-xhigh --heartbeats
+bash postprocess.sh demo --model openai/gpt-5.6-luna-xhigh
 ```
 
 Run each command after the previous one has finished. The analyses in [Postprocessing](#3-postprocessing) apply the same way.
@@ -60,11 +59,11 @@ Run each command after the previous one has finished. The analyses in [Postproce
 bash preprocess.sh configs/preprocessing/leanlean_20260914.yaml    # -> datasets/leanlean_20260914
 ```
 
-For each of the 64 repositories this downloads the source at its pinned commit, builds it with its Lean toolchain, runs lean-strip without network access, and checks the result with the Comparator. The output is identical to the published benchmark for all 64 repositories: same files, same dropped declarations, same token counts (see `experiments/lean_strip/leanlean_20260914_lean_strip_v1.0.0_reproduction.json`). `scripts/verify_lean_strip_reproduction.py` repeats the check against the downloaded release, in a separate run that leaves your dataset alone.
+Downloads each repository at its pinned commit, builds it, runs lean-strip offline, and verifies the result with the Comparator. `scripts/verify_lean_strip_reproduction.py` checks reproduction against the published benchmark.
 
 ### Or download it
 
-To skip preprocessing, download the published benchmark from Hugging Face ([`eth-sri/lean-lean`](https://huggingface.co/datasets/eth-sri/lean-lean)). Then pass the dataset config `leanlean_20260914-hf` instead of `leanlean_20260914` to `eval.sh` and `postprocessing.py`; its results go to `output/evaluation/leanlean_20260914-hf/`. The release has no images, so each repository's image is built once before its agent starts.
+To skip preprocessing, download the published benchmark from Hugging Face ([`eth-sri/lean-lean`](https://huggingface.co/datasets/eth-sri/lean-lean)). Then pass the dataset config `leanlean_20260914-hf` instead of `leanlean_20260914` to `eval.sh` and `postprocess.sh`. Its results go to `results/leanlean_20260914-hf/`. The release has no images, so each repository's image is built once before its agent starts.
 
 ```bash
 uv run python scripts/fetch_dataset.py    # -> datasets/leanlean_20260914
@@ -76,7 +75,7 @@ uv run python scripts/fetch_dataset.py    # -> datasets/leanlean_20260914
 bash eval.sh leanlean_20260914 --model openai/gpt-5.6-sol-xhigh
 ```
 
-Every run has 12 hours, 8 CPUs, 64 GiB and a network restricted to a model proxy, and a snapshot is taken after every edit. `configs/dataset/leanlean_20260914.yaml` holds the task prompt. Results go to `output/evaluation/leanlean_20260914/<provider>/<model>/`.
+Every run has 12 hours, 8 CPUs, 64 GiB and a network restricted to a model proxy, and a snapshot is taken after every edit. `configs/dataset/leanlean_20260914.yaml` holds the task prompt. Results go to `results/leanlean_20260914/<provider>/<model>/`.
 
 ### Models
 
@@ -85,25 +84,31 @@ Every run has 12 hours, 8 CPUs, 64 GiB and a network restricted to a model proxy
 | `openai/gpt-5.6-sol-xhigh` | Codex 0.154.0 |
 | `openai/gpt-5.6-luna-xhigh` | Codex 0.154.0 |
 | `openai/gpt-6.1-sol-xhigh` | Codex 0.160.0 |
+| `openai/gpt-6.1-sol-max` | Codex 0.160.0 |
+| `openai/gpt-6-luna-max` | Codex 0.160.0 |
 | `openai/gpt-6-astra-xhigh` | Codex 0.154.0 |
 | `anthropic/opus-5-high` | Claude Code 2.1.269 |
 | `anthropic/opus-5.5-high` | Claude Code 2.1.280 |
+| `anthropic/haiku-5.5-high` | Claude Code 2.1.294 |
+| `anthropic/haiku-5.5-xhigh` | Claude Code 2.1.294 |
 | `anthropic/fable-5.1-high` | Claude Code 2.1.269 |
 | `google/gemini-3.8-flash-high` | Antigravity 1.1.26 |
+| `google/gemini-4-argon-high` | Antigravity 1.4.0 |
 | `meta/muse-spark-1.3-max-native-w4` | Muse Code 1.0.3 |
 | `mistral/leanstral-1.5` | Mistral Vibe 2.25.0 |
 
+Additional effort variants and one-million-token Claude configs are in `configs/models/`.
+
 ## 3. Postprocessing
 
-The commands below use Sol; substitute any evaluated model.
+The commands below use Sol. Substitute any evaluated model.
 
 ### Compression score and heartbeats
 
-Each submission is rebuilt from clean and checked with the Comparator. The score is its reduction in Lean tokens; failed submissions score 0. The first pass keeps each build for the analyses below, and the second writes `report_summary.json`.
+Each submission is rebuilt and checked with the Comparator, its build is kept, and heartbeats are measured. The score is the reduction in Lean tokens. Failed submissions score 0.
 
 ```bash
-uv run postprocessing.py leanlean_20260914 --model openai/gpt-5.6-sol-xhigh --endpoints-only --warm-stripped-baseline-build --save-lake-build
-uv run postprocessing.py leanlean_20260914 --model openai/gpt-5.6-sol-xhigh --heartbeats
+bash postprocess.sh leanlean_20260914 --model openai/gpt-5.6-sol-xhigh
 ```
 
 ### Budget curves
@@ -111,9 +116,9 @@ uv run postprocessing.py leanlean_20260914 --model openai/gpt-5.6-sol-xhigh --he
 The last edit of every five-minute window is built incrementally.
 
 ```bash
-uv run python scripts/select_checkpoint_windows.py output/evaluation/leanlean_20260914/openai/gpt-5.6-sol-xhigh \
+uv run python scripts/select_checkpoint_windows.py results/leanlean_20260914/openai/gpt-5.6-sol-xhigh \
   --window-minutes 5 --output runs/checkpoints/sol-5min.json
-uv run postprocessing.py leanlean_20260914 --model openai/gpt-5.6-sol-xhigh --replay --skip-checkpoint-lean-verify \
+bash postprocess.sh leanlean_20260914 --model openai/gpt-5.6-sol-xhigh --replay --skip-checkpoint-lean-verify \
   --checkpoint-index-file runs/checkpoints/sol-5min.json
 ```
 
@@ -127,20 +132,34 @@ uv run python scripts/analysis/classify_compression.py output/analysis/<run>/cla
   --output-dir output/analysis/<run>/compression-origin
 ```
 
+See [checkpoint tracking](docs/dependency_tracking.md) and
+[compression attribution](docs/compression_categories.md) for details.
+
 ### Agent actions
 
 Every tool call is classified as Build, Verify, Measure, Read, Search, Edit, Git, Lake, Sleep or Other.
 
 ```bash
-uv run python scripts/analysis/plot_action_classes.py output/evaluation/leanlean_20260914/openai/gpt-5.6-sol-xhigh \
+uv run python scripts/analysis/plot_action_classes.py results/leanlean_20260914/openai/gpt-5.6-sol-xhigh \
   --labels Sol --dataset datasets/leanlean_20260914 --output-dir output/analysis/agent-actions
 ```
+
+### Pack results
+
+Compress a finished run into an archive, verified file by file:
+
+```bash
+uv run python scripts/pack_results.py --pair results/demo/openai/gpt-5.6-luna-xhigh --into ~/lean-lean-results
+uv run python scripts/pack_results.py --verify ~/lean-lean-results
+```
+
+See [result archives](docs/result_archives.md) for options and extraction.
 
 ## 4. Ablations
 
 ### Opus/Sol merge
 
-GPT-5.6 Luna merges the Opus 5 and GPT-5.6 Sol submissions on twelve repositories. This ablation ran on the paper's internal dataset bundle (with its prebuilt shared environments) and the paper's Opus 5 and Sol runs; its configs (`configs/dataset/leanlean_2026092*-langlib-*`, `configs/preprocessing/leanlean_2026092*-*-seeding.yaml`) and scripts (`scripts/assemble_reconciliation_dataset.py`, `scripts/seed_reconciliation_branches.py`) are included for reference.
+GPT-5.6 Luna merges the Opus 5 and GPT-5.6 Sol submissions on twelve repositories. This ablation ran on the paper's internal dataset bundle (with its prebuilt shared environments) and the paper's Opus 5 and Sol runs. Its configs (`configs/dataset/leanlean_2026092*-langlib-*`, `configs/preprocessing/leanlean_2026092*-*-seeding.yaml`) and scripts (`scripts/assemble_reconciliation_dataset.py`, `scripts/seed_reconciliation_branches.py`) are included for reference.
 
 ### Prompt ablation
 
@@ -155,6 +174,18 @@ uv run python scripts/paper/export.py configs/paper/leanlean_20260914.yaml --out
 ```
 
 `scripts/paper/render.py` draws the paper's figures and tables from either set of CSVs.
+
+## Citation
+
+```bibtex
+@misc{leanlean2026,
+  title  = {{LeanLean}: Benchmarking Repository-Scale {Lean} Proof Compression},
+  author = {R{\"o}gnvaldsson, K{\'a}ri and M{\"u}ndler-Sasahara, Niels and Dekoninck, Jasper and Vechev, Martin},
+  year   = {2026},
+  note   = {Preprint},
+  url    = {https://files.sri.inf.ethz.ch/website/papers/rognvaldsson2026leanlean.pdf}
+}
+```
 
 ## License
 

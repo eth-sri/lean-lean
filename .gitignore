@@ -4,9 +4,13 @@ __pycache__/
 *.pyo
 *.egg-info/
 .venv/
+.venv-*/
 .pytest_cache/
 
-# Project run artifacts
+# Project run artifacts. Runs live in results/<dataset>/<provider>/<model>/;
+# results/paper/ holds the paper's tracked numbers.
+/results/*
+!/results/paper/
 output/
 /datasets/
 logs/
@@ -43,3 +47,50 @@ prod_repos
 
 # Pinned offline host executables (installed from checksum-verified sources).
 /data/tool_bundles/
+
+# Generated experiment workspaces: copied sources, checkpoints, graphs, cost
+# audits, repair backups, and rendered media. Keep hand-authored YAML specs and
+# pinned model prompt snapshots under their existing tracked paths.
+/experiments/analysis/*/
+/experiments/evaluation/
+/experiments/*-20??????/
+/experiments/payload_audit/*.json
+/experiments/payload_audit/captures/*.json
+*.sources.tar
+*.sources.tar.gz
+checkpoints.tar.zst
+
+# Local checkpoint dashboards and website export/reconciliation tools.
+# Reusable checkpoint extraction, identity, and classification helpers stay tracked.
+/scripts/analysis/checkpoint_baseline_categories.py
+/scripts/analysis/checkpoint_graph_animation.html
+/scripts/analysis/checkpoint_source_recovery.py
+/scripts/analysis/checkpoint_viewer/
+/scripts/analysis/export_checkpoint_categories.py
+/scripts/analysis/export_checkpoint_viewer.py
+/scripts/analysis/freeze_checkpoint_classification.py
+/scripts/analysis/measure_checkpoint_macros.py
+/scripts/analysis/promote_tracked_replay.py
+/scripts/analysis/reconcile_checkpoint_viewer.py
+/scripts/analysis/refresh_website_accounting.py
+/scripts/analysis/render_checkpoint_graphs.py
+/scripts/analysis/serve_checkpoint_viewer.py
+/tests/check_checkpoint*_browser.py
+/tests/test_checkpoint_baseline_categories.py
+/tests/test_checkpoint_categories.py
+/tests/test_checkpoint_graph_animation.py
+/tests/test_checkpoint_reconciliation.py
+/tests/test_checkpoint_viewer_export.py
+/tests/test_refactoring_round_identity.py
+
+# One-off dataset selections, local source preparation, and live-run repair.
+/configs/dataset/*_argon_*_20??????.yaml
+/configs/dataset/linear-crossing-families_20??????.yaml
+/configs/preprocessing/linear-crossing-families_20??????.yaml
+/scripts/watch_argon_relay_idle.py
+/tests/test_argon_relay_watchdog.py
+
+# Development dashboards are excluded from this open-source publication tree.
+/dashboard.sh
+/run_dashboard.py
+/src/leanlean/run_monitor/

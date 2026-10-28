@@ -78,13 +78,14 @@ def cost_from_responses(responses: list[Any]) -> float:
 
 def cost_accounting_from_responses(responses: list[Any]) -> dict[str, Any]:
     """Qualify benchmark estimates; absent cache evidence is not a cache miss."""
-    missing_cache = inconsistent_reasoning = missing_usage = 0
+    missing_cache = inconsistent_reasoning = missing_usage = partial_usage = 0
     models = set()
     for response in responses:
         if not isinstance(response, dict):
             missing_usage += 1
             continue
         models.add(str(response.get("model") or "unknown_model").split("/")[-1])
+        partial_usage += response.get("usage_incomplete") is True
         usage = response.get("usage")
         if not isinstance(usage, dict) or not usage:
             missing_usage += 1
@@ -97,7 +98,7 @@ def cost_accounting_from_responses(responses: list[Any]) -> dict[str, Any]:
     rates = {model: get_model_prices(model) for model in sorted(models)}
     return {
         "basis": "benchmark_rate_estimate_not_invoice",
-        "estimated_usd": cost_from_responses(responses),
+        "estimated_usd": cost_from_responses(responses) if responses else None,
         "billed_usd": None,
         "native_list_cost_calls": sum(
             isinstance(response, dict) and isinstance(response.get("native_cost"), dict)
@@ -106,11 +107,12 @@ def cost_accounting_from_responses(responses: list[Any]) -> dict[str, Any]:
         ),
         "calls": len(responses),
         "calls_missing_usage": missing_usage,
+        "calls_with_partial_usage": partial_usage,
         "calls_missing_cache_details": missing_cache,
         "calls_reasoning_exceeds_completion": inconsistent_reasoning,
         "models_missing_prices": [model for model, prices in rates.items() if prices is None],
         "rates_per_million_input_output_cache_write": rates,
-        "usage_status": "incomplete_or_inconsistent" if missing_cache or inconsistent_reasoning or missing_usage or any(p is None for p in rates.values()) else "reported_usage",
+        "usage_status": "missing_usage" if not responses else "incomplete_or_inconsistent" if missing_cache or inconsistent_reasoning or missing_usage or partial_usage or any(p is None for p in rates.values()) else "reported_usage",
     }
 
 

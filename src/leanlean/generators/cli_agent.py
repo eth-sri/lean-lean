@@ -98,6 +98,7 @@ class CLIAgentConfig:
     host_tool_version: str | None = None
     # Host path of a Codex model catalog passed as model_catalog_json (codex_sub).
     codex_model_catalog: str | None = None
+    context_window: int | None = None
     system_prompt: str = ""
     allowed_skills: List[str] = field(default_factory=list)
     mcp_servers: List[str] = field(default_factory=list)
@@ -236,7 +237,7 @@ def resolve_antigravity_standalone_tool(version: str) -> Path:
     if executable is None:
         raise RuntimeError(
             f"Antigravity CLI {version} is not installed. Run "
-            "scripts/install_antigravity_standalone.sh, or set "
+            f"scripts/install_antigravity_standalone.sh {version}, or set "
             "ANTIGRAVITY_STANDALONE_EXECUTABLE."
         )
     version_check = subprocess.run(
@@ -704,6 +705,41 @@ class CLIAgent(Generator):
         }
         self._native_rollout_host_path = destination
 
+    def _recover_codex_rollout_usage(self, response_start: int) -> None:
+        """Reconcile stdout usage before playback and metrics are finalized."""
+        if self.config.cli_name != "codex_sub":
+            return
+        path = getattr(self, "_native_rollout_host_path", None)
+        if path is None:
+            return
+        from leanlean.codex_usage import completed_rollout_response
+        try:
+            response = completed_rollout_response(
+                path, model=str(self.model.config.model_name).split("/")[-1]
+            )
+        except (ValueError, OSError, EOFError) as error:
+            self.logger.warning("Could not verify Codex cost against native usage: %s", error)
+            return
+        existing = self.model.responses[response_start:]
+        existing_cost = cost_from_responses(existing)
+        recovered_cost = cost_from_responses([response])
+        if (existing and abs(existing_cost - recovered_cost) < 1e-8
+                and cost_accounting_from_responses(existing)["usage_status"] == "reported_usage"):
+            return
+        # Replace this invocation's aggregate, never append cumulative native
+        # usage to stdout usage or to an earlier invocation's responses.
+        self.model.responses[response_start:] = [response]
+        self.model.n_calls = len(self.model.responses)
+        self.model.cost_from_responses_fallback = True
+        self.model.cost = cost_from_responses(self.model.responses)
+        if not isinstance(getattr(self, "provider_trace", None), dict):
+            self.provider_trace = {"format": "agent-provider-trace-v1"}
+        self.provider_trace["cost_recovery"] = {
+            "source": "completed_native_codex_rollout_cumulative_counters",
+            "previous_stdout_usd": existing_cost if existing else None,
+            "recovered_usd": recovered_cost,
+        }
+
     @staticmethod
     def _enable_codex_rollout_persistence(launch_command: str) -> str:
         """Turn a configured ephemeral Codex run into a persisted native session."""
@@ -775,6 +811,13 @@ class CLIAgent(Generator):
     def _prepare_antigravity_home(self) -> None:
         """Create a private API-key profile that is forced through the relay."""
 
+        from leanlean.antigravity_config import validate_antigravity_contract
+        validate_antigravity_contract(
+            model=str(self.model.config.model_name).split("/")[-1],
+            version=self.config.host_tool_version,
+            enable_subagents=self.config.enable_subagents,
+            allowed_skills=self.config.allowed_skills, mcp_servers=self.config.mcp_servers,
+        )
         self._cleanup_antigravity_home()
         config_dir = f"{_ANTIGRAVITY_HOME}/.gemini/antigravity-cli"
         prepared = self.env.execute(
@@ -783,43 +826,27 @@ class CLIAgent(Generator):
         )
         if prepared.get("returncode", 1) != 0:
             raise APIError("Could not create the temporary Antigravity home.")
-        settings = json.dumps(
-            {
-                "modelProvider": "gemini",
-                "enableTelemetry": False,
-                "showFeedbackSurvey": False,
-                "notifications": False,
-                "toolPermission": "always-proceed",
-                "artifactReviewPolicy": "always-proceed",
-            },
-            sort_keys=True,
-        )
+        from leanlean.antigravity_config import antigravity_profile_files
+        files = antigravity_profile_files(self.config.host_tool_version)
         container_id = getattr(self.env, "container_id", None)
         env_config = getattr(self.env, "config", None)
         executable = getattr(env_config, "executable", "docker")
         if not container_id:
             self._cleanup_antigravity_home()
             raise APIError("Antigravity routing currently requires Docker.")
-        destination = f"{config_dir}/settings.json"
-        copied = subprocess.run(
-            [
-                executable,
-                "exec",
-                "-i",
-                container_id,
-                "sh",
-                "-c",
-                f"umask 077 && cat > {shlex.quote(destination)}",
-            ],
-            input=(settings + "\n").encode("utf-8"),
-            stdout=subprocess.PIPE,
-            stderr=subprocess.STDOUT,
-            timeout=30,
-        )
-        if copied.returncode != 0:
-            self._cleanup_antigravity_home()
-            output = copied.stdout.decode("utf-8", errors="replace").strip()
-            raise APIError(f"Could not install the Antigravity profile: {output}")
+        for relative_path, content in files.items():
+            destination = f"{_ANTIGRAVITY_HOME}/{relative_path}"
+            parent = str(Path(destination).parent)
+            copied = subprocess.run(
+                [executable, "exec", "-i", container_id, "sh", "-c",
+                 f"umask 077 && mkdir -p {shlex.quote(parent)} && cat > {shlex.quote(destination)}"],
+                input=content.encode("utf-8"), stdout=subprocess.PIPE,
+                stderr=subprocess.STDOUT, timeout=30,
+            )
+            if copied.returncode != 0:
+                self._cleanup_antigravity_home()
+                output = copied.stdout.decode("utf-8", errors="replace").strip()
+                raise APIError(f"Could not install the Antigravity profile: {output}")
 
 
     def _prepare_mistral_vibe_home(self, openai_args: dict) -> None:
@@ -1664,6 +1691,25 @@ class CLIAgent(Generator):
             )
 
 
+    def _account_argon_request_attempts(self, *, discarded_only: bool = True) -> int:
+        """Native usage covers delivered responses; add discarded request usage."""
+        getter = getattr(self.model, "get_request_retries_path", None)
+        scope_id = getattr(self.model, "accounting_scope_id", None)
+        if not callable(getter) or not scope_id:
+            return 0
+        from leanlean.model.litellm_wrapper.argon_request_retry import request_attempt_responses
+        responses, records = request_attempt_responses(Path(getter()), scope_id, discarded_only=discarded_only)
+        seen = {r.get("retry_attempt_id") for r in self.model.responses if isinstance(r, dict)}
+        self.model.responses.extend(r for r in responses if r["retry_attempt_id"] not in seen)
+        if records:
+            self.provider_trace["request_retry_attempts"] = records
+            self.provider_trace["discarded_request_usage_missing"] = sum(
+                r.get("usage") is None and not r.get("delivered") for r in records
+            )
+        self.model.n_calls = len(self.model.responses)
+        self.model.cost = cost_from_responses(self.model.responses)
+        return len(records)
+
     def _process_antigravity_logs(self, raw_stdout: str) -> None:
         """Preserve Antigravity NDJSON and account from the local gateway."""
 
@@ -1701,7 +1747,16 @@ class CLIAgent(Generator):
         status = str(terminal.get("status") or "").upper()
         detail = str(terminal.get("error") or diagnostic or "")
         recovered_submission = is_antigravity_recovered_submission(terminal)
-        success = antigravity_terminal_success(terminal)
+        timed_out = bool(getattr(self, "_last_exec_timed_out", False))
+        success = not timed_out and antigravity_terminal_success(terminal)
+        if timed_out:
+            # A background-task notice may precede hours of useful work. It
+            # is diagnostic context, not the reason the harness stopped.
+            detail = "Antigravity CLI exceeded the harness execution deadline"
+            if terminal.get("error"):
+                detail += f": {terminal['error']}"
+        elif status == "SUCCESS" and not terminal.get("error") and not success:
+            detail = "Antigravity CLI reported SUCCESS without the canonical <submit> marker"
         if recovered_submission:
             terminal["native_status"] = status
             terminal["recovered_submission"] = True
@@ -1719,6 +1774,8 @@ class CLIAgent(Generator):
         self.provider_trace = {
             "format": "antigravity-cli-stream-json-v1",
             "provider": "antigravity_cli",
+            "timed_out": timed_out,
+            "native_diagnostic_tail": diagnostic,
             "stream_events": events,
             "raw_event_count": len(events),
             "unparsed_line_count": len(unparsed_lines),
@@ -1738,6 +1795,7 @@ class CLIAgent(Generator):
             self.model.n_calls = len(journal.responses)
             self.model.cost_from_responses_fallback = True
             self.model.cost = cost_from_responses(self.model.responses)
+            self._account_argon_request_attempts()
             return
 
         native_usage = terminal.get("usage")
@@ -1777,9 +1835,25 @@ class CLIAgent(Generator):
                     },
                 }
 
-        self._account_gateway_responses(
-            native_fallback_response=native_fallback_response
-        )
+        if (
+            native_fallback_response is not None
+            and callable(getattr(self.model, "get_request_retries_path", None))
+            and self.model.config.model_name.split("/")[-1] == "gemini-4-argon"
+        ):
+            self.model.responses.append(native_fallback_response)
+            self.model.cost_from_responses_fallback = True
+            self._account_argon_request_attempts()
+        elif (
+            self.model.config.model_name.split("/")[-1] == "gemini-4-argon"
+            and self._account_argon_request_attempts(discarded_only=False)
+        ):
+            # No native usage survived: use each proxy attempt once, including
+            # explicit missing-usage records for interrupted provider calls.
+            self.model.cost_from_responses_fallback = True
+        else:
+            self._account_gateway_responses(
+                native_fallback_response=native_fallback_response
+            )
 
     def _process_mistral_vibe_logs(self, raw_stdout: str) -> None:
         """Preserve Vibe streaming history and use gateway responses for usage."""
@@ -1916,6 +1990,10 @@ class CLIAgent(Generator):
             model = kwargs.get("model")
             if isinstance(model, str):
                 kwargs["model"] = model.split("/")[-1]
+            if self.config.context_window is not None:
+                if self.config.context_window != 1_000_000:
+                    raise ValueError("Claude Code context_window must be 1000000")
+                kwargs["model"] += "[1m]"
             model_kwargs = getattr(self.model.config, "model_kwargs", {}) or {}
             kwargs["reasoning_effort"] = model_kwargs.get("reasoning_effort", "medium")
         elif self.config.cli_name == "codex_sub":
@@ -2184,7 +2262,13 @@ class CLIAgent(Generator):
                 raise RuntimeError(
                     "proxy-backed agents require a model-only Docker network"
                 )
-            openai_args["base_url"] = attach_gateway(openai_args["base_url"])
+            gateway_options = {}
+            if self.config.cli_name == "antigravity_cli":
+                from leanlean.antigravity_config import antigravity_gateway_options
+                gateway_options = antigravity_gateway_options(
+                    str(self.model.config.model_name), self.config.host_tool_version
+                )
+            openai_args["base_url"] = attach_gateway(openai_args["base_url"], **gateway_options)
 
         # Install pinned host tools after the container starts with no network.
         self._install()
@@ -2201,7 +2285,11 @@ class CLIAgent(Generator):
             from configs.model_constants import CLAUDE_CODE_OAUTH_TOKEN
 
             oauth_token = CLAUDE_CODE_OAUTH_TOKEN
-        launch_command = self.config.launch_command.format(
+        launch_template = self.config.launch_command
+        if self.config.cli_name == "antigravity_cli":
+            from leanlean.antigravity_config import antigravity_launch_command
+            launch_template = antigravity_launch_command(launch_template, self.config.host_tool_version)
+        launch_command = launch_template.format(
             **openai_args, prompt=shlex.quote(prompt)
         )
         standardized_codex = (
@@ -2234,13 +2322,8 @@ class CLIAgent(Generator):
             # Render first so a bad config cannot strand a copied credential.
             self._install_codex_subscription_auth()
 
-        # Run the CLI. Hitting the container timeout is an expected outcome for
-        # long agent runs, not a hard failure: the agent's work is on disk and
-        # the litellm proxy has already logged every completed call's usage to
-        # the traces file. If we let TimeoutExpired propagate here we skip
-        # _process_logs() (below) and lose all cost accounting for the run — the
-        # exact bug behind timed-out runs showing no cost. So catch it, fall
-        # through to log/diff capture, and surface it as a non-zero exit.
+        # Capture logs, usage and the final diff even after a container timeout.
+        # Propagating TimeoutExpired here would skip that recovery.
         timed_out = False
         native_capture_manifest: str | None = None
         codex_rollout_manifest: str | None = None
@@ -2391,6 +2474,12 @@ class CLIAgent(Generator):
                     "Failed to process logs after timeout; continuing."
                 )
         finally:
+            # Stdout can omit turn.completed usage even though the native
+            # session finished. Recover before either playback or round metrics
+            # snapshot model.responses; attaching checkpoint costs alone is too late.
+            if native_rollout_enabled and not standardized_codex:
+                self._capture_codex_native_rollout()
+                self._recover_codex_rollout_usage(response_start)
             if recorder is not None and not isinstance(
                 recorder, StandardizedRunRecorder
             ):

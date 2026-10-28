@@ -15,6 +15,9 @@ def test_demo_config_resolves_without_docker_or_model_calls():
     # pinned images and harness bundles on this host.
     resolved = resolve_named_config('demo', 'openai/gpt-5.6-luna-xhigh', repo_root=ROOT)
     manifest = resolved.manifest
+    pair = ROOT / 'results/demo/openai/gpt-5.6-luna-xhigh'
+    assert resolved.output_dir == pair
+    assert resolved.run_artifact_path == pair / 'run/run.yaml'
     assert manifest['monitoring']['snapshots'] is True
     assert manifest['monitoring']['every_n_edits'] == 1
     assert len(manifest['repositories']) == 4

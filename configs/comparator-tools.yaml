@@ -109,3 +109,9 @@ tools:
         toolchain: leanprover/lean4:v4.34.0-rc2
         sha256: 4fa9e14cada304109e85da5048bcd411cf781a03539b3e50953e5c537074bd9e
         used_by: [palomar__2026-09-01-000011]
+      # Not a registry pin: added 2026-10-09 for the hand-made LinearCrossingFamilies
+      # instance (v4.34.0 final). sha256 from its first build here.
+      076e8e57707e813375e8f9da8bf989799ace9680:
+        toolchain: leanprover/lean4:v4.34.0
+        sha256: cbf95bb18e3fc19bbe39ad2a250d9cfce4ca01315b2acf8f630d1e315498bf60
+        used_by: [linear-crossing-families]

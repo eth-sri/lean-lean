@@ -101,33 +101,6 @@ def is_repository_document(relative: Path) -> bool:
     )
 
 
-def repository_document_paths(root: Path) -> tuple[str, ...]:
-    """List documentation files removed at the repository-isolation boundary."""
-
-    return tuple(
-        path.relative_to(root).as_posix()
-        for path in sorted(root.rglob("*"))
-        if path.is_file() and is_repository_document(path.relative_to(root))
-    )
-
-
-def remove_repository_documents(root: Path) -> tuple[str, ...]:
-    """Remove documentation files and now-empty directories deterministically."""
-
-    removed = repository_document_paths(root)
-    for relative in removed:
-        (root / relative).unlink()
-    for directory in sorted(
-        (path for path in root.rglob("*") if path.is_dir()),
-        key=lambda path: len(path.parts),
-        reverse=True,
-    ):
-        try:
-            directory.rmdir()
-        except OSError:
-            pass
-    return removed
-
 
 def _source_files(root: Path, *, exclude_documents: bool) -> list[Path]:
     files: list[Path] = []
@@ -164,11 +137,6 @@ def source_tree_sha256(root: Path) -> str:
 
     return _source_tree_sha256(root, exclude_documents=False)
 
-
-def isolated_source_tree_sha256(root: Path) -> str:
-    """Hash the source tree produced after repository-document cleanup."""
-
-    return _source_tree_sha256(root, exclude_documents=True)
 
 
 def source_tree_stats(root: Path) -> dict[str, int]:

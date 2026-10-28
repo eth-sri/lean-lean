@@ -887,6 +887,11 @@ class HostSideCheckpointRecorder(ExternalPlaybackRecorder):
             if self._detected_stream_provider == "antigravity-cli":
                 apply_recorded_costs(self._result, self._antigravity_usage)
                 self._persist_standardized_trace()
+            if not authoritative_responses and self._detected_stream_provider != "antigravity-cli":
+                self._result.update(final_cost_usd=None, authoritative_final_cost_usd=None,
+                                    final_cost_complete=False, cost_basis="missing final usage")
+                if self.points:
+                    self.points[-1].update(cost_usd=None, cost_boundary_exact=False)
             self._persist_manifest(self._result)
             return self._result
 

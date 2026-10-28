@@ -1,42 +1,15 @@
 #!/usr/bin/env python3
-"""What one use of each new abbreviation saves.
+"""Estimate source-token savings from new definitions, notation and macros.
 
-Every new definition and every new piece of syntax is syntax optimization:
+Fixed templates are priced as tokens(expansion) - tokens(call), with each
+parameter counted once. Repeated parameters are flagged; nested abbreviations
+include their own expansion savings. Syntax without a fixed expansion counts
+as machinery cost.
 
-  priced     a use has a fixed expansion, so what one use saves is known:
-             `notation`, `infix`/`prefix`/`postfix`, template `macro`, a
-             single-alternative `macro_rules`, a non-recursive `def`/`abbrev`
-             with one body, and the notations and macros a model's own DSL
-             generates (one graph node each, e.g. `znĀĀ y + a * e`)
-  machinery  no fixed expansion: `syntax`, programmatic macros, other
-             `macro_rules`, other definitions (recursive, pattern matching,
-             tactic bodies).  They count only as cost.
-
-Nothing is expanded in the repository.  For each priced abbreviation the
-saving of ONE use is worked out once, on its own text:
-
-    saving = tokens(expansion) - tokens(call)
-
-with every parameter counted once on both sides, so the saving does not depend
-on the arguments -- exact when each parameter occurs once in the expansion
-(`repeated` flags the others; there a use saves more than recorded).  An
-expansion that itself uses another new abbreviation is priced with that one's
-saving added in.
-
-A use is then found by its key, in the tokens of a step:
-
-  definition  its name (`f`, `Ns.f`, `x.f`), counted only in declarations the
-              after graph says depend on it, and not inside the hint list of
-              `simp`/`rw`/`unfold`, which names the definition without using it
-  notation /  a literal of its pattern that occurs nowhere in the before
-  macro       sources (a distinctive literal); visible in the same file after
-              its definition or, unless `local`, in files that import it
-
-A supported `elab` factory that directly quotes a prefix notation or macro is
-syntax machinery. Its emitted names are recovered from graph evidence and its
-nested parameter substitutions are priced separately by generated_syntax.py.
-Other elaborators remain undecided, as does notation with no distinctive key.
-Generated-template amounts measure source-token expansion, not proof terms.
+Definition uses require dependency evidence and exclude unfolding hint lists.
+Notation uses require a distinctive literal and the declaration's source scope.
+Supported elaborator factories are handled by generated_syntax.py; other
+elaborators and ambiguous notation remain unpriced.
 """
 
 from __future__ import annotations
@@ -379,6 +352,15 @@ def build(before, after, before_src: SourceIndex, after_src: SourceIndex,
                 by_token[key[0]].add(j)
             if other.kind == "definition":
                 by_token[other.keys[0][0].rsplit(".", 1)[-1]].add(j)
+    # Nested expansions must obey the same visibility rules as direct uses.
+    # Local notation literals are routinely reused by unrelated files; globally
+    # matching those literals recursively invents enormous expansion costs.
+    pricer = Pricer(found, after, after_src)
+    indices = {id(a): i for i, a in enumerate(found)}
+    visible = [
+        {indices[id(other)] for name in a.names for other in pricer.visible(name)}
+        for a in found
+    ]
     memo: dict[int, int] = {}
 
     def price(index: int, stack: frozenset[int]) -> int:
@@ -389,7 +371,7 @@ def build(before, after, before_src: SourceIndex, after_src: SourceIndex,
             return a.saving
         total = a.base_saving
         candidates = set().union(*(by_token.get(t, set()) | by_token.get(t.rsplit(".", 1)[-1], set()) for t in a.template))
-        for j in candidates:
+        for j in sorted(candidates & visible[index]):
             other = found[j]
             if j == index or j in stack or not other.priced or not other.keys:
                 continue
