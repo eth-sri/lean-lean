@@ -167,13 +167,13 @@ GPT-5.6 Luna merges the Opus 5 and GPT-5.6 Sol submissions on twelve repositorie
 
 ## 5. Paper results
 
-`results/paper/data/*.csv` holds the paper's final numbers. To compute them from your own runs, list the run directories in `configs/paper/leanlean_20260914.yaml` and export:
+To compute the paper's numbers from your own runs, list the run directories in `configs/paper/leanlean_20260914.yaml` and export:
 
 ```bash
 uv run python scripts/paper/export.py configs/paper/leanlean_20260914.yaml --output-dir output/paper-export
 ```
 
-`scripts/paper/render.py` draws the paper's figures and tables from either set of CSVs.
+`scripts/paper/render.py` then draws the paper's figures and tables from the exported CSVs (by default `output/paper-export/data`).
 
 ## Citation
 

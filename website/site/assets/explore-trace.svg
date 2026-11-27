@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 360 270" fill="none">
+  <!-- Metatheory / Opus: actual opening message, read, and edit step 21 at 387.7 seconds. The diff contains the recorded expression excerpts. -->
+  <path fill="#fff" d="M0 0h360v270H0z"/>
+  <g font-family="var(--font-ui, sans-serif)" font-size="15">
+    <text x="14" y="28" fill="#76848e" font-family="var(--font-mono, monospace)" font-size="14">00:03</text><text x="80" y="28" fill="#475661">Agent</text>
+    <text x="80" y="53" fill="#13202a">I’ll start by exploring</text><text x="80" y="75" fill="#13202a">the repository structure.</text>
+  </g>
+  <path d="M14 94h332M14 141h332" stroke="#e1e7ea"/>
+  <g font-family="var(--font-mono, monospace)" font-size="14">
+    <text x="14" y="122" fill="#76848e">00:05</text><text x="80" y="122" fill="#1d5d74">Read</text><text x="132" y="122" fill="#475661">Challenge.lean</text>
+    <text x="14" y="169" fill="#76848e">06:27</text><text x="80" y="169" fill="#1d5d74">Edit</text><text x="132" y="169" fill="#475661">Solution.lean</text>
+  </g>
+  <path fill="#fbeaea" d="M14 187h332v28H14z"/><path fill="#e6f4ea" d="M14 215h332v28H14z"/>
+  <g font-family="var(--font-mono, monospace)" font-size="14">
+    <text x="21" y="206" fill="#8a2323">− fun _ _ h =&gt; ⟨_, h.2.2⟩</text>
+    <text x="21" y="234" fill="#1d5c33">+ fun _ _ ⟨l', _, _, hs⟩ =&gt; ⟨l', hs⟩</text>
+  </g>
+</svg>

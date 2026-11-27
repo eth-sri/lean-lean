@@ -7,10 +7,8 @@ __pycache__/
 .venv-*/
 .pytest_cache/
 
-# Project run artifacts. Runs live in results/<dataset>/<provider>/<model>/;
-# results/paper/ holds the paper's tracked numbers.
-/results/*
-!/results/paper/
+# Project run artifacts. Runs live in results/<dataset>/<provider>/<model>/.
+/results/
 output/
 /datasets/
 logs/

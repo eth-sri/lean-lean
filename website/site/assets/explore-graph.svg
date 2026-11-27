@@ -1,0 +1,238 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 360 270" fill="none">
+<!-- Arthur742Ramos/Metatheory, Opus 5: all 50 baseline and 4 added declarations. Coordinates, dependency bundles, token sizes and statuses come from graph.json.gz and opus.json.gz for palomar__2026-09-01-000010. -->
+<path fill="#fff" d="M0 0h360v270H0z"/>
+<g transform="translate(-100.8 -51.9) scale(1.3)">
+<path d="M235.33 177.12C235.33 192.29 225.67 192.29 225.67 207.47" stroke="#76848e" stroke-opacity="0.34" stroke-width="1.1"/>
+<path d="M235.33 177.12C235.33 199.56 225.67 199.56 225.67 222.00" stroke="#76848e" stroke-opacity="0.34" stroke-width="0.65"/>
+<path d="M225.67 187.81C225.67 197.64 225.67 197.64 225.67 207.47" stroke="#76848e" stroke-opacity="0.34" stroke-width="1.1"/>
+<path d="M148.33 192.94C148.33 191.01 167.67 191.01 167.67 189.09" stroke="#76848e" stroke-opacity="0.34" stroke-width="0.65"/>
+<path d="M216.00 162.59C216.00 184.39 167.67 184.39 167.67 206.19" stroke="#76848e" stroke-opacity="0.34" stroke-width="0.65"/>
+<path d="M196.67 160.02C196.67 174.56 167.67 174.56 167.67 189.09" stroke="#76848e" stroke-opacity="0.34" stroke-width="1.1"/>
+<path d="M235.33 177.12C235.33 182.46 225.67 182.46 225.67 187.81" stroke="#76848e" stroke-opacity="0.34" stroke-width="1.1"/>
+<path d="M225.67 187.81C225.67 204.90 225.67 204.90 225.67 222.00" stroke="#76848e" stroke-opacity="0.34" stroke-width="1.1"/>
+<path d="M254.67 158.74C254.67 187.81 206.33 187.81 206.33 216.87" stroke="#76848e" stroke-opacity="0.34" stroke-width="1.1"/>
+<path d="M216.00 162.59C216.00 170.50 196.67 170.50 196.67 178.40" stroke="#76848e" stroke-opacity="0.34" stroke-width="1.1"/>
+<path d="M216.00 146.77C216.00 184.39 225.67 184.39 225.67 222.00" stroke="#76848e" stroke-opacity="0.34" stroke-width="1.1"/>
+<path d="M158.00 149.34C158.00 163.87 196.67 163.87 196.67 178.40" stroke="#76848e" stroke-opacity="0.34" stroke-width="0.65"/>
+<path d="M158.00 149.34C158.00 171.14 148.33 171.14 148.33 192.94" stroke="#76848e" stroke-opacity="0.34" stroke-width="0.65"/>
+<path d="M158.00 149.34C158.00 155.96 216.00 155.96 216.00 162.59" stroke="#76848e" stroke-opacity="0.34" stroke-width="1.1"/>
+<path d="M235.33 144.21C235.33 175.84 225.67 175.84 225.67 207.47" stroke="#76848e" stroke-opacity="0.34" stroke-width="0.65"/>
+<path d="M216.00 132.24C216.00 177.12 225.67 177.12 225.67 222.00" stroke="#76848e" stroke-opacity="0.34" stroke-width="0.65"/>
+<path d="M196.67 133.52C196.67 154.68 158.00 154.68 158.00 175.84" stroke="#76848e" stroke-opacity="0.34" stroke-width="0.65"/>
+<path d="M235.33 129.68C235.33 146.77 274.00 146.77 274.00 163.87" stroke="#76848e" stroke-opacity="0.34" stroke-width="1.1"/>
+<path d="M216.00 132.24C216.00 139.51 216.00 139.51 216.00 146.77" stroke="#76848e" stroke-opacity="0.34" stroke-width="1.1"/>
+<path d="M225.67 207.47C225.67 214.73 225.67 214.73 225.67 222.00" stroke="#76848e" stroke-opacity="0.34" stroke-width="0.65"/>
+<path d="M235.33 129.68C235.33 168.57 225.67 168.57 225.67 207.47" stroke="#76848e" stroke-opacity="0.34" stroke-width="0.65"/>
+<path d="M235.33 129.68C235.33 158.74 225.67 158.74 225.67 187.81" stroke="#76848e" stroke-opacity="0.34" stroke-width="0.65"/>
+<path d="M216.00 120.27C216.00 168.57 206.33 168.57 206.33 216.87" stroke="#76848e" stroke-opacity="0.34" stroke-width="0.65"/>
+<path d="M216.00 120.27C216.00 148.06 158.00 148.06 158.00 175.84" stroke="#76848e" stroke-opacity="0.24" stroke-width="0.65"/>
+<path d="M216.00 120.27C216.00 141.43 216.00 141.43 216.00 162.59" stroke="#76848e" stroke-opacity="0.24" stroke-width="0.65"/>
+<path d="M216.00 120.27C216.00 126.26 216.00 126.26 216.00 132.24" stroke="#76848e" stroke-opacity="0.34" stroke-width="0.65"/>
+<path d="M216.00 120.27C216.00 163.87 225.67 163.87 225.67 207.47" stroke="#76848e" stroke-opacity="0.24" stroke-width="0.65"/>
+<path d="M216.00 120.27C216.00 132.88 177.33 132.88 177.33 145.49" stroke="#76848e" stroke-opacity="0.34" stroke-width="0.65"/>
+<path d="M216.00 63.00C216.00 139.94 206.33 139.94 206.33 216.87" stroke="#76848e" stroke-opacity="0.34" stroke-width="0.65"/>
+<path d="M216.00 63.00C216.00 119.42 158.00 119.42 158.00 175.84" stroke="#76848e" stroke-opacity="0.24" stroke-width="0.65"/>
+<path d="M216.00 63.00C216.00 112.79 216.00 112.79 216.00 162.59" stroke="#76848e" stroke-opacity="0.24" stroke-width="0.65"/>
+<path d="M216.00 63.00C216.00 135.23 225.67 135.23 225.67 207.47" stroke="#76848e" stroke-opacity="0.24" stroke-width="0.65"/>
+<path d="M216.00 63.00C216.00 104.25 177.33 104.25 177.33 145.49" stroke="#76848e" stroke-opacity="0.34" stroke-width="0.65"/>
+<path d="M216.00 63.00C216.00 91.64 216.00 91.64 216.00 120.27" stroke="#76848e" stroke-opacity="0.24" stroke-width="0.65"/>
+<path d="M167.99 77.53C167.99 141.86 167.67 141.86 167.67 206.19" stroke="#76848e" stroke-opacity="0.24" stroke-width="0.65"/>
+<path d="M167.99 77.53C167.99 135.23 148.33 135.23 148.33 192.94" stroke="#76848e" stroke-opacity="0.24" stroke-width="0.65"/>
+<path d="M187.32 74.97C187.32 140.58 167.67 140.58 167.67 206.19" stroke="#76848e" stroke-opacity="0.24" stroke-width="0.65"/>
+<path d="M187.32 74.97C187.32 133.95 148.33 133.95 148.33 192.94" stroke="#76848e" stroke-opacity="0.24" stroke-width="0.65"/>
+<path d="M187.32 74.97C187.32 124.12 177.33 124.12 177.33 173.27" stroke="#76848e" stroke-opacity="0.24" stroke-width="0.65"/>
+<path d="M187.32 74.97C187.32 126.69 196.67 126.69 196.67 178.40" stroke="#76848e" stroke-opacity="0.24" stroke-width="0.65"/>
+<path d="M198.39 94.63C198.39 150.41 167.67 150.41 167.67 206.19" stroke="#76848e" stroke-opacity="0.24" stroke-width="0.65"/>
+<path d="M198.39 94.63C198.39 155.75 206.33 155.75 206.33 216.87" stroke="#76848e" stroke-opacity="0.24" stroke-width="0.65"/>
+<path d="M206.66 80.10C206.66 87.36 198.39 87.36 198.39 94.63" stroke="#76848e" stroke-opacity="0.24" stroke-width="0.65"/>
+<path d="M206.66 80.10C206.66 148.48 206.33 148.48 206.33 216.87" stroke="#76848e" stroke-opacity="0.24" stroke-width="0.65"/>
+<path d="M206.66 80.10C206.66 136.52 148.33 136.52 148.33 192.94" stroke="#76848e" stroke-opacity="0.24" stroke-width="0.65"/>
+<path d="M206.66 80.10C206.66 126.69 177.33 126.69 177.33 173.27" stroke="#76848e" stroke-opacity="0.24" stroke-width="0.65"/>
+<path d="M206.66 80.10C206.66 151.05 225.67 151.05 225.67 222.00" stroke="#76848e" stroke-opacity="0.24" stroke-width="0.65"/>
+<path d="M206.66 80.10C206.66 141.22 206.33 141.22 206.33 202.34" stroke="#76848e" stroke-opacity="0.24" stroke-width="0.65"/>
+<path d="M206.66 80.10C206.66 141.86 245.00 141.86 245.00 203.62" stroke="#76848e" stroke-opacity="0.24" stroke-width="0.65"/>
+<path d="M216.00 63.00C216.00 70.27 167.99 70.27 167.99 77.53" stroke="#76848e" stroke-opacity="0.24" stroke-width="0.65"/>
+<path d="M216.00 63.00C216.00 68.98 187.32 68.98 187.32 74.97" stroke="#76848e" stroke-opacity="0.24" stroke-width="0.65"/>
+<path d="M216.00 63.00C216.00 78.81 198.39 78.81 198.39 94.63" stroke="#76848e" stroke-opacity="0.24" stroke-width="0.65"/>
+<path d="M216.00 63.00C216.00 71.55 206.66 71.55 206.66 80.10" stroke="#76848e" stroke-opacity="0.24" stroke-width="0.65"/>
+<g><title>Metatheory.Palomar433.Relation</title>
+<rect x="166.51" y="205.03" width="2.30" height="2.30" fill="#161616"/>
+</g>
+<g><title>Metatheory.Palomar433.LabeledARS</title>
+<rect x="205.18" y="215.72" width="2.30" height="2.30" fill="#161616"/>
+</g>
+<g><title>Metatheory.Palomar433.LabeledUnion</title>
+<rect x="156.80" y="174.64" width="2.40" height="2.40" fill="#f7e3ae"/>
+<rect x="156.85" y="174.69" width="2.30" height="2.30" fill="#e9b52b"/>
+</g>
+<g><title>Metatheory.Palomar433.Star</title>
+<rect x="146.85" y="191.45" width="2.97" height="2.97" fill="#f7e3ae"/>
+<rect x="147.02" y="191.63" width="2.62" height="2.62" fill="#e9b52b"/>
+</g>
+<g><title>Metatheory.Palomar433.Star.single</title>
+<circle cx="100.00" cy="160.02" r="1.41" fill="#d6453d"/>
+</g>
+<g><title>Metatheory.Palomar433.Star.trans</title>
+<circle cx="177.33" cy="173.27" r="1.76" fill="#f7e3ae"/>
+<circle cx="177.33" cy="173.27" r="1.48" fill="#e9b52b"/>
+</g>
+<g><title>Metatheory.Palomar433.star_cases</title>
+<circle cx="119.33" cy="162.59" r="2.17" fill="#f7e3ae"/>
+<circle cx="119.33" cy="162.59" r="1.95" fill="#e9b52b"/>
+</g>
+<g><title>Metatheory.Palomar433.StarPred</title>
+<rect x="165.89" y="187.31" width="3.56" height="3.56" fill="#d6453d"/>
+</g>
+<g><title>Metatheory.Palomar433.StarPred.trans</title>
+<circle cx="177.33" cy="163.87" r="2.01" fill="#d6453d"/>
+</g>
+<g><title>Metatheory.Palomar433.StarPred.mono</title>
+<circle cx="216.00" cy="174.56" r="2.10" fill="#d6453d"/>
+</g>
+<g><title>Metatheory.Palomar433.starPred_to_star</title>
+<circle cx="138.67" cy="161.31" r="1.95" fill="#d6453d"/>
+</g>
+<g><title>Metatheory.Palomar433.starPred_and_left</title>
+<circle cx="254.67" cy="158.74" r="1.85" fill="#d6453d"/>
+</g>
+<g><title>Metatheory.Palomar433.Joinable</title>
+<rect x="195.48" y="177.22" width="2.37" height="2.37" fill="#f7e3ae"/>
+<rect x="195.51" y="177.25" width="2.30" height="2.30" fill="#e9b52b"/>
+</g>
+<g><title>Metatheory.Palomar433.Confluent</title>
+<rect x="214.80" y="161.39" width="2.40" height="2.40" fill="#f7e3ae"/>
+<rect x="214.85" y="161.44" width="2.30" height="2.30" fill="#e9b52b"/>
+</g>
+<g><title>Metatheory.Palomar433.SemiConfluent</title>
+<rect x="234.15" y="160.12" width="2.37" height="2.37" fill="#d6453d"/>
+</g>
+<g><title>Metatheory.Palomar433.LocallyDecreasing</title>
+<rect x="156.19" y="156.93" width="3.62" height="3.62" fill="#d6453d"/>
+</g>
+<g><title>Metatheory.Palomar433.joinable_of_starPred_lt</title>
+<circle cx="196.67" cy="160.02" r="2.80" fill="#d6453d"/>
+</g>
+<g><title>Metatheory.Palomar433.semiConfluent_of_locallyDecreasing</title>
+<circle cx="138.67" cy="144.21" r="3.48" fill="#d6453d"/>
+</g>
+<g><title>Metatheory.Palomar433.confluent_of_semiConfluent</title>
+<circle cx="158.00" cy="149.34" r="2.14" fill="#d6453d"/>
+</g>
+<g><title>Metatheory.Palomar433.confluent_of_locallyDecreasing</title>
+<circle cx="196.67" cy="133.52" r="1.67" fill="#d6453d"/>
+</g>
+<g><title>Metatheory.Palomar433.Certificate.Edge</title>
+<rect x="224.51" y="220.85" width="2.30" height="2.30" fill="#161616"/>
+</g>
+<g><title>Metatheory.Palomar433.Certificate.PeakCertificate</title>
+<rect x="224.32" y="206.12" width="2.70" height="2.70" fill="#f7e3ae"/>
+<rect x="224.45" y="206.25" width="2.44" height="2.44" fill="#e9b52b"/>
+</g>
+<g><title>Metatheory.Palomar433.Certificate.RouteValid</title>
+<rect x="185.44" y="203.35" width="3.11" height="3.11" fill="#f7e3ae"/>
+<rect x="185.85" y="203.75" width="2.30" height="2.30" fill="#e9b52b"/>
+</g>
+<g><title>Metatheory.Palomar433.Certificate.RouteDecreasing</title>
+<rect x="262.79" y="204.64" width="3.09" height="3.09" fill="#d6453d"/>
+</g>
+<g><title>Metatheory.Palomar433.Certificate.Matches</title>
+<rect x="263.08" y="187.84" width="2.50" height="2.50" fill="#d6453d"/>
+</g>
+<g><title>Metatheory.Palomar433.Certificate.CertificateValid</title>
+<rect x="224.05" y="186.19" width="3.23" height="3.23" fill="#d6453d"/>
+</g>
+<g><title>Metatheory.Palomar433.Certificate.StepsSound</title>
+<rect x="272.66" y="162.53" width="2.67" height="2.67" fill="#d6453d"/>
+</g>
+<g><title>Metatheory.Palomar433.Certificate.StepsComplete</title>
+<rect x="175.81" y="143.97" width="3.04" height="3.04" fill="#f7e3ae"/>
+<rect x="176.05" y="144.21" width="2.56" height="2.56" fill="#e9b52b"/>
+</g>
+<g><title>Metatheory.Palomar433.Certificate.CoversAllPeaks</title>
+<rect x="291.45" y="158.14" width="3.77" height="3.77" fill="#d6453d"/>
+</g>
+<g><title>Metatheory.Palomar433.Certificate.PackageValid</title>
+<rect x="214.44" y="145.22" width="3.11" height="3.11" fill="#d6453d"/>
+</g>
+<g><title>Metatheory.Palomar433.Certificate.canonicalCertificateB</title>
+<rect x="330.55" y="159.86" width="2.89" height="2.89" fill="#f7e3ae"/>
+<rect x="330.85" y="160.15" width="2.30" height="2.30" fill="#e9b52b"/>
+</g>
+<g><title>Metatheory.Palomar433.Certificate.routeValidB</title>
+<rect x="204.58" y="200.59" width="3.50" height="3.50" fill="#f7e3ae"/>
+<rect x="204.75" y="200.76" width="3.16" height="3.16" fill="#e9b52b"/>
+</g>
+<g><title>Metatheory.Palomar433.Certificate.routeDecreasingB</title>
+<rect x="243.53" y="202.15" width="2.94" height="2.94" fill="#161616"/>
+</g>
+<g><title>Metatheory.Palomar433.Certificate.matchesB</title>
+<rect x="243.59" y="191.53" width="2.81" height="2.81" fill="#f7e3ae"/>
+<rect x="243.85" y="191.78" width="2.30" height="2.30" fill="#e9b52b"/>
+</g>
+<g><title>Metatheory.Palomar433.Certificate.certificateValidB</title>
+<rect x="204.56" y="188.60" width="3.54" height="3.54" fill="#f7e3ae"/>
+<rect x="204.73" y="188.77" width="3.20" height="3.20" fill="#e9b52b"/>
+</g>
+<g><title>Metatheory.Palomar433.Certificate.coversPairB</title>
+<rect x="252.70" y="173.87" width="3.93" height="3.93" fill="#f7e3ae"/>
+<rect x="253.12" y="174.29" width="3.09" height="3.09" fill="#e9b52b"/>
+</g>
+<g><title>Metatheory.Palomar433.Certificate.checkB</title>
+<rect x="272.00" y="143.49" width="4.00" height="4.00" fill="#f7e3ae"/>
+<rect x="272.39" y="143.88" width="3.23" height="3.23" fill="#e9b52b"/>
+</g>
+<g><title>Metatheory.Palomar433.Certificate.routeValid_of_routeValidB</title>
+<circle cx="187.00" cy="191.65" r="2.58" fill="#d6453d"/>
+</g>
+<g><title>Metatheory.Palomar433.Certificate.routeDecreasing_of_routeDecreasingB</title>
+<circle cx="283.67" cy="191.65" r="2.43" fill="#d6453d"/>
+</g>
+<g><title>Metatheory.Palomar433.Certificate.certificateValid_of_certificateValidB</title>
+<circle cx="235.33" cy="177.12" r="2.61" fill="#d6453d"/>
+</g>
+<g><title>Metatheory.Palomar433.Certificate.matches_of_matchesB</title>
+<circle cx="274.00" cy="173.27" r="1.85" fill="#d6453d"/>
+</g>
+<g><title>Metatheory.Palomar433.Certificate.coversPair_of_coversPairB</title>
+<circle cx="312.67" cy="162.59" r="3.36" fill="#d6453d"/>
+</g>
+<g><title>Metatheory.Palomar433.Certificate.stepsSound_of_stepsSoundB</title>
+<circle cx="196.67" cy="148.06" r="2.22" fill="#d6453d"/>
+</g>
+<g><title>Metatheory.Palomar433.Certificate.coversAllPeaks_of_coversAllPeaksB</title>
+<circle cx="235.33" cy="144.21" r="2.84" fill="#d6453d"/>
+</g>
+<g><title>Metatheory.Palomar433.Certificate.packageValid_of_checkB</title>
+<circle cx="216.00" cy="132.24" r="2.99" fill="#d6453d"/>
+</g>
+<g><title>Metatheory.Palomar433.Certificate.routeDecreasing_swap</title>
+<circle cx="293.33" cy="148.06" r="2.04" fill="#d6453d"/>
+</g>
+<g><title>Metatheory.Palomar433.Certificate.routeValid_to_starPred</title>
+<circle cx="254.67" cy="149.34" r="2.74" fill="#d6453d"/>
+</g>
+<g><title>Metatheory.Palomar433.Certificate.packageValid_locallyDecreasing</title>
+<circle cx="235.33" cy="129.68" r="4.01" fill="#d6453d"/>
+</g>
+<g><title>Metatheory.Palomar433.Certificate.checked_complete_confluence</title>
+<circle cx="216.00" cy="120.27" r="2.76" fill="#d6453d"/>
+</g>
+<g><title>Metatheory.Palomar433.checked_complete_confluence</title>
+<circle cx="216.00" cy="63.00" r="3.82" fill="#e9b52b"/>
+<circle cx="216.00" cy="63.00" r="2.72" fill="#f7e3ae"/>
+<circle cx="216.00" cy="63.00" r="5.82" stroke="#13202a" stroke-width=".8"/>
+</g>
+<g><title>Metatheory.Palomar433.Star.mono</title>
+<circle cx="167.99" cy="77.53" r="1.67" fill="#2f9e5b"/>
+</g>
+<g><title>Metatheory.Palomar433.star_joinable</title>
+<circle cx="187.32" cy="74.97" r="2.23" fill="#2f9e5b"/>
+</g>
+<g><title>Metatheory.Palomar433.Below</title>
+<rect x="197.02" y="93.26" width="2.73" height="2.73" fill="#2f9e5b"/>
+</g>
+<g><title>Metatheory.Palomar433.star_of_routeB</title>
+<circle cx="206.66" cy="80.10" r="2.28" fill="#2f9e5b"/>
+</g>
+
+</g></svg>

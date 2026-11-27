@@ -6,7 +6,7 @@
 # later run's submission replaces an earlier one for the repositories it ran.
 dataset: datasets/leanlean_20260914
 # Primary arXiv tag (from each repository's Palomar registry record) and subject family.
-subjects: results/paper/data/repository-subjects.csv
+subjects: configs/paper/repository-subjects.csv
 
 models:
   opus-5:

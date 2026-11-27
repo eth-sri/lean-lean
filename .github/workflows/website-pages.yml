@@ -1,0 +1,57 @@
+name: Website
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "website/**"
+      - ".github/workflows/website-pages.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# One deploy at a time; a newer push replaces a queued one, never a running one.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+defaults:
+  run:
+    working-directory: website
+
+jobs:
+  # Build and deploy are separate jobs so the deploy only starts once the
+  # (large) Pages artifact is fully uploaded and registered.
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      # Data is already exported; render the social preview from the current chart.
+      - uses: actions/checkout@v7
+        with:
+          sparse-checkout: website
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+      - name: Install social preview renderer
+        run: |
+          python -m pip install playwright==1.63.0
+          python -m playwright install --with-deps firefox
+      - name: Regenerate social preview and image metadata
+        run: python pipeline/build_og.py
+      - uses: actions/configure-pages@v6
+      - uses: actions/upload-pages-artifact@v5
+        with:
+          path: website/site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v5

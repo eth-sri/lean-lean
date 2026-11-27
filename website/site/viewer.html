@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>LeanLean Results Explorer</title>
+<meta name="author" content="Kári Rögnvaldsson, Niels Mündler-Sasahara, Jasper Dekoninck, Martin Vechev">
+<meta name="description" content="Explore LeanLean results: compare code changes, inspect dependency graphs, and follow agent traces for each repository and model.">
+<meta name="theme-color" content="#fbfcfc">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,400;6..72,500;6..72,600&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="assets/css/site.css?v=e38b2b7f7d">
+<link rel="modulepreload" href="assets/js/viewer.js?v=e38b2b7f7d">
+<link rel="modulepreload" href="assets/js/util.js?v=e38b2b7f7d">
+<link rel="modulepreload" href="assets/js/repo.js?v=e38b2b7f7d">
+<link rel="preload" href="data/benchmark.json" as="fetch" crossorigin="anonymous">
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="assets/favicon-32.png" type="image/png" sizes="32x32">
+<link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+</head>
+<body class="viewer-page">
+<header class="viewer-nav">
+  <a class="viewer-back" href="./#/results">← Back to leaderboard</a>
+  <h1><a href="./">LeanLean</a><span> / Results explorer</span></h1>
+</header>
+<main id="view" tabindex="-1">
+  <section id="repository" class="repo-panel" aria-label="Repository viewer"><div class="loading">Loading result…</div></section>
+</main>
+<div class="tooltip" id="tooltip" role="tooltip" hidden></div>
+<script type="module" src="assets/js/viewer.js?v=e38b2b7f7d"></script>
+<script>window.goatcounter = { path: (p) => p + location.hash };</script>
+<script data-goatcounter="https://leanleanbench.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
+</body>
+</html>

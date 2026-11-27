@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 360 270" fill="none">
+  <!-- Recorded excerpts from Opus 5, palomar__2026-08-19-000002, Flypitch4/Erdos501/RealsInZFSet.lean: irrefl_ltZ (syntax / automation at after lines 209 / 211) and app2_plusZ_iff (proof rewrite at after line 107). -->
+  <path fill="#fff" d="M0 0h360v270H0z"/>
+  <g font-family="var(--font-ui, sans-serif)" font-size="15" fill="#475661">
+    <rect x="14" y="15" width="8" height="8" fill="#e9b52b"/><text x="29" y="25">Proof rewrite</text>
+    <rect x="142" y="15" width="8" height="8" fill="#8b5cc4"/><text x="157" y="25">Automation</text>
+    <rect x="263" y="15" width="8" height="8" fill="#ff5e00"/><text x="278" y="25">Syntax</text>
+  </g>
+  <path fill="#fbeaea" d="M0 47h360v28H0zM0 112h360v28H0zM0 190h360v28H0z"/>
+  <path fill="#f8f9f9" d="M0 75h360v28H0zM0 140h360v28H0zM0 218h360v28H0z"/>
+  <path fill="#ffd0b3" d="M36 78h63v22H36z"/><path d="M36 100h63" stroke="#ff5e00" stroke-width="2"/>
+  <path fill="#dccded" d="M36 143h72v22H36z"/><path d="M36 165h72" stroke="#8b5cc4" stroke-width="2"/>
+  <path fill="#f8e9bf" d="M36 221h135v22H36z"/><path d="M36 243h135" stroke="#e9b52b" stroke-width="2"/>
+  <path d="M14 179h332" stroke="#e1e7ea"/>
+  <g font-family="var(--font-mono, monospace)" font-size="15" fill="#475661">
+    <text x="14" y="67" fill="#8a2323">−</text><text x="36" y="67" fill="#8a2323">obtain ⟨a, rfl⟩ := mem_Rz.1 hx</text>
+    <text x="14" y="95">+</text><text x="36" y="95">rz a hx</text>
+    <text x="14" y="132" fill="#8a2323">−</text><text x="36" y="132" fill="#8a2323">exact lt_irrefl a</text>
+    <text x="14" y="160">+</text><text x="36" y="160">simp_all</text>
+    <text x="14" y="210" fill="#8a2323">−</text><text x="36" y="210" fill="#8a2323">rw [app2, plusZ, ZFSet.mem_range]</text>
+    <text x="14" y="238">+</text><text x="36" y="238">rw [app2, plusZ]</text>
+  </g>
+</svg>

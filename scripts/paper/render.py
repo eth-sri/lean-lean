@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """Render every data-driven figure and table of the paper from its CSVs.
 
-Reads ``results/paper/data/*.csv`` (the paper's final export, checked against
-``results/paper/manifest.json``) and writes the paper's tree under the output
+Reads the CSVs written by ``scripts/paper/export.py`` (checked against the
+export's ``manifest.json`` when present) and writes the paper's tree under the output
 directory:
 
     figures/experiments/*.pdf|png   figures/leanlean/*.pdf|png
@@ -11,10 +11,11 @@ directory:
 The figures reproduce the paper's renderers and layouts. The three figures the
 paper sets in LaTeX (frontier and the two by-scale panels) use TeX for their PDF
 when ``latex`` is installed; ``--no-tex`` and every PNG use Matplotlib's text.
-The example graphs are hand-laid-out TikZ and are copied as committed.
+Hand-laid-out TikZ example graphs in an ``examples/`` directory next to the
+data directory are copied as they are.
 
 Usage:
-    python scripts/paper/render.py [--data-dir results/paper/data] [--output-dir output/paper]
+    python scripts/paper/render.py [--data-dir output/paper-export/data] [--output-dir output/paper]
 """
 from __future__ import annotations
 
@@ -830,7 +831,7 @@ def read_tables(data_dir: Path, stems) -> dict[str, list[dict]]:
 
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    parser.add_argument("--data-dir", type=Path, default=ROOT / "results/paper/data")
+    parser.add_argument("--data-dir", type=Path, default=ROOT / "output/paper-export/data")
     parser.add_argument("--output-dir", type=Path, default=ROOT / "output/paper")
     parser.add_argument("--only", nargs="+", choices=[*FIGURES, *TABLES], help="render a subset")
     parser.add_argument("--no-tex", action="store_true", help="never typeset with LaTeX")

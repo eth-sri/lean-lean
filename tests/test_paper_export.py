@@ -1,5 +1,4 @@
 """The paper export's scoring rules, on a hand-made run directory."""
-import csv
 import json
 from pathlib import Path
 import sys
@@ -53,11 +52,3 @@ def test_later_runs_replace_earlier_ones_and_keep_their_verdicts(tmp_path):
     assert rows["b"]["directory"].endswith("second/b") and rows["a"]["directory"].endswith("first/a")
     assert rows["c"]["cost_usd"] == 2.0 and rows["c"]["seconds"] == 3600
 
-
-def test_prompt_arm_means_match_the_committed_figure_data():
-    data = ROOT / "results/paper/data"
-    committed = {r["model"]: r for r in csv.DictReader((data / "opus-prompt-ablation.csv").open(newline=""))}
-    rows = list(csv.DictReader((data / "opus-prompt-ablation-classification-repositories.csv").open(newline="")))
-    for arm, expected in committed.items():
-        value = export.macro([r for r in rows if r["arm"] == arm])
-        assert all(abs(value[k] - float(expected[k])) < 1e-9 for k in (*export.CATEGORIES, "saved", "proof_rewrites"))

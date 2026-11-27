@@ -1,0 +1,47 @@
+name: Website CI
+
+on:
+  push:
+    branches: [main]
+    paths: ["website/**", ".github/workflows/website-ci.yml"]
+  pull_request:
+    paths: ["website/**", ".github/workflows/website-ci.yml"]
+
+defaults:
+  run:
+    working-directory: website
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      # The site's data is not needed to check its code.
+      - uses: actions/checkout@v7
+        with:
+          sparse-checkout: |
+            website/pipeline
+            website/site/assets
+            website/site/index.html
+            website/site/viewer.html
+          sparse-checkout-cone-mode: false
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+      - name: Install sync test dependency
+        run: python3 -m pip install PyYAML==6.0.3
+      - name: Result sync and public-data anonymization
+        run: python3 -m unittest discover -s pipeline -p 'test_*.py'
+      - name: Paper metadata is current
+        run: |
+          python3 pipeline/build_paper.py
+          git diff --exit-code || { echo "::error::Stale paper metadata. Run: python3 website/pipeline/build_paper.py"; exit 1; }
+      - name: Asset version stamps are current
+        run: |
+          python3 pipeline/stamp_assets.py
+          git diff --exit-code || { echo "::error::Stale ?v= stamps. Run: python3 website/pipeline/stamp_assets.py"; exit 1; }
+      - name: JavaScript parses
+        run: |
+          for f in site/assets/js/*.js; do
+            cp "$f" "$RUNNER_TEMP/check.mjs"
+            node --check "$RUNNER_TEMP/check.mjs" || { echo "::error file=$f::syntax error"; exit 1; }
+          done

@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "models": [
+    {
+      "key": "gemini-4-argon",
+      "short": "argon",
+      "label": "Gemini 4 Argon",
+      "provider": "Google",
+      "logo": "gemini",
+      "color": "#F3BD3A",
+      "source": "leanlean_20260914_argon_full64_20261019/google/gemini-4-argon-high",
+      "run": "results/leanlean_20260914_argon_full64_20261019/google/gemini-4-argon-high",
+      "graphs": "results/leanlean_20260914_argon_full64_20261019/google/gemini-4-argon-high/analysis/paper-graphs",
+      "updated_at": "2026-10-26",
+      "config": {
+        "harness": "Antigravity CLI",
+        "tools_how": "default",
+        "tools_note": "Tool names are the native surface advertised by Antigravity CLI at initialization.",
+        "restrictions_note": "The run configuration requested no skills, MCP servers or subagents. Antigravity CLI still advertised its native tool surface; no skill, subagent, web-search or MCP calls appear in these runs."
+      }
+    }
+  ]
+}
